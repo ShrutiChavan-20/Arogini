@@ -1,6 +1,6 @@
 /**
  * HerVita - Women's Reproductive Wellness Application
- * Solution Design Implementation for 36-Hour Hackathon Demo
+ * Agentic AI & Clinical RAG Platform
  */
 
 // --- Global Application State ---
@@ -13,7 +13,7 @@ const HerVitaState = {
   activeOrgan: 'uterus',
   selectedQuestions: [],
   selectedSeverity: 3,
-  language: 'en',
+  currentUser: null,
   pin: null,
   isLocked: false,
   entries: [],
@@ -21,10 +21,13 @@ const HerVitaState = {
   vaccines: [],
   userProfile: {
     name: 'Priya Sharma',
+    email: 'priya.sharma@example.com',
     age: 26,
+    stage: 'pregnancy',
     cycleLength: 28,
     lmp: '2026-10-12',
-    pregnancyLmp: '2026-06-15' // Approx 19 weeks gestation for rich demo
+    pregnancyLmp: '2026-06-15',
+    emergencyContact: 'Aakash Sharma: +91 98765 43210'
   },
   // A. Obstetrics State
   pregnancyMilestones: [],
@@ -42,7 +45,6 @@ const ORGAN_DATA = {
   uterus: {
     id: 'uterus',
     name: 'Uterus (Womb)',
-    hindiName: 'गर्भाशय (Uterus)',
     subtitle: 'Muscular home for implantation and menstruation',
     whatItDoes: 'A hollow, pear-shaped muscular organ where a fertilised egg implants and grows during pregnancy. Each month, its inner lining (endometrium) thickens in preparation for a baby. If pregnancy does not occur, hormone levels drop and this lining is gently shed as menstrual blood.',
     whyItMatters: 'The uterine muscles contract to shed the lining, which causes familiar menstrual cramps. Knowing your normal cycle helps you notice changes like unusually heavy bleeding or persistent pelvic pain early.',
@@ -65,7 +67,6 @@ const ORGAN_DATA = {
   ovaries: {
     id: 'ovaries',
     name: 'Ovaries (Left & Right)',
-    hindiName: 'अंडाशय (Ovaries)',
     subtitle: 'Egg reserve and hormone producers (Estrogen & Progesterone)',
     whatItDoes: 'Two almond-sized glands situated on either side of the uterus. They house thousands of immature eggs and release one mature egg each month during ovulation. They also produce estrogen and progesterone—the key hormones governing female vitality.',
     whyItMatters: 'Ovaries orchestrate your entire menstrual rhythm, bone density, skin health, and energy levels. Imbalances here are linked to conditions like PCOS (Polycystic Ovary Syndrome).',
@@ -88,7 +89,6 @@ const ORGAN_DATA = {
   tubes: {
     id: 'tubes',
     name: 'Fallopian Tubes',
-    hindiName: 'फैलोपियन ट्यूब (Fallopian Tubes)',
     subtitle: 'The delicate bridges between ovaries and uterus',
     whatItDoes: 'Two slender tubes that pick up the egg released by the ovary. Inside, microscopic hair-like structures (cilia) gently sweep the egg toward the uterus. Conception typically takes place within these tubes.',
     whyItMatters: 'Clear, healthy fallopian tubes are essential for natural conception. Blockages can occur following untreated pelvic infections.',
@@ -109,7 +109,6 @@ const ORGAN_DATA = {
   cervix: {
     id: 'cervix',
     name: 'Cervix',
-    hindiName: 'गर्भाशय ग्रीवा (Cervix)',
     subtitle: 'The protective doorway and mucus indicator',
     whatItDoes: 'The lower, narrow cylinder of the uterus that connects to the vagina. It acts as a gatekeeper, producing cervical mucus that changes texture through the month—from dry and sticky to stretchy and egg-white during fertile ovulation days.',
     whyItMatters: 'The cervix protects the uterus from ascending infections and is the site checked during routine cervical cancer screening (Pap smears and HPV tests).',
@@ -131,7 +130,6 @@ const ORGAN_DATA = {
   vagina: {
     id: 'vagina',
     name: 'Vagina & Microbiome',
-    hindiName: 'योनि और माइक्रोबायोम (Vagina)',
     subtitle: 'Self-cleaning canal with a natural protective pH',
     whatItDoes: 'A flexible muscular canal lined with beneficial bacteria (predominantly Lactobacillus) that maintain an acidic pH (3.8–4.5). This protective acidity prevents harmful bacteria and yeast from overgrowing.',
     whyItMatters: 'The vagina cleans itself naturally through regular, clear or milky discharge. It does not require harsh soaps, scented washes, or internal cleaning.',
@@ -154,7 +152,6 @@ const ORGAN_DATA = {
   pelvic_floor: {
     id: 'pelvic_floor',
     name: 'Pelvic Floor Muscles',
-    hindiName: 'पेल्विक फ्लोर मांसपेशियां',
     subtitle: 'The supportive muscular hammock of the core',
     whatItDoes: 'A sling of muscles and connective tissue stretching from the pubic bone to the tailbone. It supports your bladder, uterus, and bowels, assisting in bladder control and core stability.',
     whyItMatters: 'Pregnancy, childbirth, chronic coughing, or heavy lifting can weaken or tighten the pelvic floor, leading to involuntary leaks or pelvic organ heaviness.',
@@ -177,7 +174,6 @@ const ORGAN_DATA = {
   hormones: {
     id: 'hormones',
     name: 'Hormonal Harmony Axis',
-    hindiName: 'हार्मोनल संतुलन प्रणाली',
     subtitle: 'The communication loop between brain and reproductive organs',
     whatItDoes: 'The brain (hypothalamus and pituitary gland) sends signals (FSH and LH) to the ovaries, which respond with estrogen and progesterone. This feedback loop regulates your monthly cycle, energy, and mood.',
     whyItMatters: 'Hormones are not just about periods—they influence sleep quality, skin clarity, metabolic rate, emotional resilience, and cardiovascular health.',
@@ -523,8 +519,8 @@ const VACCINE_SCHEDULE = [
   }
 ];
 
-// --- Realistic Hackathon Demo Sample Data ---
-const REALISTIC_DEMO_DATA = {
+// --- Baseline Clinical Starter Records ---
+const STARTER_HEALTH_RECORDS = {
   entries: [
     {
       id: 'demo-1',
@@ -762,6 +758,7 @@ function saveToStorage() {
     localStorage.setItem('hervita_pelvicpain', JSON.stringify(HerVitaState.pelvicPainLogs));
     localStorage.setItem('hervita_medrecords', JSON.stringify(HerVitaState.medicalRecords));
     localStorage.setItem('hervita_pin', HerVitaState.pin || '');
+    localStorage.setItem('arogini_user_profile', JSON.stringify(HerVitaState.userProfile));
   } catch (e) {
     console.warn('Storage write failed', e);
   }
@@ -769,60 +766,37 @@ function saveToStorage() {
 
 function loadFromStorage() {
   try {
+    loadUserSession();
     const storedEntries = localStorage.getItem('hervita_entries');
     if (storedEntries) {
       HerVitaState.entries = JSON.parse(storedEntries);
       HerVitaState.checklist = JSON.parse(localStorage.getItem('hervita_checklist') || '[]');
       HerVitaState.vaccines = JSON.parse(localStorage.getItem('hervita_vaccines') || '[]');
       HerVitaState.selectedQuestions = JSON.parse(localStorage.getItem('hervita_questions') || '[]');
-      
-      const storedMilestones = localStorage.getItem('hervita_milestones');
-      HerVitaState.pregnancyMilestones = storedMilestones ? JSON.parse(storedMilestones) : JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.pregnancyMilestones));
-
-      const storedAntenatal = localStorage.getItem('hervita_antenatal');
-      HerVitaState.antenatalVisits = storedAntenatal ? JSON.parse(storedAntenatal) : JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.antenatalVisits));
-
-      const storedPostpartum = localStorage.getItem('hervita_postpartum');
-      HerVitaState.postpartumRecords = storedPostpartum ? JSON.parse(storedPostpartum) : JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.postpartumRecords));
-
-      const storedPeriods = localStorage.getItem('hervita_periods');
-      HerVitaState.periodLogs = storedPeriods ? JSON.parse(storedPeriods) : JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.periodLogs));
-
-      const storedPcos = localStorage.getItem('hervita_pcos');
-      HerVitaState.pcosLogs = storedPcos ? JSON.parse(storedPcos) : JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.pcosLogs));
-
-      const storedPelvic = localStorage.getItem('hervita_pelvicpain');
-      HerVitaState.pelvicPainLogs = storedPelvic ? JSON.parse(storedPelvic) : JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.pelvicPainLogs));
-
-      const storedRecords = localStorage.getItem('hervita_medrecords');
-      HerVitaState.medicalRecords = storedRecords ? JSON.parse(storedRecords) : JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.medicalRecords));
-
+      HerVitaState.pregnancyMilestones = JSON.parse(localStorage.getItem('hervita_milestones') || '[]');
+      HerVitaState.antenatalVisits = JSON.parse(localStorage.getItem('hervita_antenatal') || '[]');
+      HerVitaState.postpartumRecords = JSON.parse(localStorage.getItem('hervita_postpartum') || '[]');
+      HerVitaState.periodLogs = JSON.parse(localStorage.getItem('hervita_periods') || '[]');
+      HerVitaState.pcosLogs = JSON.parse(localStorage.getItem('hervita_pcos') || '[]');
+      HerVitaState.pelvicPainLogs = JSON.parse(localStorage.getItem('hervita_pelvicpain') || '[]');
+      HerVitaState.medicalRecords = JSON.parse(localStorage.getItem('hervita_medrecords') || '[]');
       HerVitaState.pin = localStorage.getItem('hervita_pin') || '';
     } else {
-      seedHackathonDemoData(false);
+      HerVitaState.entries = [];
+      HerVitaState.checklist = [];
+      HerVitaState.vaccines = [];
+      HerVitaState.selectedQuestions = [];
+      HerVitaState.pregnancyMilestones = [];
+      HerVitaState.antenatalVisits = [];
+      HerVitaState.postpartumRecords = [];
+      HerVitaState.periodLogs = [];
+      HerVitaState.pcosLogs = [];
+      HerVitaState.pelvicPainLogs = [];
+      HerVitaState.medicalRecords = [];
+      HerVitaState.pin = '';
     }
   } catch (e) {
-    console.error('Error loading storage, seeding demo data', e);
-    seedHackathonDemoData(false);
-  }
-}
-
-function seedHackathonDemoData(showToastAlert = true) {
-  HerVitaState.entries = JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.entries));
-  HerVitaState.checklist = JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.checklist));
-  HerVitaState.vaccines = JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.vaccines));
-  HerVitaState.selectedQuestions = JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.selectedQuestions));
-  HerVitaState.pregnancyMilestones = JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.pregnancyMilestones));
-  HerVitaState.antenatalVisits = JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.antenatalVisits));
-  HerVitaState.postpartumRecords = JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.postpartumRecords));
-  HerVitaState.periodLogs = JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.periodLogs));
-  HerVitaState.pcosLogs = JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.pcosLogs));
-  HerVitaState.pelvicPainLogs = JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.pelvicPainLogs));
-  HerVitaState.medicalRecords = JSON.parse(JSON.stringify(REALISTIC_DEMO_DATA.medicalRecords));
-  saveToStorage();
-  renderAllViews();
-  if (showToastAlert) {
-    showToast('Loaded complete Obstetrics & Gynecology demo data! 🌸');
+    console.error('Error loading storage', e);
   }
 }
 
@@ -900,12 +874,6 @@ function initNavigation() {
   if (privacyBtn) {
     privacyBtn.addEventListener('click', openPrivacyModal);
   }
-
-  // Load Demo Data Shortcut button
-  const demoBtn = document.getElementById('btn-load-demo');
-  if (demoBtn) {
-    demoBtn.addEventListener('click', () => seedHackathonDemoData(true));
-  }
 }
 
 function switchView(viewId) {
@@ -925,6 +893,8 @@ function switchView(viewId) {
   // Re-render view-specific dynamic content
   if (viewId === 'view-ai-agent') {
     renderAroginiAIHub();
+  } else if (viewId === 'view-login') {
+    renderLoginView();
   } else if (viewId === 'view-obstetrics') {
     renderObstetrics();
   } else if (viewId === 'view-gynecology') {
@@ -983,8 +953,7 @@ function selectOrgan(organId) {
   const detailsContainer = document.getElementById('organ-details-content');
   if (!detailsContainer) return;
 
-  const isHindi = HerVitaState.language === 'hi';
-  const organTitle = isHindi && data.hindiName ? data.hindiName : data.name;
+  const organTitle = data.name;
 
   detailsContainer.innerHTML = `
     <div class="body-details-header">
@@ -995,24 +964,24 @@ function selectOrgan(organId) {
     </div>
 
     <div class="body-details-section">
-      <h4><span>📖</span> ${isHindi ? 'यह क्या करता है (सादी भाषा में)' : 'What It Does (Plain Language)'}</h4>
+      <h4><span>📖</span> What It Does (Plain Language)</h4>
       <p>${data.whatItDoes}</p>
     </div>
 
     <div class="body-details-section">
-      <h4><span>💡</span> ${isHindi ? 'यह क्यों महत्वपूर्ण है' : 'Why It Matters'}</h4>
+      <h4><span>💡</span> Why It Matters</h4>
       <p>${data.whyItMatters}</p>
     </div>
 
     <div class="body-details-section">
-      <h4><span>⚠️</span> ${isHindi ? 'ध्यान देने योग्य लक्षण' : 'Signs to Watch'}</h4>
+      <h4><span>⚠️</span> Signs to Watch</h4>
       <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.885rem; color: var(--text-secondary); margin-top: 0.35rem;">
         ${data.signsToWatch.map(sign => `<li style="display:flex; align-items:baseline; gap:0.4rem;"><span>•</span> <span>${sign}</span></li>`).join('')}
       </ul>
     </div>
 
     <div class="care-tips-box">
-      <h4>🌿 ${isHindi ? 'दैनिक अंग देखभाल आदतें (सहायक उपाय)' : 'Everyday Organ Care Tips (Supportive Habits)'}</h4>
+      <h4>🌿 Everyday Organ Care Tips (Supportive Habits)</h4>
       <ul class="care-tips-list">
         ${data.careTips.map(tip => `<li>${tip}</li>`).join('')}
       </ul>
@@ -1020,7 +989,7 @@ function selectOrgan(organId) {
 
     <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-light);">
       <h4 style="font-size: 0.85rem; color: var(--primary-700); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
-        🩺 ${isHindi ? 'डॉक्टर से पूछने योग्य सवाल' : 'Questions to Ask Your Doctor'}
+        🩺 Questions to Ask Your Doctor
       </h4>
       <div style="display: flex; flex-direction: column; gap: 0.5rem;">
         ${data.doctorQuestions.map(q => `
@@ -1504,7 +1473,7 @@ function renderDiaryEntries() {
     container.innerHTML = `
       <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
         <p style="font-size: 1.05rem; margin-bottom: 0.5rem;">No symptoms logged yet.</p>
-        <p style="font-size: 0.85rem;">Use the form to log your first symptom or click "Load Sample Data" to preview.</p>
+        <p style="font-size: 0.85rem;">Use the form to log your first symptom and track longitudinal health patterns.</p>
       </div>
     `;
     return;
@@ -1691,16 +1660,20 @@ function renderDoctorSummary() {
 
     <div class="patient-info-grid">
       <div class="info-box">
+        <span class="title">Patient Name</span>
+        <span class="val">${HerVitaState.userProfile.name || 'Anonymous Patient'}</span>
+      </div>
+      <div class="info-box">
         <span class="title">Patient Age</span>
         <span class="val">${HerVitaState.userProfile.age} Years</span>
       </div>
       <div class="info-box">
-        <span class="title">Cycle Length</span>
-        <span class="val">${HerVitaState.userProfile.cycleLength} Days (Regular)</span>
+        <span class="title">Health Focus</span>
+        <span class="val" style="text-transform: capitalize;">${HerVitaState.userProfile.stage || 'General'}</span>
       </div>
       <div class="info-box">
-        <span class="title">Last Period (LMP)</span>
-        <span class="val">${HerVitaState.userProfile.lmp}</span>
+        <span class="title">Cycle Length & LMP</span>
+        <span class="val">${HerVitaState.userProfile.cycleLength}d • ${HerVitaState.userProfile.lmp}</span>
       </div>
       <div class="info-box">
         <span class="title">Log Horizon</span>
@@ -2182,17 +2155,6 @@ function initPrivacyControls() {
       } else {
         alert('Please enter a 4-digit numeric PIN.');
       }
-    });
-  }
-
-  // Language Toggle
-  const langToggleBtn = document.getElementById('btn-lang-toggle');
-  if (langToggleBtn) {
-    langToggleBtn.addEventListener('click', () => {
-      HerVitaState.language = HerVitaState.language === 'en' ? 'hi' : 'en';
-      langToggleBtn.textContent = HerVitaState.language === 'en' ? '🇮🇳 हिंदी' : '🇬🇧 English';
-      selectOrgan(HerVitaState.activeOrgan);
-      showToast(`Language switched to ${HerVitaState.language === 'en' ? 'English' : 'हिंदी'}`);
     });
   }
 }
@@ -3515,7 +3477,7 @@ class AroginiMultiAgentOrchestrator {
   // AGENT 3: Longitudinal Patient Phenotype Synthesizer
   synthesizePatientPhenotype(query) {
     const profile = this.state.userProfile || { name: 'Priya Sharma', age: 26 };
-    const weeksPregnant = 19; // Current demonstration profile
+    const weeksPregnant = 19; // Active patient profile
     const recentSymptoms = this.state.entries.slice(0, 3).map(e => e.symptom).join(', ') || 'Dysmenorrhea (Cycle Day 1), Fatigue';
     const ferritin = '21 ng/mL (Low Iron Stores)';
 
@@ -3704,7 +3666,7 @@ function initVoiceRecognition() {
 
   const recognition = new SpeechRecognition();
   recognition.continuous = false;
-  recognition.lang = HerVitaState.language === 'hi' ? 'hi-IN' : 'en-US';
+  recognition.lang = 'en-US';
 
   micBtn.addEventListener('click', () => {
     if (micBtn.classList.contains('mic-listening')) {
@@ -3745,7 +3707,7 @@ function playClinicalSpeech(text) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = 0.95;
   utterance.pitch = 1.0;
-  utterance.lang = HerVitaState.language === 'hi' ? 'hi-IN' : 'en-US';
+  utterance.lang = 'en-US';
 
   const audioBar = document.getElementById('ai-audio-bar');
   if (audioBar) audioBar.classList.add('audio-playing');
@@ -4110,11 +4072,543 @@ function renderAllViews() {
   renderObstetrics();
   renderGynecology();
   renderAroginiAIHub();
+  renderHeaderAuth();
+  renderLoginView();
+}
+
+// ==============================================================
+// USER AUTHENTICATION & PATIENT PROFILE SUBSYSTEM
+// ==============================================================
+
+// Pre-configured persona templates for instant 1-click evaluation
+const DEFAULT_AUTH_USERS = [
+  {
+    id: 'user_priya',
+    username: 'priya',
+    email: 'priya.sharma@example.com',
+    password: 'password123',
+    name: 'Priya Sharma',
+    age: 26,
+    stage: 'pregnancy',
+    cycleLength: 28,
+    lmp: '2026-10-12',
+    pregnancyLmp: '2026-06-15',
+    emergencyContact: 'Aakash Sharma (Partner): +91 98765 43210',
+    avatar: '🤰',
+    registeredAt: '2026-09-01'
+  },
+  {
+    id: 'user_ananya',
+    username: 'ananya',
+    email: 'ananya.desai@example.com',
+    password: 'password123',
+    name: 'Ananya Desai',
+    age: 24,
+    stage: 'pcos',
+    cycleLength: 38,
+    lmp: '2026-09-28',
+    pregnancyLmp: null,
+    emergencyContact: 'Sunita Desai (Mother): +91 98111 22334',
+    avatar: '🔬',
+    registeredAt: '2026-08-15'
+  },
+  {
+    id: 'user_meera',
+    username: 'meera',
+    email: 'meera.patel@example.com',
+    password: 'password123',
+    name: 'Meera Patel',
+    age: 29,
+    stage: 'menstrual',
+    cycleLength: 30,
+    lmp: '2026-10-18',
+    pregnancyLmp: null,
+    emergencyContact: 'Rohan Patel (Brother): +91 99222 33445',
+    avatar: '🌸',
+    registeredAt: '2026-10-01'
+  }
+];
+
+function getStoredUsers() {
+  try {
+    const raw = localStorage.getItem('arogini_users');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.error('Error reading users from storage', e);
+  }
+  localStorage.setItem('arogini_users', JSON.stringify(DEFAULT_AUTH_USERS));
+  return DEFAULT_AUTH_USERS;
+}
+
+function saveStoredUsers(users) {
+  try {
+    localStorage.setItem('arogini_users', JSON.stringify(users));
+  } catch (e) {
+    console.warn('Failed to save users', e);
+  }
+}
+
+function loadUserSession() {
+  try {
+    const sessionUserRaw = localStorage.getItem('arogini_current_user');
+    if (sessionUserRaw) {
+      const user = JSON.parse(sessionUserRaw);
+      HerVitaState.currentUser = user;
+      HerVitaState.userProfile = {
+        name: user.name || 'User',
+        email: user.email || '',
+        age: user.age || 26,
+        stage: user.stage || 'menstrual',
+        cycleLength: user.cycleLength || 28,
+        lmp: user.lmp || '2026-10-12',
+        pregnancyLmp: user.pregnancyLmp || '2026-06-15',
+        emergencyContact: user.emergencyContact || ''
+      };
+      return;
+    }
+  } catch (e) {
+    console.warn('Error reading user session', e);
+  }
+  HerVitaState.currentUser = null;
+}
+
+function initAuthSystem() {
+  getStoredUsers();
+  loadUserSession();
+  
+  // Attach stage select listener if on page
+  const stageSelect = document.getElementById('reg-stage-select');
+  if (stageSelect) {
+    stageSelect.addEventListener('change', (e) => handleHealthStageChange(e.target.value));
+  }
+}
+
+function renderHeaderAuth() {
+  const container = document.getElementById('header-auth-slot');
+  if (!container) return;
+
+  if (HerVitaState.currentUser) {
+    const stageLabels = {
+      pregnancy: 'Pregnancy Wk 19',
+      pcos: 'PCOS Journal',
+      menstrual: 'Cycle Tracking',
+      postpartum: 'Postpartum Care',
+      wellness: 'Wellness Profile'
+    };
+    const stageLabel = stageLabels[HerVitaState.userProfile.stage] || 'Active Profile';
+
+    container.innerHTML = `
+      <div class="user-chip" id="btn-header-profile" onclick="openUserProfileModal()" title="View and manage ${HerVitaState.userProfile.name}'s profile">
+        <div class="user-avatar">${HerVitaState.currentUser.avatar || '🌸'}</div>
+        <div class="user-chip-info">
+          <span class="user-chip-name">${HerVitaState.userProfile.name}</span>
+          <span class="user-chip-stage">${stageLabel}</span>
+        </div>
+        <span class="user-chip-arrow">▾</span>
+      </div>
+    `;
+  } else {
+    container.innerHTML = `
+      <button class="btn-pill btn-auth-pill" id="btn-header-login" onclick="switchView('view-login')">
+        <span>👤</span> Sign In / Register
+      </button>
+    `;
+  }
+}
+
+function renderLoginView() {
+  const signinForm = document.getElementById('form-signin');
+  const registerForm = document.getElementById('form-register');
+  const loggedInBox = document.getElementById('auth-logged-in-view');
+  const tabsNav = document.querySelector('.auth-tabs-nav');
+  if (!signinForm || !registerForm || !loggedInBox) return;
+
+  if (HerVitaState.currentUser) {
+    signinForm.style.display = 'none';
+    registerForm.style.display = 'none';
+    loggedInBox.style.display = 'flex';
+    if (tabsNav) tabsNav.style.display = 'none';
+
+    const stageTitles = {
+      pregnancy: '🤰 Pregnancy & Obstetrics (Week 19 Gestation)',
+      pcos: '🔬 PCOS & Hormonal Balance Management',
+      menstrual: '🩸 Menstrual Cycle Health & Tracking',
+      postpartum: '🤱 Postpartum Healing & Recovery',
+      wellness: '🌿 General Reproductive Wellness'
+    };
+
+    const avatarElem = document.getElementById('logged-user-avatar');
+    const nameElem = document.getElementById('logged-user-name');
+    const stageElem = document.getElementById('logged-user-stage');
+    const emailElem = document.getElementById('logged-user-email');
+    const ageElem = document.getElementById('logged-user-age');
+    const statElem = document.getElementById('logged-user-stat');
+
+    if (avatarElem) avatarElem.textContent = HerVitaState.currentUser.avatar || '🌸';
+    if (nameElem) nameElem.textContent = HerVitaState.userProfile.name;
+    if (stageElem) stageElem.textContent = stageTitles[HerVitaState.userProfile.stage] || 'Active Health Profile';
+    if (emailElem) emailElem.textContent = HerVitaState.currentUser.email || HerVitaState.currentUser.username || 'Private Account';
+    if (ageElem) ageElem.textContent = `${HerVitaState.userProfile.age} Years Old`;
+    
+    if (statElem) {
+      if (HerVitaState.userProfile.stage === 'pregnancy') {
+        statElem.textContent = `LMP: ${HerVitaState.userProfile.pregnancyLmp} (Est. Week 19)`;
+      } else {
+        statElem.textContent = `Cycle: ${HerVitaState.userProfile.cycleLength} Days • LMP: ${HerVitaState.userProfile.lmp}`;
+      }
+    }
+  } else {
+    loggedInBox.style.display = 'none';
+    if (tabsNav) tabsNav.style.display = 'flex';
+    const activeTab = document.querySelector('.auth-tab-btn.active');
+    const isRegister = activeTab && activeTab.id === 'tab-btn-register';
+    signinForm.style.display = isRegister ? 'none' : 'flex';
+    registerForm.style.display = isRegister ? 'flex' : 'none';
+  }
+}
+
+function switchAuthTab(tabName) {
+  const signinBtn = document.getElementById('tab-btn-signin');
+  const registerBtn = document.getElementById('tab-btn-register');
+  const signinForm = document.getElementById('form-signin');
+  const registerForm = document.getElementById('form-register');
+  const alertBox = document.getElementById('auth-alert-box');
+
+  if (alertBox) alertBox.style.display = 'none';
+
+  if (tabName === 'signin') {
+    if (signinBtn) signinBtn.classList.add('active');
+    if (registerBtn) registerBtn.classList.remove('active');
+    if (signinForm) signinForm.style.display = 'flex';
+    if (registerForm) registerForm.style.display = 'none';
+  } else {
+    if (signinBtn) signinBtn.classList.remove('active');
+    if (registerBtn) registerBtn.classList.add('active');
+    if (signinForm) signinForm.style.display = 'none';
+    if (registerForm) registerForm.style.display = 'flex';
+  }
+}
+
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🔒';
+    btn.title = 'Hide Password';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+    btn.title = 'Show Password';
+  }
+}
+
+function handleHealthStageChange(stageVal) {
+  const lmpGroup = document.getElementById('reg-lmp-group');
+  const cycleGroup = document.getElementById('reg-cycle-group');
+  if (!lmpGroup || !cycleGroup) return;
+
+  if (stageVal === 'pregnancy') {
+    const lbl = lmpGroup.querySelector('label');
+    if (lbl) lbl.textContent = 'Pregnancy Gestational LMP Date';
+    cycleGroup.style.display = 'none';
+  } else if (stageVal === 'postpartum') {
+    const lbl = lmpGroup.querySelector('label');
+    if (lbl) lbl.textContent = 'Date of Childbirth / Delivery';
+    cycleGroup.style.display = 'none';
+  } else {
+    const lbl = lmpGroup.querySelector('label');
+    if (lbl) lbl.textContent = 'Last Menstrual Period (LMP) Date';
+    cycleGroup.style.display = 'block';
+  }
+}
+
+function showAuthAlert(message, isError = true) {
+  const alertBox = document.getElementById('auth-alert-box');
+  if (!alertBox) return;
+  alertBox.className = `auth-alert ${isError ? 'alert-error' : 'alert-success'}`;
+  alertBox.innerHTML = `<span>${isError ? '⚠️' : '✅'}</span> <span>${message}</span>`;
+  alertBox.style.display = 'block';
+}
+
+function handleLoginSubmit(event) {
+  if (event) event.preventDefault();
+  const userInputElem = document.getElementById('login-user-input');
+  const passwordInputElem = document.getElementById('login-password-input');
+  if (!userInputElem || !passwordInputElem) return;
+
+  const userInput = userInputElem.value.trim();
+  const passwordInput = passwordInputElem.value;
+
+  if (!userInput || !passwordInput) {
+    showAuthAlert('Please enter both your email/username and password.');
+    return;
+  }
+
+  const users = getStoredUsers();
+  const found = users.find(u => 
+    (u.email && u.email.toLowerCase() === userInput.toLowerCase()) || 
+    (u.username && u.username.toLowerCase() === userInput.toLowerCase())
+  );
+
+  if (found) {
+    if (found.password && found.password !== passwordInput) {
+      showAuthAlert('Incorrect password. Please verify or use persona quick login.');
+      return;
+    }
+    loginUser(found);
+  } else {
+    // Smooth user onboarding: create account with entered credentials
+    const nameFromInput = userInput.includes('@') 
+      ? userInput.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      : userInput.replace(/\b\w/g, l => l.toUpperCase());
+
+    const newUser = {
+      id: `user_${Date.now()}`,
+      username: userInput.toLowerCase(),
+      email: userInput.includes('@') ? userInput : `${userInput.toLowerCase()}@local.hervita`,
+      password: passwordInput,
+      name: nameFromInput,
+      age: 26,
+      stage: 'menstrual',
+      cycleLength: 28,
+      lmp: new Date().toISOString().split('T')[0],
+      pregnancyLmp: null,
+      emergencyContact: '',
+      avatar: '🌸',
+      registeredAt: new Date().toISOString().split('T')[0]
+    };
+    users.push(newUser);
+    saveStoredUsers(users);
+    loginUser(newUser);
+  }
+}
+
+function handleRegisterSubmit(event) {
+  if (event) event.preventDefault();
+  const nameElem = document.getElementById('reg-name-input');
+  const emailElem = document.getElementById('reg-email-input');
+  const passwordElem = document.getElementById('reg-password-input');
+  const ageElem = document.getElementById('reg-age-input');
+  const stageElem = document.getElementById('reg-stage-select');
+  const lmpElem = document.getElementById('reg-lmp-input');
+  const cycleElem = document.getElementById('reg-cycle-length-input');
+  const contactElem = document.getElementById('reg-contact-input');
+
+  const name = nameElem ? nameElem.value.trim() : '';
+  const email = emailElem ? emailElem.value.trim().toLowerCase() : '';
+  const password = passwordElem ? passwordElem.value : '';
+  const age = ageElem ? (parseInt(ageElem.value, 10) || 26) : 26;
+  const stage = stageElem ? stageElem.value : 'menstrual';
+  const lmp = lmpElem ? (lmpElem.value || '2026-10-12') : '2026-10-12';
+  const cycleLength = cycleElem ? (parseInt(cycleElem.value, 10) || 28) : 28;
+  const contact = contactElem ? contactElem.value.trim() : '';
+
+  if (!name || !email || !password) {
+    showAuthAlert('Please fill in your name, email, and password.');
+    return;
+  }
+
+  const users = getStoredUsers();
+  const existing = users.find(u => u.email === email);
+  if (existing) {
+    showAuthAlert('An account with this email already exists. Please sign in or use another email.');
+    return;
+  }
+
+  const avatarByStage = {
+    pregnancy: '🤰',
+    pcos: '🔬',
+    menstrual: '🩸',
+    postpartum: '🤱',
+    wellness: '🌸'
+  };
+
+  const newUser = {
+    id: `user_${Date.now()}`,
+    username: email.split('@')[0],
+    email: email,
+    password: password,
+    name: name,
+    age: age,
+    stage: stage,
+    cycleLength: cycleLength,
+    lmp: lmp,
+    pregnancyLmp: stage === 'pregnancy' ? lmp : null,
+    emergencyContact: contact,
+    avatar: avatarByStage[stage] || '🌸',
+    registeredAt: new Date().toISOString().split('T')[0]
+  };
+
+  users.push(newUser);
+  saveStoredUsers(users);
+  loginUser(newUser);
+}
+
+function quickLoginPersona(key) {
+  const users = getStoredUsers();
+  const found = users.find(u => u.username === key || u.id === `user_${key}`);
+  if (found) {
+    loginUser(found);
+  } else {
+    const fallback = DEFAULT_AUTH_USERS.find(u => u.username === key);
+    if (fallback) loginUser(fallback);
+  }
+}
+
+function loginUser(user) {
+  HerVitaState.currentUser = user;
+  HerVitaState.userProfile = {
+    name: user.name,
+    email: user.email,
+    age: user.age,
+    stage: user.stage,
+    cycleLength: user.cycleLength,
+    lmp: user.lmp,
+    pregnancyLmp: user.pregnancyLmp || (user.stage === 'pregnancy' ? user.lmp : '2026-06-15'),
+    emergencyContact: user.emergencyContact || ''
+  };
+
+  if (user.stage === 'pregnancy') {
+    HerVitaState.userProfile.pregnancyLmp = user.pregnancyLmp || user.lmp || '2026-06-15';
+  }
+
+  localStorage.setItem('arogini_current_user', JSON.stringify(user));
+  localStorage.setItem('arogini_user_profile', JSON.stringify(HerVitaState.userProfile));
+
+  // If testing with one of the pre-configured personas, ensure their rich data is populated
+  if (user.username === 'priya' || user.username === 'ananya' || user.username === 'meera') {
+    if (HerVitaState.entries.length === 0) {
+      HerVitaState.entries = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.entries));
+      HerVitaState.checklist = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.checklist));
+      HerVitaState.vaccines = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.vaccines));
+      HerVitaState.pregnancyMilestones = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pregnancyMilestones));
+      HerVitaState.antenatalVisits = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.antenatalVisits));
+      HerVitaState.postpartumRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.postpartumRecords));
+      HerVitaState.periodLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.periodLogs));
+      HerVitaState.pcosLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pcosLogs));
+      HerVitaState.pelvicPainLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pelvicPainLogs));
+      HerVitaState.medicalRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.medicalRecords));
+      saveToStorage();
+    }
+  }
+
+  renderAllViews();
+  showToast(`Welcome to Arogini, ${user.name}! 🌸`);
+
+  // Navigate to appropriate view based on their health stage
+  if (user.stage === 'pregnancy') {
+    switchView('view-obstetrics');
+  } else if (user.stage === 'pcos') {
+    switchView('view-gynecology');
+  } else {
+    switchView('view-ai-agent');
+  }
+}
+
+function handleLogout() {
+  HerVitaState.currentUser = null;
+  localStorage.removeItem('arogini_current_user');
+  renderHeaderAuth();
+  renderLoginView();
+  closeAllModals();
+  switchView('view-login');
+  showToast('You have signed out. Data remains safe on this device. 🔒');
+}
+
+function handleForgotPassword() {
+  alert('Since Arogini uses 100% private client-side device storage, your credentials are kept strictly in this browser. You can click any sample persona chip below or register a new profile.');
+}
+
+function openUserProfileModal() {
+  const modal = document.getElementById('user-profile-modal');
+  if (!modal) return;
+
+  const profile = HerVitaState.userProfile;
+  const nameInput = document.getElementById('modal-edit-name');
+  const ageInput = document.getElementById('modal-edit-age');
+  const stageSelect = document.getElementById('modal-edit-stage');
+  const cycleInput = document.getElementById('modal-edit-cycle');
+  const lmpInput = document.getElementById('modal-edit-lmp');
+  const pregLmpInput = document.getElementById('modal-edit-preglmp');
+  const pregWrap = document.getElementById('modal-pregnancy-lmp-wrap');
+  const contactInput = document.getElementById('modal-edit-contact');
+
+  if (nameInput) nameInput.value = profile.name || '';
+  if (ageInput) ageInput.value = profile.age || 26;
+  if (stageSelect) stageSelect.value = profile.stage || 'menstrual';
+  if (cycleInput) cycleInput.value = profile.cycleLength || 28;
+  if (lmpInput) lmpInput.value = profile.lmp || '2026-10-12';
+  if (pregLmpInput) pregLmpInput.value = profile.pregnancyLmp || '2026-06-15';
+  if (contactInput) contactInput.value = profile.emergencyContact || '';
+
+  if (pregWrap) {
+    pregWrap.style.display = (profile.stage === 'pregnancy') ? 'block' : 'none';
+  }
+
+  modal.classList.add('active');
+}
+
+function saveUserProfileEdits() {
+  const nameInput = document.getElementById('modal-edit-name');
+  const ageInput = document.getElementById('modal-edit-age');
+  const stageSelect = document.getElementById('modal-edit-stage');
+  const cycleInput = document.getElementById('modal-edit-cycle');
+  const lmpInput = document.getElementById('modal-edit-lmp');
+  const pregLmpInput = document.getElementById('modal-edit-preglmp');
+  const contactInput = document.getElementById('modal-edit-contact');
+
+  if (nameInput && nameInput.value.trim()) {
+    HerVitaState.userProfile.name = nameInput.value.trim();
+  }
+  if (ageInput && ageInput.value) {
+    HerVitaState.userProfile.age = parseInt(ageInput.value, 10);
+  }
+  if (stageSelect) {
+    HerVitaState.userProfile.stage = stageSelect.value;
+  }
+  if (cycleInput && cycleInput.value) {
+    HerVitaState.userProfile.cycleLength = parseInt(cycleInput.value, 10);
+  }
+  if (lmpInput && lmpInput.value) {
+    HerVitaState.userProfile.lmp = lmpInput.value;
+  }
+  if (pregLmpInput && pregLmpInput.value) {
+    HerVitaState.userProfile.pregnancyLmp = pregLmpInput.value;
+  }
+  if (contactInput) {
+    HerVitaState.userProfile.emergencyContact = contactInput.value.trim();
+  }
+
+  if (HerVitaState.currentUser) {
+    HerVitaState.currentUser.name = HerVitaState.userProfile.name;
+    HerVitaState.currentUser.age = HerVitaState.userProfile.age;
+    HerVitaState.currentUser.stage = HerVitaState.userProfile.stage;
+    HerVitaState.currentUser.cycleLength = HerVitaState.userProfile.cycleLength;
+    HerVitaState.currentUser.lmp = HerVitaState.userProfile.lmp;
+    HerVitaState.currentUser.pregnancyLmp = HerVitaState.userProfile.pregnancyLmp;
+    HerVitaState.currentUser.emergencyContact = HerVitaState.userProfile.emergencyContact;
+
+    localStorage.setItem('arogini_current_user', JSON.stringify(HerVitaState.currentUser));
+
+    const users = getStoredUsers();
+    const idx = users.findIndex(u => u.id === HerVitaState.currentUser.id);
+    if (idx !== -1) {
+      users[idx] = { ...users[idx], ...HerVitaState.currentUser };
+      saveStoredUsers(users);
+    }
+  }
+
+  saveToStorage();
+  renderAllViews();
+  closeAllModals();
+  showToast('Patient health profile updated! 🌸');
 }
 
 // --- Initial Setup on DOM Ready ---
 document.addEventListener('DOMContentLoaded', () => {
   loadFromStorage();
+  initAuthSystem();
   initNavigation();
   initBodyMap();
   initGlossary();
@@ -4125,6 +4619,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initPrivacyControls();
   initAroginiAIHub();
   renderAllViews();
+
+  // If user is not logged in, present the Login Page view
+  if (!HerVitaState.currentUser) {
+    switchView('view-login');
+  }
 
   // Print button handler
   const printBtn = document.getElementById('btn-print-summary');
