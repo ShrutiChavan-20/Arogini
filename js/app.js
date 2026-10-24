@@ -3633,23 +3633,85 @@ function renderAroginiAIHub() {
   initAISBARInDoctorSummary();
 }
 
+// Friendly card metadata for Indian women (simple emoji, plain title, Hindi hint)
+const CORPUS_FRIENDLY_META = {
+  'rag-acog-222': {
+    emoji: '🤰',
+    friendlyTitle: 'High BP in Pregnancy (Preeclampsia)',
+    hindi: 'गर्भावस्था में उच्च रक्तचाप',
+    tip: 'If you have swelling, headache or blurred vision during pregnancy — see your doctor right away.',
+    color: '#fce4ec',
+    accent: '#e91e63'
+  },
+  'rag-rotterdam-pcos': {
+    emoji: '🌿',
+    friendlyTitle: 'Irregular Periods & PCOS',
+    hindi: 'अनियमित मासिक धर्म / PCOS',
+    tip: 'Irregular cycles, facial hair, acne or weight gain could be signs of PCOS. You are not alone — it\'s very common in Indian women.',
+    color: '#e8f5e9',
+    accent: '#388e3c'
+  },
+  'rag-acog-760': {
+    emoji: '💗',
+    friendlyTitle: 'Period Pain & Endometriosis',
+    hindi: 'मासिक दर्द / एंडोमेट्रियोसिस',
+    tip: 'Severe period cramps that don\'t get better with medicine could mean something needs checking.',
+    color: '#fce4ec',
+    accent: '#c2185b'
+  },
+  'rag-who-postpartum': {
+    emoji: '👶',
+    friendlyTitle: 'Baby Blues & Recovery After Delivery',
+    hindi: 'प्रसव के बाद देखभाल',
+    tip: 'Feeling sad or overwhelmed after having a baby is common. You deserve support. Please talk to someone.',
+    color: '#e3f2fd',
+    accent: '#1976d2'
+  },
+  'rag-fogsi-aub': {
+    emoji: '🩸',
+    friendlyTitle: 'Heavy or Unusual Bleeding',
+    hindi: 'अधिक मासिक रक्तस्राव',
+    tip: 'Changing pads every 1-2 hours or passing large clots is not normal. Visit a doctor.',
+    color: '#fff3e0',
+    accent: '#e65100'
+  },
+  'rag-acog-ectopic': {
+    emoji: '🚨',
+    friendlyTitle: 'Bleeding in Early Pregnancy (Emergency)',
+    hindi: 'प्रारंभिक गर्भावस्था में रक्तस्राव',
+    tip: 'One-sided stomach pain + bleeding in early pregnancy = see emergency care immediately.',
+    color: '#ffebee',
+    accent: '#b71c1c'
+  }
+};
+
 function renderRAGCorpusCards() {
   const container = document.getElementById('rag-corpus-cards-container');
   if (!container) return;
 
-  container.innerHTML = RAG_KNOWLEDGE_CORPUS.map(item => `
-    <article class="corpus-doc-card">
-      <div class="corpus-top">
-        <h4 class="corpus-title">${item.title}</h4>
-        <span class="corpus-authority">${item.authority}</span>
+  container.innerHTML = RAG_KNOWLEDGE_CORPUS.map(item => {
+    const meta = CORPUS_FRIENDLY_META[item.id] || {
+      emoji: '📋', friendlyTitle: item.title, hindi: '', tip: '',
+      color: '#f3e5f5', accent: '#7b1fa2'
+    };
+    return `
+    <article class="corpus-doc-card" style="--card-accent: ${meta.accent}; --card-bg: ${meta.color};">
+      <div class="corpus-card-header">
+        <span class="corpus-emoji">${meta.emoji}</span>
+        <div class="corpus-title-block">
+          <h4 class="corpus-title">${meta.friendlyTitle}</h4>
+          ${meta.hindi ? `<span class="corpus-hindi">${meta.hindi}</span>` : ''}
+        </div>
+        <span class="corpus-verified-badge">✔ Verified</span>
       </div>
-      <p class="corpus-desc">${item.content.substring(0, 160)}...</p>
+      <p class="corpus-tip">💡 ${meta.tip}</p>
+      <p class="corpus-desc">${item.content.substring(0, 130)}…</p>
       <div class="corpus-meta-row">
-        <span>📖 ${item.citation}</span>
-        <span style="font-weight: 700; color: var(--sage-700);">${item.evidenceTier}</span>
+        <span class="corpus-category-chip">${item.category}</span>
+        <span class="corpus-evidence-tag" style="color: ${meta.accent};">${item.evidenceTier}</span>
       </div>
     </article>
-  `).join('');
+  `}).join('');
 }
 
 // Speech-to-Text Setup
