@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HerVita - Women's Reproductive Wellness Platform</title>
+  <meta name="description" content="A simple, private web app for women's reproductive health awareness, symptom tracking, pattern recognition, and doctor visit summaries." />
+  
+  <!-- Modern Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+
+  <!-- Medical Boundary Disclaimer Strip -->
+  <aside class="disclaimer-strip" role="note" aria-label="Medical disclaimer">
+    <span>🌸</span>
+    <span><strong>HerVita Medical Boundary:</strong> HerVita informs and organises. It does not diagnose and does not replace a doctor.</span>
+    <span>• 100% Private & Device-Only</span>
+  </aside>
+
+  <!-- Sticky Top Header & Main Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-wrapper" onclick="switchView('view-obstetrics')">
+        <div class="brand-icon">🌸</div>
+        <div class="brand-text">
+          <h1>HerVita</h1>
+          <span class="brand-badge">Obstetrics & Gynecology</span>
+        </div>
+      </div>
+
+      <!-- Main Navigation Tabs -->
+      <nav class="app-nav" aria-label="Main Navigation">
+        <button class="nav-btn active" data-view="view-obstetrics">
+          <span>🤰</span> Obstetrics
+        </button>
+        <button class="nav-btn" data-view="view-gynecology">
+          <span>🔬</span> Gynecology
+        </button>
+        <button class="nav-btn" data-view="view-summary">
+          <span>📋</span> Doctor Summary
+        </button>
+        <button class="nav-btn" data-view="view-checklist">
+          <span>✅</span> Care Checklist
+        </button>
+        <button class="nav-btn" data-view="view-vaccines">
+          <span>💉</span> Vaccines
+        </button>
+        <button class="nav-btn" data-view="view-awareness">
+          <span>🧠</span> Anatomy & Videos
+        </button>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <button class="btn-pill btn-emergency" id="btn-emergency-header" title="Calm emergency screening for serious signs">
+          <span>🚨</span> Symptom Check
+        </button>
+        <button class="btn-pill" id="btn-load-demo" title="Load realistic 3-cycle Hackathon demo data">
+          <span>✨</span> Demo Data
+        </button>
+        <button class="btn-pill" id="btn-lang-toggle" title="Toggle Language">
+          <span>🇮🇳</span> हिंदी
+        </button>
+        <button class="btn-pill" id="btn-privacy-header" title="Privacy Settings & Device PIN">
+          <span>🔒</span> Privacy
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main class="main-content">
+
+    <!-- ============================================================== -->
+    <!-- DOMAIN A: OBSTETRICS (Pregnancy, Childbirth & Postpartum Care)  -->
+    <!-- ============================================================== -->
+    <section id="view-obstetrics" class="view-section active-view">
+      <!-- Domain Switcher -->
+      <div class="category-switcher-bar">
+        <button class="category-tab-btn active obs-active" onclick="switchView('view-obstetrics')">
+          <div class="cat-icon">🤰</div>
+          <div class="cat-info">
+            <h4>A. Obstetrics</h4>
+            <p>Pregnancy, Childbirth & Postpartum Care</p>
+          </div>
+        </button>
+        <button class="category-tab-btn" onclick="switchView('view-gynecology')">
+          <div class="cat-icon">🔬</div>
+          <div class="cat-info">
+            <h4>B. Gynecology</h4>
+            <p>Reproductive & Hormonal Health</p>
+          </div>
+        </button>
+      </div>
+
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>A. Obstetrics — Pregnancy, Childbirth & Postpartum Care</h2>
+          <p>Comprehensive tracking, antenatal care schedule, clinical education, urgent warning sign guidance, and 4th-trimester maternal support.</p>
+        </div>
+        <span class="badge-tag badge-pink">ACOG Clinical Guidance</span>
+      </div>
+
+      <!-- Obstetrics Sub-tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" data-subtab="obs-tracker">
+          <span>📅</span> Pregnancy Journey Tracker
+        </button>
+        <button class="sub-tab-btn" data-subtab="obs-planner">
+          <span>📋</span> Antenatal Care Planner
+        </button>
+        <button class="sub-tab-btn" data-subtab="obs-education">
+          <span>🥗</span> Pregnancy Health Education
+        </button>
+        <button class="sub-tab-btn" data-subtab="obs-warnings">
+          <span>🚨</span> Warning-Sign Guidance
+        </button>
+        <button class="sub-tab-btn" data-subtab="obs-postpartum">
+          <span>🤱</span> Postpartum Recovery Support
+        </button>
+      </div>
+
+      <!-- SUBTAB A.1: Pregnancy Journey Tracker -->
+      <div id="subtab-obs-tracker" class="subtab-panel">
+        <div id="obs-tracker-content"></div>
+      </div>
+
+      <!-- SUBTAB A.2: Antenatal Care Planner -->
+      <div id="subtab-obs-planner" class="subtab-panel" style="display: none;">
+        <div id="obs-planner-content"></div>
+      </div>
+
+      <!-- SUBTAB A.3: Pregnancy Health Education -->
+      <div id="subtab-obs-education" class="subtab-panel" style="display: none;">
+        <div id="obs-education-content"></div>
+      </div>
+
+      <!-- SUBTAB A.4: Warning-Sign Guidance -->
+      <div id="subtab-obs-warnings" class="subtab-panel" style="display: none;">
+        <div id="obs-warnings-content"></div>
+      </div>
+
+      <!-- SUBTAB A.5: Postpartum Recovery Support -->
+      <div id="subtab-obs-postpartum" class="subtab-panel" style="display: none;">
+        <div id="obs-postpartum-content"></div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- DOMAIN B: GYNECOLOGY (Reproductive and Hormonal Health)        -->
+    <!-- ============================================================== -->
+    <section id="view-gynecology" class="view-section">
+      <!-- Domain Switcher -->
+      <div class="category-switcher-bar">
+        <button class="category-tab-btn" onclick="switchView('view-obstetrics')">
+          <div class="cat-icon">🤰</div>
+          <div class="cat-info">
+            <h4>A. Obstetrics</h4>
+            <p>Pregnancy, Childbirth & Postpartum Care</p>
+          </div>
+        </button>
+        <button class="category-tab-btn active gyn-active" onclick="switchView('view-gynecology')">
+          <div class="cat-icon">🔬</div>
+          <div class="cat-info">
+            <h4>B. Gynecology</h4>
+            <p>Reproductive & Hormonal Health</p>
+          </div>
+        </button>
+      </div>
+
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>B. Gynecology — Reproductive & Hormonal Health</h2>
+          <p>Longitudinal menstrual cycle tracking, PCOS & hormonal health journal, pelvic pain profiler, contraception & conditions guide, and secure medical document vault.</p>
+        </div>
+        <span class="badge-tag badge-pink">Non-Diagnostic Health Hub</span>
+      </div>
+
+      <!-- Gynecology Sub-tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" data-subtab="gyn-menstrual">
+          <span>📈</span> Menstrual Health Tracker
+        </button>
+        <button class="sub-tab-btn" data-subtab="gyn-pcos">
+          <span>📊</span> PCOS & Hormonal Journal
+        </button>
+        <button class="sub-tab-btn" data-subtab="gyn-pelvic-pain">
+          <span>⚡</span> Pelvic Pain & Symptom Diary
+        </button>
+        <button class="sub-tab-btn" data-subtab="gyn-education">
+          <span>📖</span> Reproductive Health Education
+        </button>
+        <button class="sub-tab-btn" data-subtab="gyn-records">
+          <span>📁</span> Medical Record Organizer
+        </button>
+      </div>
+
+      <!-- SUBTAB B.1: Menstrual Health Tracker -->
+      <div id="subtab-gyn-menstrual" class="subtab-panel">
+        <div id="gyn-menstrual-content"></div>
+      </div>
+
+      <!-- SUBTAB B.2: PCOS & Hormonal Journal -->
+      <div id="subtab-gyn-pcos" class="subtab-panel" style="display: none;">
+        <div id="gyn-pcos-content"></div>
+      </div>
+
+      <!-- SUBTAB B.3: Pelvic Pain & Symptom Diary -->
+      <div id="subtab-gyn-pelvic-pain" class="subtab-panel" style="display: none;">
+        <div id="gyn-pelvic-pain-content"></div>
+      </div>
+
+      <!-- SUBTAB B.4: Reproductive Health Education -->
+      <div id="subtab-gyn-education" class="subtab-panel" style="display: none;">
+        <div id="gyn-education-content"></div>
+      </div>
+
+      <!-- SUBTAB B.5: Medical Record Organizer -->
+      <div id="subtab-gyn-records" class="subtab-panel" style="display: none;">
+        <div id="gyn-records-content"></div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW: REPRODUCTIVE ANATOMY & VIDEOS        -->
+    <!-- ========================================== -->
+    <section id="view-awareness" class="view-section">
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>Reproductive Health Awareness</h2>
+          <p>Plain-language guidance, interactive anatomy, and everyday habits that support your body. Built for clarity before family or doctor discussions.</p>
+        </div>
+        <span class="badge-tag badge-pink">Clinician-Reviewed Content</span>
+      </div>
+
+      <!-- Awareness Sub-tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" data-subtab="body-map">
+          <span>🗺️</span> Interactive Body Map
+        </button>
+        <button class="sub-tab-btn" data-subtab="videos">
+          <span>🎬</span> Explainer Videos
+        </button>
+        <button class="sub-tab-btn" data-subtab="glossary">
+          <span>📖</span> Words to Know
+        </button>
+        <button class="sub-tab-btn" data-subtab="questions">
+          <span>🩺</span> Ask Better Questions
+        </button>
+      </div>
+
+      <!-- SUBTAB 1: INTERACTIVE BODY MAP -->
+      <div id="subtab-body-map" class="subtab-panel">
+        <div class="body-map-layout">
+          <!-- Visual Interactive SVG Anatomy Card -->
+          <div class="body-map-visual-card">
+            <h3>Reproductive System Anatomy</h3>
+            <p class="hint">Tap any organ hotspot or pill below to explore its function and care tips:</p>
+            
+            <div class="anatomy-svg-wrapper">
+              <svg class="anatomy-svg" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="grad-uterus" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#E87A90"/>
+                    <stop offset="100%" stop-color="#AC2C6A"/>
+                  </linearGradient>
+                  <linearGradient id="grad-ovary" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FCD34D"/>
+                    <stop offset="100%" stop-color="#D97706"/>
+                  </linearGradient>
+                  <linearGradient id="grad-tube" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#F472B6"/>
+                    <stop offset="100%" stop-color="#DB2777"/>
+                  </linearGradient>
+                  <linearGradient id="grad-vagina" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#C084FC"/>
+                    <stop offset="100%" stop-color="#7E22CE"/>
+                  </linearGradient>
+                </defs>
+
+                <!-- Background Pelvis Outline -->
+                <path d="M 60,70 Q 200,30 340,70 Q 370,160 330,260 Q 200,310 70,260 Q 30,160 60,70 Z" 
+                      fill="#FFF5F8" stroke="#F3BFD6" stroke-width="2.5" stroke-dasharray="6,6" opacity="0.7"/>
+
+                <!-- Hormonal Axis / Brain Link indicator -->
+                <g class="organ-hotspot" data-organ="hormones" title="Hormonal Axis">
+                  <circle cx="200" cy="30" r="16" fill="#EDE9FE" stroke="#8B5CF6" stroke-width="2.5"/>
+                  <text x="200" y="35" text-anchor="middle" font-size="12" fill="#6D28D9" font-weight="bold">⚡ Axis</text>
+                  <path d="M 200,46 L 200,75" stroke="#C4B5FD" stroke-width="2" stroke-dasharray="4,4"/>
+                </g>
+
+                <!-- Fallopian Tubes (Left & Right) -->
+                <g class="organ-hotspot" data-organ="tubes" title="Fallopian Tubes">
+                  <!-- Left Tube -->
+                  <path d="M 160,115 C 120,70 80,90 95,130" 
+                        fill="none" stroke="url(#grad-tube)" stroke-width="8" stroke-linecap="round"/>
+                  <!-- Right Tube -->
+                  <path d="M 240,115 C 280,70 320,90 305,130" 
+                        fill="none" stroke="url(#grad-tube)" stroke-width="8" stroke-linecap="round"/>
+                </g>
+
+                <!-- Left & Right Ovaries -->
+                <g class="organ-hotspot" data-organ="ovaries" title="Ovaries">
+                  <!-- Left Ovary -->
+                  <ellipse cx="88" cy="140" rx="20" ry="14" fill="url(#grad-ovary)" stroke="#B45309" stroke-width="2"/>
+                  <!-- Right Ovary -->
+                  <ellipse cx="312" cy="140" rx="20" ry="14" fill="url(#grad-ovary)" stroke="#B45309" stroke-width="2"/>
+                </g>
+
+                <!-- Uterus Body -->
+                <g class="organ-hotspot active" data-organ="uterus" title="Uterus (Womb)">
+                  <path d="M 155,105 C 175,95 225,95 245,105 C 265,135 240,185 220,195 L 180,195 C 160,185 135,135 155,105 Z" 
+                        fill="url(#grad-uterus)" stroke="#8C2456" stroke-width="2.5"/>
+                  <!-- Inner Endometrium Line -->
+                  <path d="M 180,120 Q 200,135 220,120 Q 200,165 180,120 Z" fill="#FFE4E6" opacity="0.85"/>
+                </g>
+
+                <!-- Cervix -->
+                <g class="organ-hotspot" data-organ="cervix" title="Cervix">
+                  <rect x="184" y="195" width="32" height="24" rx="6" fill="#F43F5E" stroke="#9F1239" stroke-width="2"/>
+                  <circle cx="200" cy="207" r="4" fill="#FFE4E6"/>
+                </g>
+
+                <!-- Vagina Canal -->
+                <g class="organ-hotspot" data-organ="vagina" title="Vagina">
+                  <path d="M 186,219 L 214,219 L 222,275 L 178,275 Z" fill="url(#grad-vagina)" stroke="#581C87" stroke-width="2"/>
+                </g>
+
+                <!-- Pelvic Floor Sling -->
+                <g class="organ-hotspot" data-organ="pelvic_floor" title="Pelvic Floor Muscles">
+                  <path d="M 120,265 Q 200,305 280,265" fill="none" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                  <text x="200" y="302" text-anchor="middle" font-size="10.5" font-weight="700" fill="#047857">Pelvic Floor Hammock</text>
+                </g>
+
+                <!-- Labels on Diagram -->
+                <text x="75" y="168" font-size="11" font-weight="700" fill="#92400E">Ovary</text>
+                <text x="325" y="168" font-size="11" font-weight="700" fill="#92400E">Ovary</text>
+                <text x="200" y="150" font-size="13" font-weight="800" fill="#FFFFFF" text-anchor="middle">Uterus</text>
+                <text x="240" y="212" font-size="10" font-weight="700" fill="#BE123C">Cervix</text>
+                <text x="245" y="250" font-size="10" font-weight="700" fill="#6B21A8">Vagina</text>
+              </svg>
+            </div>
+
+            <!-- Quick Selection Pills -->
+            <div class="organ-pills-row">
+              <button class="organ-pill active" data-organ="uterus">Uterus (Womb)</button>
+              <button class="organ-pill" data-organ="ovaries">Ovaries</button>
+              <button class="organ-pill" data-organ="tubes">Fallopian Tubes</button>
+              <button class="organ-pill" data-organ="cervix">Cervix</button>
+              <button class="organ-pill" data-organ="vagina">Vagina & Microbiome</button>
+              <button class="organ-pill" data-organ="pelvic_floor">Pelvic Floor</button>
+              <button class="organ-pill" data-organ="hormones">Hormonal Axis</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Organ Details Card -->
+          <div class="body-details-card" id="organ-details-content">
+            <!-- Rendered dynamically by app.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBTAB 2: EXPLAINER VIDEOS -->
+      <div id="subtab-videos" class="subtab-panel" style="display: none;">
+        <div style="margin-bottom: 1.25rem;">
+          <h3 style="font-size: 1.25rem; color: var(--primary-900); margin-bottom: 0.25rem;">Clinician-Curated Explainer Videos (60 to 90 Seconds)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">Short, high-yield educational videos covering organs, the menstrual cycle, pregnancy stages, and postpartum recovery.</p>
+        </div>
+        <div class="video-grid" id="videos-grid-container">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- SUBTAB 3: WORDS TO KNOW (GLOSSARY) -->
+      <div id="subtab-glossary" class="subtab-panel" style="display: none;">
+        <div class="glossary-controls">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="glossary-search" class="search-input" placeholder="Search terms (e.g. cramps, luteal, ovulation, PCOS)..." />
+          </div>
+          <div class="glossary-filter-pills">
+            <button class="btn-pill glossary-filter-pill active" data-category="all">All Words</button>
+            <button class="btn-pill glossary-filter-pill" data-category="symptoms">Symptoms</button>
+            <button class="btn-pill glossary-filter-pill" data-category="bleeding">Bleeding</button>
+            <button class="btn-pill glossary-filter-pill" data-category="phases">Cycle Phases</button>
+            <button class="btn-pill glossary-filter-pill" data-category="conditions">Conditions</button>
+            <button class="btn-pill glossary-filter-pill" data-category="anatomy">Anatomy</button>
+          </div>
+        </div>
+        <div class="glossary-grid" id="glossary-grid-container">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- SUBTAB 4: ASK BETTER QUESTIONS -->
+      <div id="subtab-questions" class="subtab-panel" style="display: none;">
+        <div style="margin-bottom: 1.25rem;">
+          <h3 style="font-size: 1.25rem; color: var(--primary-900); margin-bottom: 0.25rem;">Doctor Discussion Prompts</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">Take the hesitation out of clinic visits. Add any of these pre-worded questions directly to your printable Doctor Summary.</p>
+        </div>
+        <div class="doctor-questions-grid" id="doctor-questions-container">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: MODULE 2 - SYMPTOM DIARY           -->
+    <!-- ========================================== -->
+    <section id="view-diary" class="view-section">
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>Symptom Diary</h2>
+          <p>Log daily signs, severity, and life impact. HerVita uses these notes to find cycle patterns and generate your doctor summary.</p>
+        </div>
+        <span class="badge-tag badge-sage">Stored 100% on Your Device</span>
+      </div>
+
+      <div class="symptom-tracker-layout">
+        <!-- Log Entry Form Card -->
+        <div class="diary-form-card">
+          <h3>Log Today's Symptom</h3>
+          <p class="subtitle">Quick 30-second daily check-in</p>
+
+          <form id="symptom-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="diary-date">Date</label>
+                <input type="date" id="diary-date" class="form-control" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="diary-time">Time of Day</label>
+                <select id="diary-time" class="form-control">
+                  <option value="Morning">Morning (6 AM - 12 PM)</option>
+                  <option value="Afternoon">Afternoon (12 PM - 5 PM)</option>
+                  <option value="Evening">Evening (5 PM - 9 PM)</option>
+                  <option value="Night">Night (9 PM - 6 AM)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="diary-symptom">Symptom</label>
+                <select id="diary-symptom" class="form-control" required>
+                  <option value="Pelvic Cramps">Pelvic Cramps / Dysmenorrhea</option>
+                  <option value="Heavy Bleeding">Heavy Menstrual Bleeding</option>
+                  <option value="Mittelschmerz / Ovulation Pain">Ovulation Pain (Mittelschmerz)</option>
+                  <option value="Spotting">Spotting / Irregular Bleeding</option>
+                  <option value="Headache & Fatigue">Headache & Fatigue</option>
+                  <option value="Mood Irritability">Mood Swings / Irritability</option>
+                  <option value="Bloating & Digestion">Abdominal Bloating</option>
+                  <option value="Breast Tenderness">Breast Tenderness</option>
+                  <option value="Lower Back Pain">Lower Back Ache</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="diary-cycle-day">Cycle Day (Optional)</label>
+                <input type="number" id="diary-cycle-day" class="form-control" min="1" max="60" value="1" placeholder="e.g. Day 1, 14, 26" />
+              </div>
+            </div>
+
+            <!-- Severity 1 to 5 Picker -->
+            <div class="form-group">
+              <label class="form-label">Severity Level (1 to 5)</label>
+              <div class="severity-picker">
+                <div class="severity-option" data-val="1">
+                  <span class="score">1</span>
+                  <span class="label">Mild</span>
+                </div>
+                <div class="severity-option" data-val="2">
+                  <span class="score">2</span>
+                  <span class="label">Moderate</span>
+                </div>
+                <div class="severity-option active" data-val="3">
+                  <span class="score">3</span>
+                  <span class="label">Disruptive</span>
+                </div>
+                <div class="severity-option" data-val="4">
+                  <span class="score">4</span>
+                  <span class="label">Severe</span>
+                </div>
+                <div class="severity-option" data-val="5">
+                  <span class="score">5</span>
+                  <span class="label">Debilitating</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Duration -->
+            <div class="form-group">
+              <label class="form-label" for="diary-duration">Duration of Episode</label>
+              <select id="diary-duration" class="form-control">
+                <option value="1-2 hours">Brief (1–2 hours)</option>
+                <option value="Half day">Half Day (several hours)</option>
+                <option value="All day" selected>Continuous / All Day</option>
+              </select>
+            </div>
+
+            <!-- Impact Flags -->
+            <div class="form-group">
+              <label class="form-label">What did this affect today?</label>
+              <div class="impact-pills">
+                <label class="impact-check-pill">
+                  <input type="checkbox" value="work" />
+                  <span>💼 Work / School</span>
+                </label>
+                <label class="impact-check-pill">
+                  <input type="checkbox" value="sleep" />
+                  <span>😴 Sleep</span>
+                </label>
+                <label class="impact-check-pill">
+                  <input type="checkbox" value="chores" />
+                  <span>🏠 Daily Chores</span>
+                </label>
+                <label class="impact-check-pill">
+                  <input type="checkbox" value="exercise" />
+                  <span>🏃 Movement / Exercise</span>
+                </label>
+                <label class="impact-check-pill">
+                  <input type="checkbox" value="mood" />
+                  <span>🌧️ Emotional Wellbeing</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group">
+              <label class="form-label" for="diary-notes">Personal Observation Notes</label>
+              <textarea id="diary-notes" class="form-control" rows="2" placeholder="e.g. Took warm bath; felt worse after long car commute..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary">
+              <span>💾</span> Save Diary Entry
+            </button>
+          </form>
+        </div>
+
+        <!-- History List Card -->
+        <div class="diary-history-card">
+          <div class="history-header">
+            <h3>Recent Log History</h3>
+            <span class="badge-tag badge-pink" id="diary-entries-count">0 entries</span>
+          </div>
+          <div class="entries-list" id="diary-entries-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: MODULE 2 - PATTERN VIEW            -->
+    <!-- ========================================== -->
+    <section id="view-patterns" class="view-section">
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>Pattern Recognition View</h2>
+          <p>Rule-based detection highlights when symptoms repeat across your monthly cycles. No machine learning needed—just clear, honest data.</p>
+        </div>
+        <span class="badge-tag badge-amber">Rule-Based Clinical Logic</span>
+      </div>
+
+      <div class="patterns-container">
+        <!-- Pattern Cards -->
+        <div class="pattern-alert-cards" id="pattern-alerts-container">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- 28-Day Cycle Timeline Heatmap -->
+        <div class="cycle-timeline-card">
+          <div class="cycle-timeline-header">
+            <div>
+              <h3>28-Day Cycle Symptom Distribution</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">See which days of your cycle have the highest concentration of symptoms.</p>
+            </div>
+            <button class="btn-pill" onclick="switchView('view-diary')">+ Log Another Day</button>
+          </div>
+
+          <div class="cycle-days-grid" id="cycle-days-heatmap">
+            <!-- Dynamically populated 28 cells -->
+          </div>
+
+          <div class="timeline-legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background: #FDF2F5; border: 1px solid #F9CAD8;"></div>
+              <span>Menstrual Phase (Days 1–5)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #FFF;"></div>
+              <span>Follicular Phase (Days 6–12)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #EFFBF7; border: 1px solid #BBEBDC;"></div>
+              <span>Ovulatory Window (Days 13–16)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #F8F6FF; border: 1px solid #E0DAFC;"></div>
+              <span>Luteal Phase (Days 17–28)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #AC2C6A;"></div>
+              <span>Symptom Recorded</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 4: MODULE 2 - DOCTOR VISIT SUMMARY    -->
+    <!-- ========================================== -->
+    <section id="view-summary" class="view-section">
+      <div class="summary-container">
+        <div class="summary-actions-toolbar">
+          <div>
+            <h2 style="font-size: 1.6rem; color: var(--primary-900);">Doctor Visit Summary</h2>
+            <p style="font-size: 0.875rem; color: var(--text-secondary);">One-page clinically phrased summary ready for your doctor's appointment.</p>
+          </div>
+          <div style="display: flex; gap: 0.6rem;">
+            <button class="btn-primary" id="btn-print-summary" style="width: auto;">
+              <span>🖨️</span> Print / Save as PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- The Printable Clinical Report Sheet -->
+        <article class="summary-paper" id="doctor-summary-paper-content">
+          <!-- Dynamically populated by app.js -->
+        </article>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 5: CARE CHECKLIST                     -->
+    <!-- ========================================== -->
+    <section id="view-checklist" class="view-section">
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>Care Checklist</h2>
+          <p>Keep track of doctor-recommended follow-ups, diagnostic scans, blood tests, and lifestyle habits.</p>
+        </div>
+        <span class="badge-tag badge-sage">Follow-up Management</span>
+      </div>
+
+      <div class="checklist-layout">
+        <!-- Checklist Items List -->
+        <div class="card">
+          <h3 style="font-size: 1.25rem; color: var(--primary-900); margin-bottom: 1.25rem;">Upcoming & Done Items</h3>
+          <div class="checklist-items" id="checklist-items-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Add Follow-up Form -->
+        <div class="card">
+          <h3 style="font-size: 1.25rem; color: var(--primary-900); margin-bottom: 0.3rem;">Add Follow-up Recommendation</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">Record instructions from your consultation</p>
+
+          <form id="checklist-form">
+            <div class="form-group">
+              <label class="form-label" for="check-title">Action / Follow-up Task</label>
+              <input type="text" id="check-title" class="form-control" placeholder="e.g. Pelvic ultrasound, Complete Blood Count..." required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="check-category">Category</label>
+              <select id="check-category" class="form-control">
+                <option value="Diagnostic Scan">Diagnostic Scan / Ultrasound</option>
+                <option value="Lab Blood Test">Lab Blood Test</option>
+                <option value="Doctor Follow-up Visit">Follow-up Consultation</option>
+                <option value="Medication / Supplement">Medication / Supplement</option>
+                <option value="Lifestyle Routine">Lifestyle / Care Habit</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="check-due">Target Due Date</label>
+              <input type="date" id="check-due" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="check-doctor">Doctor / Clinic</label>
+              <input type="text" id="check-doctor" class="form-control" placeholder="e.g. Dr. Roy (Gynaecology)" />
+            </div>
+
+            <button type="submit" class="btn-primary">
+              <span>+</span> Add to Care Checklist
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 6: VACCINES & IMMUNISATION            -->
+    <!-- ========================================== -->
+    <section id="view-vaccines" class="view-section">
+      <div class="section-intro">
+        <div class="intro-text">
+          <h2>Vaccines & Immunisation Records</h2>
+          <p>Vaccines protect reproductive health best when given at the right stage. Confirm timing with your doctor and national immunisation schedules.</p>
+        </div>
+        <span class="badge-tag badge-indigo">Section 11 Guidance</span>
+      </div>
+
+      <div class="vaccines-layout">
+        <!-- Schedule Timeline Card -->
+        <div class="vaccine-timeline-card">
+          <h3>National Reproductive Immunisation Guide</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Evidence-based timing for key stages in a woman's life:</p>
+          <div class="vaccine-stages" id="vaccine-schedule-timeline">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Personal Vaccine Logger Card -->
+        <div>
+          <div class="card" style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.25rem; color: var(--primary-900); margin-bottom: 0.25rem;">Log Received Vaccine</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Keep your immunization history organised</p>
+
+            <form id="vaccine-form">
+              <div class="form-group">
+                <label class="form-label" for="vac-name">Vaccine</label>
+                <select id="vac-name" class="form-control" required>
+                  <option value="HPV Vaccine (Gardasil 9)">HPV Vaccine (Cervical Cancer Prevention)</option>
+                  <option value="MMR (Measles, Mumps, Rubella)">MMR (Pre-Pregnancy)</option>
+                  <option value="Chickenpox (Varicella)">Chickenpox (Pre-Pregnancy)</option>
+                  <option value="Tdap (Tetanus, Pertussis)">Tdap (Pregnancy 27–36 Weeks)</option>
+                  <option value="Influenza (Annual Flu)">Influenza (Flu Season)</option>
+                  <option value="Hepatitis B">Hepatitis B</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="vac-dose">Dose Number</label>
+                  <select id="vac-dose" class="form-control">
+                    <option value="Dose 1 of 2">Dose 1 of 2</option>
+                    <option value="Dose 2 of 2">Dose 2 of 2</option>
+                    <option value="Single Dose">Single Dose</option>
+                    <option value="Booster Dose">Booster Dose</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="vac-date">Date Administered</label>
+                  <input type="date" id="vac-date" class="form-control" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="vac-due">Next Due Date (If any)</label>
+                <input type="date" id="vac-due" class="form-control" />
+              </div>
+
+              <button type="submit" class="btn-primary">
+                <span>💉</span> Save Vaccine Record
+              </button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3 style="font-size: 1.15rem; color: var(--primary-900); margin-bottom: 1rem;">My Immunisation Log</h3>
+            <div id="vaccine-log-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 7: RED-FLAG SYMPTOM CHECK (TRIAGE)    -->
+    <!-- ========================================== -->
+    <section id="view-triage" class="view-section">
+      <div class="triage-container">
+        <div class="triage-card">
+          <div class="triage-header">
+            <div class="icon-circle">🌿</div>
+            <h2>Calm Symptom Check</h2>
+            <p>A short yes-or-no check for signs that should never be ignored. We guide you calmly without alarming words or pop-ups.</p>
+          </div>
+
+          <!-- Questions -->
+          <div class="triage-questions" id="triage-questions-list">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- Dynamic Response Box -->
+          <div id="triage-result-container">
+            <!-- Dynamically populated with calm acknowledgement, 112 guidance, and export -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Video Player Modal -->
+  <div class="modal-backdrop" id="video-modal" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-video-dialog">
+      <button class="modal-close-btn" aria-label="Close modal">✕</button>
+      <div id="video-modal-content">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Controls & PIN Modal -->
+  <div class="modal-backdrop" id="privacy-modal" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close-btn" aria-label="Close modal">✕</button>
+      <h3 style="font-size: 1.45rem; color: var(--primary-900); margin-bottom: 0.4rem;">Privacy by Default</h3>
+      <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">HerVita stores all symptom and cycle data strictly in your browser's private local storage. No trackers, no advertising, and no server sync.</p>
+
+      <!-- Optional PIN Lock -->
+      <div style="background: var(--bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+        <h4 style="font-size: 1rem; color: var(--primary-900); margin-bottom: 0.3rem;">🔒 Device PIN Protection</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Set an optional 4-digit numeric code to protect your diary on shared household devices:</p>
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="password" id="pin-input-field" class="form-control" maxlength="4" placeholder="Enter 4 digits" style="max-width: 160px; text-align: center; font-size: 1.2rem; letter-spacing: 0.3em;" />
+          <button class="btn-primary" id="btn-save-pin" style="width: auto; padding: 0.6rem 1.2rem;">Set PIN</button>
+        </div>
+      </div>
+
+      <!-- Backup Export / Import -->
+      <div style="margin-bottom: 1.5rem;">
+        <h4 style="font-size: 1rem; color: var(--primary-900); margin-bottom: 0.5rem;">💾 Backup & Data Portability</h4>
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+          <button class="btn-pill" id="btn-export-json">
+            <span>📥</span> Download JSON Backup
+          </button>
+          <button class="btn-pill" id="btn-import-json">
+            <span>📤</span> Restore from Backup
+          </button>
+          <input type="file" id="import-file-input" accept=".json" style="display: none;" />
+        </div>
+      </div>
+
+      <!-- One-Tap Delete Data -->
+      <div style="padding-top: 1.25rem; border-top: 1px solid var(--border-light);">
+        <h4 style="font-size: 1rem; color: var(--coral-500); margin-bottom: 0.3rem;">⚠️ Clear All Health Data</h4>
+        <p style="font-size: 0.825rem; color: var(--text-muted); margin-bottom: 0.75rem;">Instantly erases all entries, checklist tasks, and vaccines from this browser.</p>
+        <button class="btn-pill btn-emergency" id="btn-clear-all-privacy">
+          <span>🗑️</span> Delete All My Data Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div>
+        <strong>HerVita</strong> • Women's Reproductive Healthcare Platform (36-Hour Hackathon Final Solution Design)
+      </div>
+      <div>
+        Strictly informative & supportive • Does not replace a registered medical practitioner
+      </div>
+    </div>
+  </footer>
+
+  <!-- App Script -->
+  <script src="./js/app.js"></script>
+</body>
+</html>
