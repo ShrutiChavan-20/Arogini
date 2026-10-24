@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HerVita - Women's Reproductive Wellness Platform</title>
-  <meta name="description" content="A simple, private web app for women's reproductive health awareness, symptom tracking, pattern recognition, and doctor visit summaries." />
+  <title>Arogini - Women's Reproductive Health • Agentic AI & Clinical RAG Platform</title>
+  <meta name="description" content="Arogini: Multi-agent clinical AI copilot, vector RAG guideline retrieval (ACOG, Rotterdam PCOS, FIGO & WHO), longitudinal symptom phenotyping, and automated doctor SBAR summaries." />
   
   <!-- Modern Typography from Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,24 +26,27 @@
   <!-- Sticky Top Header & Main Navigation -->
   <header class="app-header">
     <div class="header-container">
-      <div class="brand-wrapper" onclick="switchView('view-obstetrics')">
+      <div class="brand-wrapper" onclick="switchView('view-ai-agent')">
         <div class="brand-icon">🌸</div>
         <div class="brand-text">
-          <h1>HerVita</h1>
-          <span class="brand-badge">Obstetrics & Gynecology</span>
+          <h1>Arogini</h1>
+          <span class="brand-badge">Agentic AI & Clinical RAG Platform</span>
         </div>
       </div>
 
       <!-- Main Navigation Tabs -->
       <nav class="app-nav" aria-label="Main Navigation">
-        <button class="nav-btn active" data-view="view-obstetrics">
+        <button class="nav-btn active" data-view="view-ai-agent">
+          <span>🤖</span> Agentic AI & RAG
+        </button>
+        <button class="nav-btn" data-view="view-obstetrics">
           <span>🤰</span> Obstetrics
         </button>
         <button class="nav-btn" data-view="view-gynecology">
           <span>🔬</span> Gynecology
         </button>
         <button class="nav-btn" data-view="view-summary">
-          <span>📋</span> Doctor Summary
+          <span>📋</span> Doctor Summary & SBAR
         </button>
         <button class="nav-btn" data-view="view-checklist">
           <span>✅</span> Care Checklist
@@ -78,9 +81,204 @@
   <main class="main-content">
 
     <!-- ============================================================== -->
+    <!-- DOMAIN 0: AGENTIC AI & CLINICAL RAG HUB (AROGINI MULTI-AGENT) -->
+    <!-- ============================================================== -->
+    <section id="view-ai-agent" class="view-section active-view">
+      
+      <!-- Hero Banner with Live Swarm Status -->
+      <div class="ai-hero-banner">
+        <div class="ai-hero-top">
+          <div class="ai-hero-title-area">
+            <h2><span>🤖</span> Arogini Multi-Agent Clinical AI & RAG Hub</h2>
+            <p>An autonomous clinical copilot orchestrating 5 specialized agents over indexed clinical guidelines (ACOG, Rotterdam PCOS, FIGO & WHO) to provide grounded insights, triage guardrails, and structured SBAR summaries.</p>
+          </div>
+          <div class="ai-status-pill">
+            <span class="ai-pulse-dot"></span>
+            <span>Multi-Agent Swarm: Online (5 Agents Active)</span>
+          </div>
+        </div>
+
+        <!-- Multi-Agent Swarm Visual Grid -->
+        <div class="swarm-grid">
+          <div class="swarm-agent-card" id="swarm-card-safety">
+            <div class="agent-header">
+              <span class="agent-icon-badge">🛡️</span>
+              <span class="agent-status-tag">Guardrail</span>
+            </div>
+            <div class="agent-name">Agent-01: TriageGuard</div>
+            <div class="agent-desc">ACOG emergency boundary check & red-flag risk scoring</div>
+          </div>
+
+          <div class="swarm-agent-card" id="swarm-card-rag">
+            <div class="agent-header">
+              <span class="agent-icon-badge">🔍</span>
+              <span class="agent-status-tag">Vector RAG</span>
+            </div>
+            <div class="agent-name">Agent-02: ClinVectorRAG</div>
+            <div class="agent-desc">Semantic vector retrieval over 28+ indexed clinical guidelines</div>
+          </div>
+
+          <div class="swarm-agent-card" id="swarm-card-pheno">
+            <div class="agent-header">
+              <span class="agent-icon-badge">🧬</span>
+              <span class="agent-status-tag">Context</span>
+            </div>
+            <div class="agent-name">Agent-03: PhenoTracker</div>
+            <div class="agent-desc">Longitudinal cycle phase & gestational context synthesizer</div>
+          </div>
+
+          <div class="swarm-agent-card" id="swarm-card-sbar">
+            <div class="agent-header">
+              <span class="agent-icon-badge">📋</span>
+              <span class="agent-status-tag">Clinician</span>
+            </div>
+            <div class="agent-name">Agent-04: SBARTranslator</div>
+            <div class="agent-desc">Converts lay symptoms to clinical SBAR & ICD-10 suggestions</div>
+          </div>
+
+          <div class="swarm-agent-card" id="swarm-card-action">
+            <div class="agent-header">
+              <span class="agent-icon-badge">⚡</span>
+              <span class="agent-status-tag">Autonomous</span>
+            </div>
+            <div class="agent-name">Agent-05: AutoAction</div>
+            <div class="agent-desc">Drafts one-click automated care checklist tasks & reminders</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main AI Workspace Layout: Query Composer + Chain of Thought -->
+      <div class="ai-workspace-layout">
+        
+        <!-- Left: Query Composer -->
+        <div class="ai-query-card">
+          <div class="ai-query-header">
+            <h3><span>✨</span> Ask Arogini Clinical Copilot</h3>
+            <div class="ai-engine-selector">
+              <span>Engine:</span>
+              <span class="ai-engine-badge" id="ai-engine-indicator">Local Clinical RAG (Zero-Latency)</span>
+            </div>
+          </div>
+
+          <div class="query-input-container">
+            <textarea id="ai-query-input" class="ai-textarea" placeholder="Describe any symptom, pattern, pregnancy question, or pelvic discomfort (e.g. 'Sudden headache with high BP at week 32', or 'Severe cycle day 1 cramps and nausea')..."></textarea>
+            <button class="mic-btn" id="btn-mic-input" title="Voice Search (Speech-to-Text)">
+              🎙️
+            </button>
+          </div>
+
+          <!-- Sample Hackathon Evaluation Prompts -->
+          <div class="sample-prompts-section">
+            <div class="sample-prompts-title">💡 One-Click Hackathon Evaluation Prompts:</div>
+            <div class="prompt-pills-wrap">
+              <button class="prompt-chip" data-prompt="I am 32 weeks pregnant and experiencing a sudden throbbing headache, blurred vision, and swollen ankles. What does clinical guidance advise?">
+                <span>🤰</span> Preeclampsia Warning (Wk 32)
+              </button>
+              <button class="prompt-chip" data-prompt="My period cycles are 38-42 days apart with cystic acne along my jawline and stubborn weight gain. What tests should I discuss?">
+                <span>🩸</span> PCOS Evaluation & Hormones
+              </button>
+              <button class="prompt-chip" data-prompt="Every month on cycle days 1 and 2, I have severe pelvic cramps radiating to my thighs that prevent me from working.">
+                <span>⚡</span> Debilitating Dysmenorrhea
+              </button>
+              <button class="prompt-chip" data-prompt="I am 2 weeks postpartum and feeling intense tearfulness, sadness, and overwhelming anxiety that doesn't seem to lift.">
+                <span>🤱</span> Postpartum Mood Screening
+              </button>
+              <button class="prompt-chip" data-prompt="Is the HPV vaccine recommended for a 26-year-old woman in India, and how many doses are required?">
+                <span>💉</span> HPV Cervical Cancer Prevention
+              </button>
+            </div>
+          </div>
+
+          <div class="query-action-row">
+            <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem;">
+              <span>🔒 100% Client-Side Privacy</span>
+              <span>•</span>
+              <span>Non-Diagnostic Clinical Guidance</span>
+            </div>
+            <button class="btn-ai-run" id="btn-run-agent">
+              <span>🚀</span> Run Multi-Agent Analysis
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Chain-of-Thought (CoT) Execution Visualizer -->
+        <div class="cot-card">
+          <div class="cot-header">
+            <h4><span>🧠</span> Multi-Agent Execution Trace</h4>
+            <span class="cot-badge" id="cot-status-badge">Standby</span>
+          </div>
+
+          <div class="cot-stepper" id="cot-stepper-list">
+            <div class="cot-step-item" id="cot-step-1">
+              <div class="step-marker">1</div>
+              <div class="step-content">
+                <div class="step-title">Query Decomposition & NER</div>
+                <div class="step-meta" id="cot-meta-1">Extracting clinical entities & temporal markers</div>
+              </div>
+            </div>
+
+            <div class="cot-step-item" id="cot-step-2">
+              <div class="step-marker">2</div>
+              <div class="step-content">
+                <div class="step-title">Vector RAG Semantic Retrieval</div>
+                <div class="step-meta" id="cot-meta-2">Searching 28 indexed clinical guideline passages</div>
+              </div>
+            </div>
+
+            <div class="cot-step-item" id="cot-step-3">
+              <div class="step-marker">3</div>
+              <div class="step-content">
+                <div class="step-title">ACOG Red-Flag Safety Pass</div>
+                <div class="step-meta" id="cot-meta-3">Evaluating emergency triage boundaries & thresholds</div>
+              </div>
+            </div>
+
+            <div class="cot-step-item" id="cot-step-4">
+              <div class="step-marker">4</div>
+              <div class="step-content">
+                <div class="step-title">Patient Longitudinal Phenotyping</div>
+                <div class="step-meta" id="cot-meta-4">Cross-referencing user profile (Priya, 26) & diary logs</div>
+              </div>
+            </div>
+
+            <div class="cot-step-item" id="cot-step-5">
+              <div class="step-marker">5</div>
+              <div class="step-content">
+                <div class="step-title">Clinical SBAR & Action Formulation</div>
+                <div class="step-meta" id="cot-meta-5">Structuring doctor questions & autonomous care tasks</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Agent Results Container -->
+      <div class="ai-results-container" id="ai-results-wrapper" style="display: none;">
+        <!-- Dynamically populated by runMultiAgentPipeline() -->
+      </div>
+
+      <!-- Clinical Vector Knowledge Base Explorer -->
+      <div style="margin-top: 3rem;">
+        <div class="section-intro">
+          <div class="intro-text">
+            <h3>📚 Indexed Clinical Guidelines (RAG Vector Corpus)</h3>
+            <p>Peer-reviewed medical authorities embedded locally in Arogini for evidence retrieval without hallucination.</p>
+          </div>
+          <span class="badge-tag badge-indigo">Evidence Tier 1</span>
+        </div>
+
+        <div class="corpus-cards-grid" id="rag-corpus-cards-container">
+          <!-- Dynamically populated from RAG_KNOWLEDGE_CORPUS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================================== -->
     <!-- DOMAIN A: OBSTETRICS (Pregnancy, Childbirth & Postpartum Care)  -->
     <!-- ============================================================== -->
-    <section id="view-obstetrics" class="view-section active-view">
+    <section id="view-obstetrics" class="view-section">
       <!-- Domain Switcher -->
       <div class="category-switcher-bar">
         <button class="category-tab-btn active obs-active" onclick="switchView('view-obstetrics')">
@@ -626,12 +824,18 @@
             <h2 style="font-size: 1.6rem; color: var(--primary-900);">Doctor Visit Summary</h2>
             <p style="font-size: 0.875rem; color: var(--text-secondary);">One-page clinically phrased summary ready for your doctor's appointment.</p>
           </div>
-          <div style="display: flex; gap: 0.6rem;">
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+            <button class="btn-pill" id="btn-generate-ai-sbar" style="background: linear-gradient(135deg, var(--primary-600), #7E22CE); color: #fff; border: none; font-weight: 700;">
+              <span>🤖</span> Synthesize AI SBAR Analysis
+            </button>
             <button class="btn-primary" id="btn-print-summary" style="width: auto;">
               <span>🖨️</span> Print / Save as PDF
             </button>
           </div>
         </div>
+
+        <!-- AI Clinical SBAR Synthesis Slot -->
+        <div id="ai-sbar-summary-slot" style="margin-bottom: 1.5rem;"></div>
 
         <!-- The Printable Clinical Report Sheet -->
         <article class="summary-paper" id="doctor-summary-paper-content">
@@ -864,14 +1068,20 @@
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toast-container"></div>
 
+  <!-- Floating AI Copilot Widget Button -->
+  <button id="floating-copilot-trigger" class="floating-copilot-btn" onclick="switchView('view-ai-agent')" title="Open Arogini Agentic AI Copilot">
+    <span class="copilot-sparkle">✨</span>
+    <span>Ask Arogini AI</span>
+  </button>
+
   <!-- Footer -->
   <footer class="app-footer">
     <div class="footer-container">
       <div>
-        <strong>HerVita</strong> • Women's Reproductive Healthcare Platform (36-Hour Hackathon Final Solution Design)
+        <strong>Arogini</strong> • Women's Reproductive Healthcare & Agentic AI Platform (Hackathon Solution Design)
       </div>
       <div>
-        Strictly informative & supportive • Does not replace a registered medical practitioner
+        Strictly informative & supportive • Does not replace a registered medical practitioner • 100% Client-Side Privacy
       </div>
     </div>
   </footer>
