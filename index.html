@@ -113,7 +113,7 @@
       <!-- Quick Metrics Grid -->
       <div class="drawer-metrics-grid">
         <div class="drawer-metric-tile">
-          <span class="metric-label">Cycle / Gestation</span>
+          <span class="metric-label" id="drawer-metric-stat-label">Cycle / Gestation</span>
           <strong id="drawer-user-stat">Week 19 Gestation</strong>
         </div>
         <div class="drawer-metric-tile">
@@ -172,7 +172,7 @@
           <span class="toggle-text">Menu</span>
         </button>
 
-        <div class="brand-wrapper" onclick="switchView('view-obstetrics')">
+        <div class="brand-wrapper" onclick="switchView('view-login')" style="cursor: pointer;" title="Arogini Home & Account">
           <div class="brand-icon">🌸</div>
           <div class="brand-text">
             <h1>Arogini</h1>
@@ -209,230 +209,318 @@
   <main class="main-content">
 
     <!-- ============================================================== -->
-    <!-- DOMAIN: USER INPUT LOGIN & PATIENT ACCOUNT PORTAL -->
+    <!-- DOMAIN: USER INPUT LOGIN, SIGN UP & HOME LANDING PAGE          -->
     <!-- ============================================================== -->
-    <section id="view-login" class="view-section">
-      <div class="auth-page-container">
-        
-        <!-- Left Hero Card: Security, Privacy & Clinical Value -->
-        <div class="auth-hero-card">
-          <div class="auth-brand-badge">🌸 AROGINI HEALTH ACCESS</div>
-          <h2 class="auth-hero-title">Your Private Women's Health Platform</h2>
+    <section id="view-login" class="view-section active-view">
+      <div class="auth-home-container">
+
+        <!-- Top Elegant Header Banner -->
+        <div class="auth-hero-banner">
+          <div class="auth-brand-badge">🌸 AROGINI • WOMEN'S HEALTH &amp; WELLNESS PLATFORM</div>
+          <h2 class="auth-hero-title">Empowering Women's Health With Dignity &amp; Privacy</h2>
           <p class="auth-hero-subtitle">
-            Track cycles, manage obstetric milestones, log PCOS symptoms, and generate structured doctor-ready clinical summaries—completely private to your personal device.
+            A serene, confidential space to track menstrual rhythms, manage PCOS symptoms, nurture maternal milestones, and prepare structured clinical summaries for your doctor visits — completely private to your personal device.
           </p>
-
-          <div class="auth-feature-list">
-            <div class="auth-feature-item">
-              <span class="auth-feat-icon">🔒</span>
-              <div>
-                <strong>Client-Side Privacy</strong>
-                <p>Your symptoms, cycle dates, and notes stay encrypted in your local browser storage. Zero trackers, zero cloud profiling.</p>
-              </div>
-            </div>
-            <div class="auth-feature-item">
-              <span class="auth-feat-icon">🌸</span>
-              <div>
-                <strong>Comprehensive Reproductive Health</strong>
-                <p>Dedicated tools for pregnancy gestation tracking, cycle patterns, PCOS logging, and anatomical awareness.</p>
-              </div>
-            </div>
-            <div class="auth-feature-item">
-              <span class="auth-feat-icon">📋</span>
-              <div>
-                <strong>Doctor-Ready Clinical Summaries</strong>
-                <p>Transforms subjective daily diary entries into objective chronological medical reports with functional impact metrics.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="auth-trust-quote">
-            <p>"Arogini empowers women to articulate their symptoms with clinical precision and dignity before walking into an appointment."</p>
-            <span class="quote-author">— Dr. R. Sen, Consultant Obstetrician & Gynecologist</span>
-          </div>
         </div>
 
-        <!-- Right Card: Interactive User Input Login & Registration -->
-        <div class="auth-box-card">
+        <!-- Women-Related Photo Showcase Gallery -->
+        <div class="auth-photo-gallery">
           
-          <!-- Tab Switcher -->
-          <div class="auth-tabs-nav" role="tablist">
-            <button class="auth-tab-btn active" id="tab-btn-signin" onclick="switchAuthTab('signin')" role="tab">
-              <span>🔐</span> Sign In
-            </button>
-            <button class="auth-tab-btn" id="tab-btn-register" onclick="switchAuthTab('register')" role="tab">
-              <span>✨</span> Create Account
-            </button>
+          <div class="auth-photo-card">
+            <div class="photo-img-wrap">
+              <img src="assets/images/women_wellness_hero.jpg" alt="Woman tracking wellness and cycle with calm confidence" loading="lazy" />
+            </div>
+            <div class="auth-photo-overlay">
+              <span class="photo-badge">HOLISTIC WELLBEING</span>
+              <h3 class="photo-title">Empowered Personal Care</h3>
+              <p class="photo-desc">Private daily tracking of cycles, mood, and wellness rhythms with zero cloud surveillance.</p>
+            </div>
           </div>
 
-          <!-- Alert Banner -->
-          <div id="auth-alert-box" class="auth-alert" style="display: none;"></div>
-
-          <!-- 1. SIGN IN FORM -->
-          <form id="form-signin" class="auth-form active-form" onsubmit="handleLoginSubmit(event)">
-            <div class="form-group">
-              <label for="login-user-input" class="form-label">Email or Username <span class="required">*</span></label>
-              <div class="input-icon-wrap">
-                <span class="input-icon">👤</span>
-                <input type="text" id="login-user-input" class="form-control with-icon" placeholder="e.g. priya.sharma@example.com or priya" required autocomplete="username" />
-              </div>
+          <div class="auth-photo-card highlight">
+            <div class="photo-img-wrap">
+              <img src="assets/images/maternal_wellness_care.jpg" alt="Expectant mother tracking pregnancy milestones peacefully" loading="lazy" />
             </div>
-
-            <div class="form-group">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <label for="login-password-input" class="form-label">Password <span class="required">*</span></label>
-                <a href="javascript:void(0)" onclick="handleForgotPassword()" class="auth-link-text">Forgot?</a>
-              </div>
-              <div class="input-icon-wrap">
-                <span class="input-icon">🔑</span>
-                <input type="password" id="login-password-input" class="form-control with-icon" placeholder="Enter your password" required autocomplete="current-password" />
-                <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('login-password-input', this)" title="Show/Hide Password">👁️</button>
-              </div>
+            <div class="auth-photo-overlay">
+              <span class="photo-badge">MATERNAL CARE</span>
+              <h3 class="photo-title">Nurturing Motherhood</h3>
+              <p class="photo-desc">Trimester milestones, kick counter, antenatal schedules &amp; 4th trimester recovery.</p>
             </div>
+          </div>
 
-            <div class="form-row-checkbox">
-              <label class="checkbox-label">
-                <input type="checkbox" id="login-remember-me" checked />
-                <span>Remember my session on this device</span>
-              </label>
+          <div class="auth-photo-card">
+            <div class="photo-img-wrap">
+              <img src="assets/images/doctor_consult_care.jpg" alt="Doctor consulting empathetically with patient" loading="lazy" />
             </div>
-
-            <button type="submit" class="btn-primary auth-submit-btn" id="btn-login-submit">
-              <span>🔐</span> Sign In to Arogini
-            </button>
-
-            <div class="auth-switch-prompt" style="margin-top: 1.5rem;">
-              Don't have an account yet? <a href="javascript:void(0)" onclick="switchAuthTab('register')">Create one now</a>
-            </div>
-          </form>
-
-          <!-- 2. CREATE ACCOUNT FORM -->
-          <form id="form-register" class="auth-form" style="display: none;" onsubmit="handleRegisterSubmit(event)">
-            <div class="form-group">
-              <label for="reg-name-input" class="form-label">Full Name <span class="required">*</span></label>
-              <div class="input-icon-wrap">
-                <span class="input-icon">👤</span>
-                <input type="text" id="reg-name-input" class="form-control with-icon" placeholder="e.g. Priya Sharma" required />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="reg-email-input" class="form-label">Email Address <span class="required">*</span></label>
-              <div class="input-icon-wrap">
-                <span class="input-icon">✉️</span>
-                <input type="email" id="reg-email-input" class="form-control with-icon" placeholder="e.g. priya.sharma@example.com" required autocomplete="email" />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="reg-password-input" class="form-label">Create Password <span class="required">*</span></label>
-              <div class="input-icon-wrap">
-                <span class="input-icon">🔑</span>
-                <input type="password" id="reg-password-input" class="form-control with-icon" placeholder="Minimum 4 characters" minlength="4" required autocomplete="new-password" />
-                <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('reg-password-input', this)" title="Show/Hide Password">👁️</button>
-              </div>
-            </div>
-
-            <div class="form-row-grid">
-              <div class="form-group">
-                <label for="reg-age-input" class="form-label">Age <span class="required">*</span></label>
-                <input type="number" id="reg-age-input" class="form-control" min="12" max="95" value="26" required />
-              </div>
-              <div class="form-group">
-                <label for="reg-stage-select" class="form-label">Primary Health Stage <span class="required">*</span></label>
-                <select id="reg-stage-select" class="form-control" onchange="handleHealthStageChange(this.value)">
-                  <option value="pregnancy">🤰 Pregnancy / Obstetrics Care</option>
-                  <option value="pcos">🔬 PCOS / Hormonal Imbalance</option>
-                  <option value="menstrual" selected>🩸 Cycle Tracking & Menstrual Health</option>
-                  <option value="postpartum">🤱 Postpartum Healing (4th Trimester)</option>
-                  <option value="wellness">🌿 General Reproductive Wellness</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Stage-Specific Conditional Fields -->
-            <div id="reg-conditional-fields" class="stage-conditional-box">
-              <div class="form-group" id="reg-lmp-group">
-                <label for="reg-lmp-input" class="form-label">Last Menstrual Period (LMP) Date</label>
-                <input type="date" id="reg-lmp-input" class="form-control" value="2026-10-12" />
-              </div>
-              <div class="form-group" id="reg-cycle-group">
-                <label for="reg-cycle-length-input" class="form-label">Typical Cycle Length (Days)</label>
-                <input type="number" id="reg-cycle-length-input" class="form-control" min="20" max="60" value="28" />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="reg-contact-input" class="form-label">Emergency Caregiver / Partner Contact (Optional)</label>
-              <input type="text" id="reg-contact-input" class="form-control" placeholder="Name & Phone Number (e.g. Partner: +91 98765 43210)" />
-            </div>
-
-            <div class="form-row-checkbox">
-              <label class="checkbox-label">
-                <input type="checkbox" id="reg-consent" required checked />
-                <span>I acknowledge that Arogini provides non-diagnostic clinical guidance with private local storage.</span>
-              </label>
-            </div>
-
-            <button type="submit" class="btn-primary auth-submit-btn" id="btn-register-submit">
-              <span>🌸</span> Create Profile & Enter App
-            </button>
-
-            <div class="auth-switch-prompt">
-              Already have an account? <a href="javascript:void(0)" onclick="switchAuthTab('signin')">Sign in here</a>
-            </div>
-          </form>
-
-          <!-- 3. LOGGED-IN CURRENT USER SUMMARY (Shown when user is active) -->
-          <div id="auth-logged-in-view" class="auth-logged-in-box" style="display: none;">
-            <div class="logged-in-header">
-              <div class="logged-in-avatar" id="logged-user-avatar">🌸</div>
-              <div>
-                <h3 id="logged-user-name">Priya Sharma</h3>
-                <span class="logged-user-stage-badge" id="logged-user-stage">Pregnancy Wk 19</span>
-              </div>
-            </div>
-
-            <div class="logged-in-details-grid">
-              <div class="detail-tile">
-                <span class="tile-label">Email / ID</span>
-                <strong id="logged-user-email">priya.sharma@example.com</strong>
-              </div>
-              <div class="detail-tile">
-                <span class="tile-label">Age</span>
-                <strong id="logged-user-age">26 Years</strong>
-              </div>
-              <div class="detail-tile">
-                <span class="tile-label">Cycle / Gestation</span>
-                <strong id="logged-user-stat">Week 19 Gestation</strong>
-              </div>
-              <div class="detail-tile">
-                <span class="tile-label">Storage Status</span>
-                <strong style="color: var(--sage-700);">🔒 Private Local Storage</strong>
-              </div>
-            </div>
-
-            <div class="logged-in-actions">
-              <button class="btn-primary" onclick="switchView('view-obstetrics')">
-                <span>🤰</span> Open Obstetrics Care
-              </button>
-              <button class="btn-pill" onclick="openUserProfileModal()">
-                <span>⚙️</span> Edit Profile Details
-              </button>
-              <button class="btn-pill btn-emergency" onclick="handleLogout()">
-                <span>🚪</span> Sign Out
-              </button>
+            <div class="auth-photo-overlay">
+              <span class="photo-badge">CLINICAL CLARITY</span>
+              <h3 class="photo-title">Doctor-Ready Consultations</h3>
+              <p class="photo-desc">Transform subjective diary notes into structured, exportable medical visit summaries.</p>
             </div>
           </div>
 
         </div>
+
+        <!-- Two-Column Grid: Value Pillars & Authentication Card -->
+        <div class="auth-grid-two-col">
+          
+          <!-- Left Column: Clinical Highlights & Trust -->
+          <div class="auth-features-column">
+            
+            <div class="auth-feature-list">
+              <div class="auth-feature-item">
+                <span class="auth-feat-icon">🔒</span>
+                <div>
+                  <strong>100% Client-Side Privacy</strong>
+                  <p>Your cycles, symptoms, and medical notes stay safely in your browser storage. Zero trackers, zero third-party profiling.</p>
+                </div>
+              </div>
+              <div class="auth-feature-item">
+                <span class="auth-feat-icon">🌸</span>
+                <div>
+                  <strong>Comprehensive Reproductive Stages</strong>
+                  <p>Tailored dashboards for Menstrual Cycles, PCOS &amp; Hormonal Balance, Pregnancy Trimesters, and Postpartum Healing.</p>
+                </div>
+              </div>
+              <div class="auth-feature-item">
+                <span class="auth-feat-icon">📋</span>
+                <div>
+                  <strong>Doctor-Ready Clinical Summaries</strong>
+                  <p>Generate one-click PDF visit reports with chronological timelines and functional impact scoring for your gynecologist.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Doctor Endorsement Quote -->
+            <div class="auth-trust-quote">
+              <div class="quote-icon">“</div>
+              <p class="quote-text">
+                "Arogini empowers women to articulate their symptoms with clinical precision and dignity before walking into an appointment."
+              </p>
+              <span class="quote-author">— Dr. R. Sen, Consultant Obstetrician &amp; Gynecologist</span>
+            </div>
+
+            <!-- Trust Highlights Badges -->
+            <div class="auth-trust-badges">
+              <span class="trust-badge">🛡️ Client-Side Encrypted</span>
+              <span class="trust-badge">🌿 100% Free &amp; Private</span>
+              <span class="trust-badge">📱 Mobile &amp; Desktop Ready</span>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Interactive Login & Registration Card -->
+          <div class="auth-card-panel">
+            
+            <!-- Quick Demo Personas Bar -->
+            <div class="auth-persona-chips" id="auth-persona-chips">
+              <span class="persona-chips-label">⚡ 1-Click Quick Demo Sign In:</span>
+              <div class="persona-chips-row">
+                <button type="button" class="persona-chip-btn" onclick="quickLoginPersona('priya')" title="Sign in as Priya Sharma (Pregnancy Wk 19)">
+                  <span>🤰</span> Priya (Pregnancy)
+                </button>
+                <button type="button" class="persona-chip-btn" onclick="quickLoginPersona('ananya')" title="Sign in as Ananya Desai (PCOS &amp; Cycles)">
+                  <span>🔬</span> Ananya (PCOS)
+                </button>
+                <button type="button" class="persona-chip-btn" onclick="quickLoginPersona('meera')" title="Sign in as Meera Patel (Cycle Tracking)">
+                  <span>🩸</span> Meera (Cycle)
+                </button>
+              </div>
+            </div>
+
+            <!-- Guest Explorer Button -->
+            <button type="button" class="btn-guest-explore" onclick="exploreAsGuest()" title="Explore without creating an account">
+              <span>✨</span> Explore Full Dashboard as Guest
+            </button>
+
+            <div class="auth-divider">
+              <span>or sign in with your credentials</span>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="auth-tabs-nav" role="tablist">
+              <button class="auth-tab-btn active" id="tab-btn-signin" onclick="switchAuthTab('signin')" role="tab">
+                <span>🔐</span> Sign In
+              </button>
+              <button class="auth-tab-btn" id="tab-btn-register" onclick="switchAuthTab('register')" role="tab">
+                <span>✨</span> Create Account
+              </button>
+            </div>
+
+            <!-- Alert Banner -->
+            <div id="auth-alert-box" class="auth-alert" style="display: none;"></div>
+
+            <!-- 1. SIGN IN FORM -->
+            <form id="form-signin" class="auth-form active-form" onsubmit="handleLoginSubmit(event)">
+              <div class="form-group">
+                <label for="login-user-input" class="form-label">Email or Username <span class="required">*</span></label>
+                <div class="input-icon-wrap">
+                  <span class="input-icon">👤</span>
+                  <input type="text" id="login-user-input" class="form-control with-icon" placeholder="e.g. priya or priya.sharma@example.com" required autocomplete="username" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <label for="login-password-input" class="form-label">Password <span class="required">*</span></label>
+                  <a href="javascript:void(0)" onclick="handleForgotPassword()" class="auth-link-text">Forgot?</a>
+                </div>
+                <div class="input-icon-wrap">
+                  <span class="input-icon">🔑</span>
+                  <input type="password" id="login-password-input" class="form-control with-icon" placeholder="Enter password (e.g. password123)" required autocomplete="current-password" />
+                  <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('login-password-input', this)" title="Show/Hide Password">👁️</button>
+                </div>
+              </div>
+
+              <div class="form-row-checkbox">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="login-remember-me" checked />
+                  <span>Remember my session on this device</span>
+                </label>
+              </div>
+
+              <button type="submit" class="btn-primary auth-submit-btn" id="btn-login-submit">
+                <span>🔐</span> Sign In to Arogini
+              </button>
+
+              <div class="auth-switch-prompt" style="margin-top: 1.25rem;">
+                Don't have an account yet? <a href="javascript:void(0)" onclick="switchAuthTab('register')">Create one now</a>
+              </div>
+            </form>
+
+            <!-- 2. CREATE ACCOUNT FORM -->
+            <form id="form-register" class="auth-form" style="display: none;" onsubmit="handleRegisterSubmit(event)">
+              <div class="form-group">
+                <label for="reg-name-input" class="form-label">Full Name <span class="required">*</span></label>
+                <div class="input-icon-wrap">
+                  <span class="input-icon">👤</span>
+                  <input type="text" id="reg-name-input" class="form-control with-icon" placeholder="e.g. Priya Sharma" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="reg-email-input" class="form-label">Email Address <span class="required">*</span></label>
+                <div class="input-icon-wrap">
+                  <span class="input-icon">✉️</span>
+                  <input type="email" id="reg-email-input" class="form-control with-icon" placeholder="e.g. priya.sharma@example.com" required autocomplete="email" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="reg-password-input" class="form-label">Create Password <span class="required">*</span></label>
+                <div class="input-icon-wrap">
+                  <span class="input-icon">🔑</span>
+                  <input type="password" id="reg-password-input" class="form-control with-icon" placeholder="Minimum 4 characters" minlength="4" required autocomplete="new-password" />
+                  <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('reg-password-input', this)" title="Show/Hide Password">👁️</button>
+                </div>
+              </div>
+
+              <div class="form-row-grid">
+                <div class="form-group">
+                  <label for="reg-age-input" class="form-label">Age <span class="required">*</span></label>
+                  <input type="number" id="reg-age-input" class="form-control" min="12" max="95" value="26" required />
+                </div>
+                <div class="form-group">
+                  <label for="reg-stage-select" class="form-label">Primary Health Stage <span class="required">*</span></label>
+                  <select id="reg-stage-select" class="form-control" onchange="handleHealthStageChange(this.value)">
+                    <option value="pregnancy">🤰 Pregnancy / Obstetrics Care</option>
+                    <option value="pcos">🔬 PCOS / Hormonal Imbalance</option>
+                    <option value="menstrual" selected>🩸 Cycle Tracking &amp; Menstrual Health</option>
+                    <option value="postpartum">🤱 Postpartum Healing (4th Trimester)</option>
+                    <option value="wellness">🌿 General Reproductive Wellness</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Stage-Specific Conditional Fields -->
+              <div id="reg-conditional-fields" class="stage-conditional-box">
+                <div class="form-group" id="reg-lmp-group">
+                  <label for="reg-lmp-input" class="form-label">Last Menstrual Period (LMP) Date</label>
+                  <input type="date" id="reg-lmp-input" class="form-control" value="2026-10-12" />
+                </div>
+                <div class="form-group" id="reg-cycle-group">
+                  <label for="reg-cycle-length-input" class="form-label">Typical Cycle Length (Days)</label>
+                  <input type="number" id="reg-cycle-length-input" class="form-control" min="20" max="60" value="28" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="reg-contact-input" class="form-label">Emergency Caregiver / Partner Contact (Optional)</label>
+                <input type="text" id="reg-contact-input" class="form-control" placeholder="Name &amp; Phone Number (e.g. Partner: +91 98765 43210)" />
+              </div>
+
+              <div class="form-row-checkbox">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="reg-consent" required checked />
+                  <span>I acknowledge that Arogini provides non-diagnostic clinical guidance with private local storage.</span>
+                </label>
+              </div>
+
+              <button type="submit" class="btn-primary auth-submit-btn" id="btn-register-submit">
+                <span>🌸</span> Create Profile &amp; Enter App
+              </button>
+
+              <div class="auth-switch-prompt">
+                Already have an account? <a href="javascript:void(0)" onclick="switchAuthTab('signin')">Sign in here</a>
+              </div>
+            </form>
+
+            <!-- 3. LOGGED-IN CURRENT USER SUMMARY (Shown when user is active) -->
+            <div id="auth-logged-in-view" class="auth-logged-in-box" style="display: none;">
+              <div class="logged-in-header">
+                <div class="logged-in-avatar" id="logged-user-avatar">🌸</div>
+                <div>
+                  <h3 id="logged-user-name">Priya Sharma</h3>
+                  <span class="logged-user-stage-badge" id="logged-user-stage">Pregnancy Wk 19</span>
+                </div>
+              </div>
+
+              <div class="logged-in-details-grid">
+                <div class="detail-tile">
+                  <span class="tile-label">Email / ID</span>
+                  <strong id="logged-user-email">priya.sharma@example.com</strong>
+                </div>
+                <div class="detail-tile">
+                  <span class="tile-label">Age</span>
+                  <strong id="logged-user-age">26 Years</strong>
+                </div>
+                <div class="detail-tile">
+                  <span class="tile-label" id="logged-user-stat-label">Cycle / Gestation</span>
+                  <strong id="logged-user-stat">Week 19 Gestation</strong>
+                </div>
+                <div class="detail-tile">
+                  <span class="tile-label">Storage Status</span>
+                  <strong style="color: var(--sage-700);">🔒 Private Local Storage</strong>
+                </div>
+              </div>
+
+              <div class="logged-in-actions">
+                <button class="btn-primary" id="btn-logged-in-dashboard" onclick="switchView('view-obstetrics')">
+                  <span>🤰</span> Continue to Health Dashboard
+                </button>
+                <button class="btn-pill" onclick="switchView('view-summary')">
+                  <span>📋</span> View Clinical Visit Summary
+                </button>
+                <button class="btn-pill" onclick="openUserProfileModal()">
+                  <span>⚙️</span> Edit Profile Details
+                </button>
+                <button class="btn-pill btn-emergency" onclick="handleLogout()">
+                  <span>🚪</span> Sign Out
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
     </section>
 
     <!-- ============================================================== -->
     <!-- DOMAIN A: OBSTETRICS (Pregnancy, Childbirth & Postpartum Care)  -->
     <!-- ============================================================== -->
-    <section id="view-obstetrics" class="view-section active-view">
+    <section id="view-obstetrics" class="view-section">
       <!-- Domain Switcher -->
       <div class="category-switcher-bar">
         <button class="category-tab-btn active obs-active" onclick="switchView('view-obstetrics')">

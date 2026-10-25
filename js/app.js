@@ -1980,11 +1980,11 @@ function renderDoctorSummary() {
       </div>
     ` : ''}
 
-    ${AroginiState.antenatalVisits.length > 0 ? `
+    ${(AroginiState.userProfile && AroginiState.userProfile.stage === 'pregnancy' && AroginiState.antenatalVisits.length > 0) ? `
       <div class="summary-block">
         <h3><span>🤰</span> Obstetrics & Antenatal Visit Schedule</h3>
         <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
-          LMP: <strong>${AroginiState.userProfile.pregnancyLmp}</strong> • Estimated Gestation: <strong>Week 19</strong> (Second Trimester)
+          LMP: <strong>${AroginiState.userProfile.pregnancyLmp || '2026-06-15'}</strong> • Estimated Gestation: <strong>Week 19</strong> (Second Trimester)
         </p>
         <table class="summary-table">
           <thead>
@@ -2411,6 +2411,39 @@ function renderPregnancyTracker() {
   const container = document.getElementById('obs-tracker-content');
   if (!container) return;
 
+  const isPregnant = AroginiState.userProfile && AroginiState.userProfile.stage === 'pregnancy';
+  if (!isPregnant) {
+    const isPcos = AroginiState.userProfile && AroginiState.userProfile.stage === 'pcos';
+    const patientName = (AroginiState.userProfile && AroginiState.userProfile.name) || 'Patient';
+    container.innerHTML = `
+      <div style="background: #FFFFFF; border: 1.5px solid var(--border-light); border-radius: 20px; padding: 2.5rem 2rem; text-align: center; box-shadow: var(--shadow-sm); max-width: 760px; margin: 1.5rem auto;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--soft-lavender); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.25rem auto;">
+          ${isPcos ? '🔬' : '🌸'}
+        </div>
+        <span class="badge-tag" style="background: var(--blush-pink); color: var(--deep-purple); font-weight: 700; margin-bottom: 0.75rem; display: inline-block;">
+          ${isPcos ? 'PCOS &amp; HORMONAL CARE ACTIVE' : 'PREGNANCY TRACKING INACTIVE'}
+        </span>
+        <h3 style="font-family: var(--font-heading); color: var(--primary-900); font-size: 1.45rem; margin-bottom: 0.75rem;">
+          ${isPcos ? `${patientName}'s Profile is Set to PCOS Management` : 'Pregnancy Gestational Tracking Inactive'}
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; max-width: 580px; margin: 0 auto 1.5rem auto;">
+          ${isPcos 
+            ? 'Because your profile is configured for PCOS &amp; Hormonal Balance, gestational calculators and pregnancy milestones are turned off. Your cycle regularity, hirsutism/acne logs, and pelvic pain records are actively tracked in Gynaecology.'
+            : 'You are currently not set to an active pregnancy stage. Trimester milestones and fetal development calculations are only enabled for expecting mothers.'}
+        </p>
+        <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
+          <button class="btn-primary" style="width: auto; padding: 0.75rem 1.4rem;" onclick="switchView('view-gynecology')">
+            <span>🔬</span> Open Gynaecology &amp; PCOS Tracking
+          </button>
+          <button class="btn-pill" style="width: auto; padding: 0.75rem 1.25rem;" onclick="openUserProfileModal()">
+            <span>⚙️</span> Edit Health Stage in Profile
+          </button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
   // Calculate Gestational Age
   const lmpDate = new Date(AroginiState.userProfile.pregnancyLmp || '2026-06-15');
   const today = new Date();
@@ -2579,6 +2612,27 @@ function deletePregnancyMilestone(id) {
 function renderAntenatalPlanner() {
   const container = document.getElementById('obs-planner-content');
   if (!container) return;
+
+  const isPregnant = AroginiState.userProfile && AroginiState.userProfile.stage === 'pregnancy';
+  if (!isPregnant) {
+    container.innerHTML = `
+      <div style="background: #FFFFFF; border: 1.5px solid var(--border-light); border-radius: 20px; padding: 2.25rem 2rem; text-align: center; box-shadow: var(--shadow-sm); max-width: 720px; margin: 1.5rem auto;">
+        <span class="badge-tag" style="background: var(--bg-subtle); color: var(--text-secondary); font-weight: 700; margin-bottom: 0.75rem; display: inline-block;">
+          ANTENATAL PROTOCOL INACTIVE
+        </span>
+        <h3 style="font-family: var(--font-heading); color: var(--primary-900); font-size: 1.35rem; margin-bottom: 0.5rem;">
+          Antenatal Care Schedule is Reserved for Expecting Mothers
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; max-width: 520px; margin: 0 auto 1.25rem auto;">
+          Routine trimester ultrasound scans and prenatal laboratory tests are only scheduled for active pregnancy care. For PCOS symptom logs and cycle histories, visit Gynaecology.
+        </p>
+        <button class="btn-primary" style="width: auto; padding: 0.65rem 1.3rem;" onclick="switchView('view-gynecology')">
+          <span>🔬</span> Switch to Gynaecology
+        </button>
+      </div>
+    `;
+    return;
+  }
 
   container.innerHTML = `
     <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -3562,18 +3616,17 @@ function loadUserSession() {
   } catch (e) {
     console.warn('Error reading user session', e);
   }
-  // Default to active persona Ananya Desai (26, PCOS & Cycle Tracking)
-  const defaultUser = DEFAULT_AUTH_USERS[1];
-  AroginiState.currentUser = defaultUser;
+  // When no session is saved, stay signed out so Home Login page is shown
+  AroginiState.currentUser = null;
   AroginiState.userProfile = {
-    name: defaultUser.name,
-    email: defaultUser.email,
-    age: defaultUser.age,
-    stage: defaultUser.stage,
-    cycleLength: defaultUser.cycleLength,
-    lmp: defaultUser.lmp,
-    pregnancyLmp: defaultUser.pregnancyLmp,
-    emergencyContact: defaultUser.emergencyContact
+    name: 'Guest Patient',
+    email: '',
+    age: 26,
+    stage: 'menstrual',
+    cycleLength: 28,
+    lmp: '2026-10-12',
+    pregnancyLmp: '2026-06-15',
+    emergencyContact: ''
   };
 }
 
@@ -3643,12 +3696,21 @@ function renderHeaderAuth() {
   if (drawerStat) {
     if (stage === 'pregnancy') {
       drawerStat.textContent = 'Week 19 Gestation';
+    } else if (stage === 'pcos') {
+      drawerStat.textContent = `PCOS: ${profile.cycleLength || 38}d Irregular`;
     } else {
       drawerStat.textContent = `Cycle Length: ${profile.cycleLength || 28}d`;
     }
   }
 
-  if (drawerLmp) drawerLmp.textContent = stage === 'pregnancy' ? (profile.pregnancyLmp || '2026-06-15') : (profile.lmp || '2026-10-12');
+  const drawerStatLabel = document.getElementById('drawer-metric-stat-label');
+  if (drawerStatLabel) {
+    drawerStatLabel.textContent = stage === 'pregnancy' ? 'Cycle / Gestation' : 'Cycle Pattern';
+  }
+
+  if (drawerLmp) {
+    drawerLmp.textContent = stage === 'pregnancy' ? (profile.pregnancyLmp || '2026-06-15') : (profile.lmp || '2026-09-28');
+  }
   if (drawerCycle) drawerCycle.textContent = `${profile.cycleLength || 28} Days`;
   if (drawerContact) drawerContact.textContent = profile.emergencyContact || 'None configured';
 
@@ -3683,11 +3745,18 @@ function renderLoginView() {
   const tabsNav = document.querySelector('.auth-tabs-nav');
   if (!signinForm || !registerForm || !loggedInBox) return;
 
+  const personaChips = document.getElementById('auth-persona-chips');
+  const guestBtn = document.querySelector('.btn-guest-explore');
+  const divider = document.querySelector('.auth-divider');
+
   if (AroginiState.currentUser) {
     signinForm.style.display = 'none';
     registerForm.style.display = 'none';
     loggedInBox.style.display = 'flex';
     if (tabsNav) tabsNav.style.display = 'none';
+    if (personaChips) personaChips.style.display = 'none';
+    if (guestBtn) guestBtn.style.display = 'none';
+    if (divider) divider.style.display = 'none';
 
     const stageTitles = {
       pregnancy: '🤰 Pregnancy & Obstetrics (Week 19 Gestation)',
@@ -3703,6 +3772,8 @@ function renderLoginView() {
     const emailElem = document.getElementById('logged-user-email');
     const ageElem = document.getElementById('logged-user-age');
     const statElem = document.getElementById('logged-user-stat');
+    const statLabel = document.getElementById('logged-user-stat-label');
+    const dashboardBtn = document.getElementById('btn-logged-in-dashboard');
 
     if (avatarElem) avatarElem.textContent = AroginiState.currentUser.avatar || '🌸';
     if (nameElem) nameElem.textContent = AroginiState.userProfile.name;
@@ -3710,21 +3781,43 @@ function renderLoginView() {
     if (emailElem) emailElem.textContent = AroginiState.currentUser.email || AroginiState.currentUser.username || 'Private Account';
     if (ageElem) ageElem.textContent = `${AroginiState.userProfile.age} Years Old`;
     
-    if (statElem) {
-      if (AroginiState.userProfile.stage === 'pregnancy') {
-        statElem.textContent = `LMP: ${AroginiState.userProfile.pregnancyLmp} (Est. Week 19)`;
-      } else {
-        statElem.textContent = `Cycle: ${AroginiState.userProfile.cycleLength} Days • LMP: ${AroginiState.userProfile.lmp}`;
+    if (AroginiState.userProfile.stage === 'pregnancy') {
+      if (statLabel) statLabel.textContent = 'Gestation Progress';
+      if (statElem) statElem.textContent = `LMP: ${AroginiState.userProfile.pregnancyLmp || '2026-06-15'} (Est. Week 19)`;
+      if (dashboardBtn) {
+        dashboardBtn.innerHTML = '<span>🤰</span> Continue to Obstetrics Care';
+        dashboardBtn.onclick = () => switchView('view-obstetrics');
+      }
+    } else if (AroginiState.userProfile.stage === 'pcos') {
+      if (statLabel) statLabel.textContent = 'PCOS & Cycle Pattern';
+      if (statElem) statElem.textContent = `Cycle Length: ${AroginiState.userProfile.cycleLength || 38}d (Irregular) • LMP: ${AroginiState.userProfile.lmp || '2026-09-28'}`;
+      if (dashboardBtn) {
+        dashboardBtn.innerHTML = '<span>🔬</span> Open PCOS & Gynaecology Dashboard';
+        dashboardBtn.onclick = () => switchView('view-gynecology');
+      }
+    } else {
+      if (statLabel) statLabel.textContent = 'Cycle Health';
+      if (statElem) statElem.textContent = `Cycle: ${AroginiState.userProfile.cycleLength || 28} Days • LMP: ${AroginiState.userProfile.lmp || '2026-10-12'}`;
+      if (dashboardBtn) {
+        dashboardBtn.innerHTML = '<span>🌸</span> Open Women\'s Health Dashboard';
+        dashboardBtn.onclick = () => switchView('view-gynecology');
       }
     }
   } else {
     loggedInBox.style.display = 'none';
     if (tabsNav) tabsNav.style.display = 'flex';
+    if (personaChips) personaChips.style.display = 'block';
+    if (guestBtn) guestBtn.style.display = 'flex';
+    if (divider) divider.style.display = 'block';
     const activeTab = document.querySelector('.auth-tab-btn.active');
     const isRegister = activeTab && activeTab.id === 'tab-btn-register';
     signinForm.style.display = isRegister ? 'none' : 'flex';
     registerForm.style.display = isRegister ? 'flex' : 'none';
   }
+}
+
+function exploreAsGuest() {
+  quickLoginPersona('priya');
 }
 
 function switchAuthTab(tabName) {
@@ -3925,31 +4018,42 @@ function loginUser(user) {
     stage: user.stage,
     cycleLength: user.cycleLength,
     lmp: user.lmp,
-    pregnancyLmp: user.pregnancyLmp || (user.stage === 'pregnancy' ? user.lmp : '2026-06-15'),
+    pregnancyLmp: user.stage === 'pregnancy' ? (user.pregnancyLmp || user.lmp || '2026-06-15') : null,
     emergencyContact: user.emergencyContact || ''
   };
-
-  if (user.stage === 'pregnancy') {
-    AroginiState.userProfile.pregnancyLmp = user.pregnancyLmp || user.lmp || '2026-06-15';
-  }
 
   localStorage.setItem('arogini_current_user', JSON.stringify(user));
   localStorage.setItem('arogini_user_profile', JSON.stringify(AroginiState.userProfile));
 
-  // If testing with one of the pre-configured personas, ensure their rich data is populated
+  // If testing with one of the pre-configured personas, ensure their stage-appropriate rich data is populated
   if (user.username === 'priya' || user.username === 'ananya' || user.username === 'meera') {
     if (AroginiState.entries.length === 0) {
       AroginiState.entries = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.entries));
       AroginiState.vaccines = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.vaccines));
-      AroginiState.pregnancyMilestones = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pregnancyMilestones));
-      AroginiState.antenatalVisits = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.antenatalVisits));
-      AroginiState.postpartumRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.postpartumRecords));
       AroginiState.periodLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.periodLogs));
       AroginiState.pcosLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pcosLogs));
       AroginiState.pelvicPainLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pelvicPainLogs));
       AroginiState.medicalRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.medicalRecords));
+      
+      if (user.stage === 'pregnancy') {
+        AroginiState.pregnancyMilestones = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pregnancyMilestones));
+        AroginiState.antenatalVisits = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.antenatalVisits));
+        AroginiState.postpartumRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.postpartumRecords));
+      } else {
+        AroginiState.pregnancyMilestones = [];
+        AroginiState.antenatalVisits = [];
+        AroginiState.postpartumRecords = [];
+      }
       saveToStorage();
     }
+  }
+
+  // Ensure non-pregnant patients never retain pregnancy records
+  if (user.stage !== 'pregnancy') {
+    AroginiState.pregnancyMilestones = [];
+    AroginiState.antenatalVisits = [];
+    AroginiState.postpartumRecords = [];
+    saveToStorage();
   }
 
   renderAllViews();
@@ -3958,10 +4062,10 @@ function loginUser(user) {
   // Navigate to appropriate view based on their health stage
   if (user.stage === 'pregnancy') {
     switchView('view-obstetrics');
-  } else if (user.stage === 'pcos') {
+  } else if (user.stage === 'pcos' || user.stage === 'menstrual') {
     switchView('view-gynecology');
   } else {
-    switchView('view-obstetrics');
+    switchView('view-gynecology');
   }
 }
 
@@ -4090,8 +4194,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Make Obstetrics the default active view on load
-  switchView('view-obstetrics');
+  // Default to the separate clean and attractive Login / Home page on start
+  switchView('view-login');
 
   // Dedicated Download PDF Handler using client-side html2pdf
   const downloadPdfBtn = document.getElementById('btn-download-pdf');
