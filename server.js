@@ -124,10 +124,14 @@ const server = http.createServer((req, res) => {
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
           const errMsg = (errData && errData.error && errData.error.message) || 'AI service response error';
+          let userFriendlyReply = errMsg;
+          if (errMsg.toLowerCase().includes('credit') || errMsg.toLowerCase().includes('balance')) {
+            userFriendlyReply = 'Your Anthropic API key is connected, but your credit balance is too low ($0.00). Please add credits in your Anthropic Console (Plans & Billing) to enable AI responses.';
+          }
           res.writeHead(response.status >= 500 ? 502 : response.status, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({
             error: errMsg,
-            reply: 'Anatomy AI Chat encountered an issue communicating with the AI service. Please verify your ANTHROPIC_API_KEY in .env.'
+            reply: userFriendlyReply
           }));
           return;
         }
