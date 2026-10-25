@@ -36,7 +36,8 @@ const AroginiState = {
   periodLogs: [],
   pcosLogs: [],
   pelvicPainLogs: [],
-  medicalRecords: []
+  medicalRecords: [],
+  clinicalFormulation: null
 };
 
 // --- Organ Anatomy Knowledge Base ---
@@ -757,6 +758,7 @@ function saveToStorage() {
     localStorage.setItem('arogini_medrecords', JSON.stringify(AroginiState.medicalRecords));
     localStorage.setItem('arogini_pin', AroginiState.pin || '');
     localStorage.setItem('arogini_user_profile', JSON.stringify(AroginiState.userProfile));
+    localStorage.setItem('arogini_clinical_hpi', JSON.stringify(AroginiState.clinicalFormulation || null));
   } catch (e) {
     console.warn('Storage write failed', e);
   }
@@ -778,6 +780,11 @@ function loadFromStorage() {
       AroginiState.pelvicPainLogs = JSON.parse(localStorage.getItem('arogini_pelvicpain') || '[]');
       AroginiState.medicalRecords = JSON.parse(localStorage.getItem('arogini_medrecords') || '[]');
       AroginiState.pin = localStorage.getItem('arogini_pin') || '';
+      try {
+        AroginiState.clinicalFormulation = JSON.parse(localStorage.getItem('arogini_clinical_hpi') || 'null');
+      } catch (err) {
+        AroginiState.clinicalFormulation = null;
+      }
     } else {
       AroginiState.entries = [];
       AroginiState.vaccines = [];
@@ -921,6 +928,11 @@ function initNavigation() {
         renderDoctorSummary();
       } else if (targetSub === 'obs-vaccines') {
         renderVaccines();
+      } else if (targetSub === 'summary-ai-translator') {
+        const inputArea = document.getElementById('translator-input-text');
+        if (inputArea && !inputArea.value) {
+          setTimeout(() => inputArea.focus(), 120);
+        }
       }
     });
   });
@@ -1968,6 +1980,31 @@ function renderDoctorSummary() {
         </tbody>
       </table>
     </div>
+
+    ${AroginiState.clinicalFormulation ? `
+      <div class="summary-block clinical-hpi-report-block" style="border: 2px solid var(--primary-400); background: #FFF5F9; border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h3 style="margin: 0; color: var(--primary-900); display: flex; align-items: center; gap: 0.45rem; font-size: 1.15rem;">
+            <span>✨</span> AI Clinical Formulation &amp; Patient HPI
+          </h3>
+          <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <span class="badge-tag" style="background: var(--primary-500); color: #fff; font-size: 0.72rem; font-weight: 700;">Doctor-Ready HPI</span>
+            <span class="badge-tag badge-sage" style="font-size: 0.72rem;">${AroginiState.clinicalFormulation.detectedLanguage || 'Bilingual'}</span>
+          </div>
+        </div>
+        <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); font-style: italic; margin-bottom: 0.85rem; padding: 0.85rem 1rem; background: #fff; border-left: 4px solid var(--primary-500); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          "${AroginiState.clinicalFormulation.clinicalHpi}"
+        </p>
+        ${AroginiState.clinicalFormulation.medicalTerms && AroginiState.clinicalFormulation.medicalTerms.length > 0 ? `
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">
+            <strong>Medical Terminology Mapped:</strong>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem;">
+              ${AroginiState.clinicalFormulation.medicalTerms.map(t => `<span class="badge-tag badge-pink" style="font-size: 0.75rem;"><strong>${t.term}:</strong> ${t.explanation || t.plainMeaning || ''}</span>`).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    ` : ''}
 
     ${AroginiState.selectedQuestions.length > 0 ? `
       <div class="summary-block">
@@ -4167,6 +4204,308 @@ function saveUserProfileEdits() {
   closeAllModals();
   showToast('Patient health profile updated! 🌸');
 }
+
+// ==========================================
+// AI Clinical Voice & Language Translator
+// (Bilingual Hindi / Hinglish / English -> Doctor-Ready HPI)
+// ==========================================
+
+let currentTranslatorLang = 'auto';
+let speechRecognitionInstance = null;
+let isMicListening = false;
+let lastTranslationResult = null;
+
+const TRANSLATOR_DEMO_PROMPTS = {
+  'hinglish-pcos': "Mujhe pichle 4 mahino se periods bohot irregular ho gaye hain (around 38-42 din me aate hain). Lower abdomen me left side halka dukhne lagta hai, aur face aur jawline par stubborn pimples aur chin hair notice kiye hain. Mujhe kafi tiredness bhi rehti hai.",
+  'english-pain': "Around day 14 of my cycle, I get a sharp, localized pelvic pain on my lower right side that lasts for about 6 to 8 hours and makes it uncomfortable to sit or walk briskly. Then it gradually fades into a dull ache.",
+  'pregnancy-pull': "I am currently at week 18 of pregnancy. Whenever I sneeze, cough, or get out of bed quickly, I feel a sudden pulling, stabbing sensation on both sides of my lower belly that resolves within a few seconds."
+};
+
+function loadTranslatorExample(key) {
+  const text = TRANSLATOR_DEMO_PROMPTS[key];
+  if (!text) return;
+  const textarea = document.getElementById('translator-input-text');
+  if (textarea) {
+    textarea.value = text;
+    textarea.focus();
+    showToast('Loaded demo scenario. Click "Translate" to test! ⚡');
+  }
+}
+
+function setTranslatorLang(lang, btn) {
+  currentTranslatorLang = lang;
+  document.querySelectorAll('.lang-pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const label = lang === 'auto' ? 'Auto-Detect' : (lang === 'hinglish' ? 'Hinglish / Hindi' : 'English');
+  showToast(`Input language set to ${label}`);
+}
+
+function clearTranslatorInput() {
+  const textarea = document.getElementById('translator-input-text');
+  if (textarea) textarea.value = '';
+  const outBox = document.getElementById('translator-output-container');
+  if (outBox) outBox.style.display = 'none';
+  const loading = document.getElementById('translator-loading');
+  if (loading) loading.style.display = 'none';
+}
+
+function toggleSpeechRecognition() {
+  const SpeechRec = window.webkitSpeechRecognition || window.SpeechRecognition;
+  const micBtn = document.getElementById('btn-translator-mic');
+  const micIcon = document.getElementById('mic-icon');
+  const micLabel = document.getElementById('mic-label');
+  const textarea = document.getElementById('translator-input-text');
+
+  if (!SpeechRec) {
+    showToast('Voice recognition is not supported in this browser. Please type directly.');
+    return;
+  }
+
+  if (isMicListening && speechRecognitionInstance) {
+    speechRecognitionInstance.stop();
+    isMicListening = false;
+    if (micBtn) micBtn.classList.remove('listening');
+    if (micIcon) micIcon.textContent = '🎤';
+    if (micLabel) micLabel.textContent = 'Speak (Voice Input)';
+    showToast('Voice recording stopped.');
+    return;
+  }
+
+  try {
+    speechRecognitionInstance = new SpeechRec();
+    speechRecognitionInstance.continuous = false;
+    speechRecognitionInstance.interimResults = true;
+    speechRecognitionInstance.lang = currentTranslatorLang === 'english' ? 'en-IN' : 'hi-IN';
+
+    speechRecognitionInstance.onstart = () => {
+      isMicListening = true;
+      if (micBtn) micBtn.classList.add('listening');
+      if (micIcon) micIcon.textContent = '⏹️';
+      if (micLabel) micLabel.textContent = 'Listening (Speak now)...';
+      showToast('Listening in ' + (currentTranslatorLang === 'english' ? 'English' : 'Hindi / Hinglish') + ' 🎙️');
+    };
+
+    speechRecognitionInstance.onresult = (event) => {
+      let interimTranscript = '';
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+        }
+      }
+      if (textarea) {
+        const base = textarea.value.replace(/\[listening\.\.\.\]/g, '').trim();
+        if (finalTranscript) {
+          textarea.value = (base ? base + ' ' : '') + finalTranscript;
+        } else if (interimTranscript) {
+          textarea.value = (base ? base + ' ' : '') + interimTranscript;
+        }
+      }
+    };
+
+    speechRecognitionInstance.onerror = (err) => {
+      console.warn('Speech recognition error:', err);
+      isMicListening = false;
+      if (micBtn) micBtn.classList.remove('listening');
+      if (micIcon) micIcon.textContent = '🎤';
+      if (micLabel) micLabel.textContent = 'Speak (Voice Input)';
+      showToast('Microphone error or permission denied. Please type your notes.');
+    };
+
+    speechRecognitionInstance.onend = () => {
+      isMicListening = false;
+      if (micBtn) micBtn.classList.remove('listening');
+      if (micIcon) micIcon.textContent = '🎤';
+      if (micLabel) micLabel.textContent = 'Speak (Voice Input)';
+    };
+
+    speechRecognitionInstance.start();
+  } catch (err) {
+    console.error('Failed to start speech recognition:', err);
+    showToast('Could not access microphone.');
+  }
+}
+
+async function handleClinicalTranslation() {
+  const textarea = document.getElementById('translator-input-text');
+  const rawText = textarea ? textarea.value.trim() : '';
+
+  if (!rawText) {
+    showToast('Please type or speak your symptoms first!');
+    if (textarea) textarea.focus();
+    return;
+  }
+
+  const loadingBox = document.getElementById('translator-loading');
+  const resultsCard = document.getElementById('translator-output-container');
+  const actionBtn = document.getElementById('btn-translate-action');
+
+  if (loadingBox) loadingBox.style.display = 'block';
+  if (resultsCard) resultsCard.style.display = 'none';
+  if (actionBtn) {
+    actionBtn.disabled = true;
+    actionBtn.innerHTML = '<span>⏳</span> Translating to Clinical Formulation...';
+  }
+
+  const userStage = (AroginiState.userProfile && AroginiState.userProfile.stage) || 'general';
+
+  try {
+    const response = await fetch('/api/clinical-translator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: rawText,
+        language: currentTranslatorLang,
+        stage: userStage
+      })
+    });
+
+    const data = await response.json();
+    lastTranslationResult = data;
+
+    // 1. Language badge
+    const langBadge = document.getElementById('result-detected-lang');
+    if (langBadge) {
+      langBadge.textContent = `Detected: ${data.detectedLanguage || 'Hinglish / English'}`;
+    }
+
+    // 2. Emergency alert if flagged
+    const emergBox = document.getElementById('translator-emergency-banner');
+    const emergText = document.getElementById('translator-emergency-text');
+    if (emergBox && emergText) {
+      if (data.isEmergency || data.emergencyFlag) {
+        emergText.textContent = data.emergencyAdvice || 'Potential acute red flag detected. Seek immediate in-person medical evaluation.';
+        emergBox.style.display = 'flex';
+      } else {
+        emergBox.style.display = 'none';
+      }
+    }
+
+    // 3. Clinical HPI
+    const hpiContainer = document.getElementById('result-clinical-hpi');
+    if (hpiContainer) {
+      hpiContainer.innerHTML = `"${data.clinicalHpi || 'No clinical formulation generated.'}"`;
+    }
+
+    // 4. Medical Terms Breakdown
+    const termsContainer = document.getElementById('result-medical-terms');
+    if (termsContainer) {
+      if (data.medicalTerms && data.medicalTerms.length > 0) {
+        termsContainer.innerHTML = data.medicalTerms.map(t => `
+          <div class="term-item">
+            <span class="term-title">${t.term}</span>
+            <span class="term-desc">${t.explanation || t.plainMeaning || ''}</span>
+          </div>
+        `).join('');
+      } else {
+        termsContainer.innerHTML = '<span style="color: var(--text-muted); font-size: 0.85rem;">Standard anatomical biomarkers referenced.</span>';
+      }
+    }
+
+    // 5. Doctor Questions
+    const questionsContainer = document.getElementById('result-doctor-questions');
+    if (questionsContainer) {
+      if (data.doctorQuestions && data.doctorQuestions.length > 0) {
+        questionsContainer.innerHTML = data.doctorQuestions.map((q, idx) => {
+          const isAdded = AroginiState.selectedQuestions.includes(q);
+          return `
+            <li class="doctor-q-item">
+              <div class="doctor-q-header">
+                <span class="q-badge">Q${idx + 1}</span>
+                <span class="q-text">${q}</span>
+              </div>
+              <button type="button" class="btn-add-q-inline ${isAdded ? 'added' : ''}" onclick="toggleDoctorQuestion('${q.replace(/'/g, "\\'")}')">
+                ${isAdded ? '✓ Added to Summary' : '+ Add Question'}
+              </button>
+            </li>
+          `;
+        }).join('');
+      } else {
+        questionsContainer.innerHTML = '<li>Discuss cycle regularity, pain mapping, and screening with your provider.</li>';
+      }
+    }
+
+    if (loadingBox) loadingBox.style.display = 'none';
+    if (resultsCard) {
+      resultsCard.style.display = 'block';
+      resultsCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    showToast('Clinical translation complete! 🩺✨');
+
+  } catch (err) {
+    console.error('Translation error:', err);
+    if (loadingBox) loadingBox.style.display = 'none';
+    showToast('Clinical formulation service temporary issue. Please retry.');
+  } finally {
+    if (actionBtn) {
+      actionBtn.disabled = false;
+      actionBtn.innerHTML = '<span>✨</span> Translate to Doctor-Ready Phrasing &amp; Questions';
+    }
+  }
+}
+
+function copyClinicalHpi() {
+  const hpiEl = document.getElementById('result-clinical-hpi');
+  if (!hpiEl) return;
+  const text = hpiEl.innerText.replace(/^"|"$/g, '').trim();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Copied clinical formulation to clipboard! 📋');
+    }).catch(() => {
+      showToast('Failed to copy text.');
+    });
+  } else {
+    showToast('Clipboard not supported.');
+  }
+}
+
+function appendHpiToDoctorSummary() {
+  if (!lastTranslationResult || !lastTranslationResult.clinicalHpi) {
+    showToast('Please translate your symptoms first!');
+    return;
+  }
+
+  // 1. Save formulation to state
+  AroginiState.clinicalFormulation = {
+    clinicalHpi: lastTranslationResult.clinicalHpi,
+    medicalTerms: lastTranslationResult.medicalTerms || [],
+    detectedLanguage: lastTranslationResult.detectedLanguage || 'Hinglish / English',
+    timestamp: new Date().toISOString()
+  };
+
+  // 2. Add doctor questions to selectedQuestions if not already there
+  if (lastTranslationResult.doctorQuestions && Array.isArray(lastTranslationResult.doctorQuestions)) {
+    lastTranslationResult.doctorQuestions.forEach(q => {
+      if (!AroginiState.selectedQuestions.includes(q)) {
+        AroginiState.selectedQuestions.push(q);
+      }
+    });
+  }
+
+  saveToStorage();
+
+  // 3. Re-render Doctor Summary
+  renderDoctorSummary();
+
+  // 4. Switch subtab to summary-report
+  const summaryReportBtn = document.querySelector('.sub-tab-btn[data-subtab="summary-report"]');
+  if (summaryReportBtn) {
+    summaryReportBtn.click();
+  }
+
+  showToast('Appended AI Clinical Formulation to your Doctor Visit Summary PDF! 📄✨');
+}
+
+// Global window exposure for inline HTML events
+window.loadTranslatorExample = loadTranslatorExample;
+window.setTranslatorLang = setTranslatorLang;
+window.clearTranslatorInput = clearTranslatorInput;
+window.toggleSpeechRecognition = toggleSpeechRecognition;
+window.handleClinicalTranslation = handleClinicalTranslation;
+window.copyClinicalHpi = copyClinicalHpi;
+window.appendHpiToDoctorSummary = appendHpiToDoctorSummary;
 
 // --- Initial Setup on DOM Ready ---
 document.addEventListener('DOMContentLoaded', () => {
