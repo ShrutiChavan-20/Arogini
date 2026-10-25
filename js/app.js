@@ -836,6 +836,60 @@ function showToast(message) {
   }, 3200);
 }
 
+// --- Side Navigation & Profile Drawer Controllers ---
+function openSideNav() {
+  const drawer = document.getElementById('side-nav-drawer');
+  const backdrop = document.getElementById('side-nav-backdrop');
+  if (drawer) drawer.classList.add('open');
+  if (backdrop) backdrop.classList.add('active');
+  document.body.classList.add('side-nav-open');
+}
+
+function closeSideNav() {
+  const drawer = document.getElementById('side-nav-drawer');
+  const backdrop = document.getElementById('side-nav-backdrop');
+  if (drawer) drawer.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('active');
+  document.body.classList.remove('side-nav-open');
+}
+
+function toggleSideNav() {
+  const drawer = document.getElementById('side-nav-drawer');
+  if (drawer && drawer.classList.contains('open')) {
+    closeSideNav();
+  } else {
+    closeRightProfileDrawer();
+    openSideNav();
+  }
+}
+
+function openRightProfileDrawer() {
+  renderHeaderAuth();
+  const drawer = document.getElementById('right-profile-drawer');
+  const backdrop = document.getElementById('right-profile-backdrop');
+  if (drawer) drawer.classList.add('open');
+  if (backdrop) backdrop.classList.add('active');
+  document.body.classList.add('profile-drawer-open');
+}
+
+function closeRightProfileDrawer() {
+  const drawer = document.getElementById('right-profile-drawer');
+  const backdrop = document.getElementById('right-profile-backdrop');
+  if (drawer) drawer.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('active');
+  document.body.classList.remove('profile-drawer-open');
+}
+
+function toggleRightProfileDrawer() {
+  const drawer = document.getElementById('right-profile-drawer');
+  if (drawer && drawer.classList.contains('open')) {
+    closeRightProfileDrawer();
+  } else {
+    closeSideNav();
+    openRightProfileDrawer();
+  }
+}
+
 // --- Navigation Controller ---
 function initNavigation() {
   const navBtns = document.querySelectorAll('.nav-btn');
@@ -843,6 +897,7 @@ function initNavigation() {
     btn.addEventListener('click', () => {
       const targetView = btn.dataset.view;
       switchView(targetView);
+      closeSideNav(); // automatically close side drawer on selection
     });
   });
 
@@ -866,14 +921,28 @@ function initNavigation() {
   if (emergencyBtn) {
     emergencyBtn.addEventListener('click', () => {
       switchView('view-triage');
+      closeSideNav();
+      closeRightProfileDrawer();
     });
   }
 
   // Privacy Modal button
   const privacyBtn = document.getElementById('btn-privacy-header');
   if (privacyBtn) {
-    privacyBtn.addEventListener('click', openPrivacyModal);
+    privacyBtn.addEventListener('click', () => {
+      openPrivacyModal();
+      closeSideNav();
+      closeRightProfileDrawer();
+    });
   }
+
+  // Keyboard shortcut: ESC closes open drawers
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeSideNav();
+      closeRightProfileDrawer();
+    }
+  });
 }
 
 function switchView(viewId) {
@@ -3702,12 +3771,11 @@ function renderAroginiAIHub() {
   initAISBARInDoctorSummary();
 }
 
-// Friendly card metadata for Indian women (simple emoji, plain title, Hindi hint)
+// Friendly card metadata for clinical guidelines (English only)
 const CORPUS_FRIENDLY_META = {
   'rag-acog-222': {
     emoji: '🤰',
     friendlyTitle: 'High BP in Pregnancy (Preeclampsia)',
-    hindi: 'गर्भावस्था में उच्च रक्तचाप',
     tip: 'If you have swelling, headache or blurred vision during pregnancy — see your doctor right away.',
     color: '#fce4ec',
     accent: '#e91e63'
@@ -3715,15 +3783,13 @@ const CORPUS_FRIENDLY_META = {
   'rag-rotterdam-pcos': {
     emoji: '🌿',
     friendlyTitle: 'Irregular Periods & PCOS',
-    hindi: 'अनियमित मासिक धर्म / PCOS',
-    tip: 'Irregular cycles, facial hair, acne or weight gain could be signs of PCOS. You are not alone — it\'s very common in Indian women.',
+    tip: 'Irregular cycles, facial hair, acne or weight gain could be signs of PCOS. Early clinical evaluation helps manage symptoms effectively.',
     color: '#e8f5e9',
     accent: '#388e3c'
   },
   'rag-acog-760': {
     emoji: '💗',
     friendlyTitle: 'Period Pain & Endometriosis',
-    hindi: 'मासिक दर्द / एंडोमेट्रियोसिस',
     tip: 'Severe period cramps that don\'t get better with medicine could mean something needs checking.',
     color: '#fce4ec',
     accent: '#c2185b'
@@ -3731,7 +3797,6 @@ const CORPUS_FRIENDLY_META = {
   'rag-who-postpartum': {
     emoji: '👶',
     friendlyTitle: 'Baby Blues & Recovery After Delivery',
-    hindi: 'प्रसव के बाद देखभाल',
     tip: 'Feeling sad or overwhelmed after having a baby is common. You deserve support. Please talk to someone.',
     color: '#e3f2fd',
     accent: '#1976d2'
@@ -3739,7 +3804,6 @@ const CORPUS_FRIENDLY_META = {
   'rag-fogsi-aub': {
     emoji: '🩸',
     friendlyTitle: 'Heavy or Unusual Bleeding',
-    hindi: 'अधिक मासिक रक्तस्राव',
     tip: 'Changing pads every 1-2 hours or passing large clots is not normal. Visit a doctor.',
     color: '#fff3e0',
     accent: '#e65100'
@@ -3747,7 +3811,6 @@ const CORPUS_FRIENDLY_META = {
   'rag-acog-ectopic': {
     emoji: '🚨',
     friendlyTitle: 'Bleeding in Early Pregnancy (Emergency)',
-    hindi: 'प्रारंभिक गर्भावस्था में रक्तस्राव',
     tip: 'One-sided stomach pain + bleeding in early pregnancy = see emergency care immediately.',
     color: '#ffebee',
     accent: '#b71c1c'
@@ -3760,7 +3823,7 @@ function renderRAGCorpusCards() {
 
   container.innerHTML = RAG_KNOWLEDGE_CORPUS.map(item => {
     const meta = CORPUS_FRIENDLY_META[item.id] || {
-      emoji: '📋', friendlyTitle: item.title, hindi: '', tip: '',
+      emoji: '📋', friendlyTitle: item.title, tip: '',
       color: '#f3e5f5', accent: '#7b1fa2'
     };
     return `
@@ -3769,7 +3832,6 @@ function renderRAGCorpusCards() {
         <span class="corpus-emoji">${meta.emoji}</span>
         <div class="corpus-title-block">
           <h4 class="corpus-title">${meta.friendlyTitle}</h4>
-          ${meta.hindi ? `<span class="corpus-hindi">${meta.hindi}</span>` : ''}
         </div>
         <span class="corpus-verified-badge">✔ Verified</span>
       </div>
@@ -4587,35 +4649,90 @@ function initAuthSystem() {
 }
 
 function renderHeaderAuth() {
+  const profile = HerVitaState.userProfile || {
+    name: 'Priya Sharma',
+    age: 26,
+    stage: 'pregnancy',
+    cycleLength: 28,
+    lmp: '2026-10-12',
+    pregnancyLmp: '2026-06-15',
+    emergencyContact: 'Aakash Sharma: +91 98765 43210'
+  };
+
+  const user = HerVitaState.currentUser;
+  const avatar = (user && user.avatar) ? user.avatar : '🌸';
+  const name = (user && user.name) ? user.name : (profile.name || 'Priya Sharma');
+  const age = (user && user.age) ? user.age : (profile.age || 26);
+  const stage = (user && user.stage) ? user.stage : (profile.stage || 'pregnancy');
+
+  const stageLabels = {
+    pregnancy: 'Pregnancy Wk 19',
+    pcos: 'PCOS Journal',
+    menstrual: 'Cycle Tracking',
+    postpartum: 'Postpartum Care',
+    wellness: 'Wellness Profile'
+  };
+  const stageLabel = stageLabels[stage] || 'Active Profile';
+
+  // 1. Update Always-Visible Profile Widget in Top Header
+  const headerAvatar = document.getElementById('header-profile-avatar');
+  const headerName = document.getElementById('header-profile-name');
+  const headerAge = document.getElementById('header-profile-age');
+
+  if (headerAvatar) headerAvatar.textContent = avatar;
+  if (headerName) headerName.textContent = name;
+  if (headerAge) headerAge.textContent = `${age} yrs`;
+
+  // 2. Update Right Sliding Profile Drawer Elements
+  const drawerAvatar = document.getElementById('drawer-user-avatar');
+  const drawerName = document.getElementById('drawer-user-name');
+  const drawerAge = document.getElementById('drawer-user-age');
+  const drawerStage = document.getElementById('drawer-user-stage');
+  const drawerEmail = document.getElementById('drawer-user-email');
+  const drawerStat = document.getElementById('drawer-user-stat');
+  const drawerLmp = document.getElementById('drawer-user-lmp');
+  const drawerCycle = document.getElementById('drawer-user-cycle');
+  const drawerContact = document.getElementById('drawer-user-contact');
+
+  if (drawerAvatar) drawerAvatar.textContent = avatar;
+  if (drawerName) drawerName.textContent = name;
+  if (drawerAge) drawerAge.textContent = `${age} Years`;
+  if (drawerStage) drawerStage.textContent = stageLabel;
+  if (drawerEmail) drawerEmail.textContent = user ? (user.email || user.username || 'Encrypted Local Account') : 'Encrypted Local Account';
+
+  if (drawerStat) {
+    if (stage === 'pregnancy') {
+      drawerStat.textContent = 'Week 19 Gestation';
+    } else {
+      drawerStat.textContent = `Cycle Length: ${profile.cycleLength || 28}d`;
+    }
+  }
+
+  if (drawerLmp) drawerLmp.textContent = stage === 'pregnancy' ? (profile.pregnancyLmp || '2026-06-15') : (profile.lmp || '2026-10-12');
+  if (drawerCycle) drawerCycle.textContent = `${profile.cycleLength || 28} Days`;
+  if (drawerContact) drawerContact.textContent = profile.emergencyContact || 'None configured';
+
+  // 3. Fallback compatibility for header-auth-slot
   const container = document.getElementById('header-auth-slot');
-  if (!container) return;
-
-  if (HerVitaState.currentUser) {
-    const stageLabels = {
-      pregnancy: 'Pregnancy Wk 19',
-      pcos: 'PCOS Journal',
-      menstrual: 'Cycle Tracking',
-      postpartum: 'Postpartum Care',
-      wellness: 'Wellness Profile'
-    };
-    const stageLabel = stageLabels[HerVitaState.userProfile.stage] || 'Active Profile';
-
-    container.innerHTML = `
-      <div class="user-chip" id="btn-header-profile" onclick="openUserProfileModal()" title="View and manage ${HerVitaState.userProfile.name}'s profile">
-        <div class="user-avatar">${HerVitaState.currentUser.avatar || '🌸'}</div>
-        <div class="user-chip-info">
-          <span class="user-chip-name">${HerVitaState.userProfile.name}</span>
-          <span class="user-chip-stage">${stageLabel}</span>
+  if (container) {
+    if (user) {
+      container.innerHTML = `
+        <div class="user-chip" id="btn-header-profile" onclick="openRightProfileDrawer()" title="View and manage ${name}'s profile">
+          <div class="user-avatar">${avatar}</div>
+          <div class="user-chip-info">
+            <span class="user-chip-name">${name}</span>
+            <span class="user-chip-stage">${stageLabel}</span>
+          </div>
+          <span class="user-chip-arrow">▾</span>
         </div>
-        <span class="user-chip-arrow">▾</span>
-      </div>
-    `;
-  } else {
-    container.innerHTML = `
-      <button class="btn-pill btn-auth-pill" id="btn-header-login" onclick="switchView('view-login')">
-        <span>👤</span> Sign In / Register
-      </button>
-    `;
+      `;
+    } else {
+      container.innerHTML = `
+        <button class="btn-pill btn-auth-pill" id="btn-header-login" onclick="switchView('view-login')">
+          <span>👤</span> Sign In / Register
+        </button>
+      `;
+    }
   }
 }
 
@@ -4920,7 +5037,7 @@ function handleLogout() {
 }
 
 function handleForgotPassword() {
-  alert('Since Arogini uses 100% private client-side device storage, your credentials are kept strictly in this browser. You can click any sample persona chip below or register a new profile.');
+  alert('Since Arogini uses 100% private client-side device storage, your credentials and records are kept strictly in this browser. You can register a new profile or sign in with your account credentials.');
 }
 
 function openUserProfileModal() {

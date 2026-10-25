@@ -23,46 +23,200 @@
     <span>• 100% Private & Device-Only</span>
   </aside>
 
-  <!-- Sticky Top Header & Main Navigation -->
-  <header class="app-header">
-    <div class="header-container">
-      <div class="brand-wrapper" onclick="switchView('view-ai-agent')">
+  <!-- Left Side Panel Navigation Backdrop -->
+  <div class="side-nav-backdrop" id="side-nav-backdrop" onclick="closeSideNav()"></div>
+
+  <!-- Left Side Panel Navigation Drawer -->
+  <aside class="side-nav-drawer" id="side-nav-drawer" aria-label="Side Navigation Panel">
+    <div class="side-nav-header">
+      <div class="side-nav-brand" onclick="switchView('view-ai-agent'); closeSideNav();">
         <div class="brand-icon">🌸</div>
-        <div class="brand-text">
-          <h1>Arogini</h1>
-          <span class="brand-badge">Agentic AI & Clinical RAG Platform</span>
+        <div class="side-nav-brand-text">
+          <h3>Arogini</h3>
+          <span class="side-nav-badge">Clinical AI Suite</span>
         </div>
       </div>
+      <button class="drawer-close-btn" id="btn-close-side-nav" onclick="closeSideNav()" aria-label="Close navigation" title="Close Menu">✕</button>
+    </div>
 
-      <!-- Main Navigation Tabs -->
-      <nav class="app-nav" aria-label="Main Navigation">
+    <div class="side-nav-body">
+      <div class="side-nav-group-label">CLINICAL NAVIGATION</div>
+      <nav class="side-nav-list" aria-label="Main Navigation">
         <button class="nav-btn active" data-view="view-ai-agent">
-          <span>🤖</span> Agentic AI & RAG
+          <span class="nav-btn-icon">🤖</span>
+          <div class="nav-btn-text">
+            <strong>Agentic AI & RAG</strong>
+            <small>Multi-agent copilot & guideline retrieval</small>
+          </div>
         </button>
         <button class="nav-btn" data-view="view-obstetrics">
-          <span>🤰</span> Obstetrics
+          <span class="nav-btn-icon">🤰</span>
+          <div class="nav-btn-text">
+            <strong>Obstetrics Care</strong>
+            <small>Gestation, visits & kick counter</small>
+          </div>
         </button>
         <button class="nav-btn" data-view="view-gynecology">
-          <span>🔬</span> Gynecology
+          <span class="nav-btn-icon">🔬</span>
+          <div class="nav-btn-text">
+            <strong>Gynecology & PCOS</strong>
+            <small>Cycle tracking, acne & pain diary</small>
+          </div>
         </button>
         <button class="nav-btn" data-view="view-summary">
-          <span>📋</span> Doctor Summary & SBAR
+          <span class="nav-btn-icon">📋</span>
+          <div class="nav-btn-text">
+            <strong>Doctor Summary & SBAR</strong>
+            <small>Exportable clinical report for consults</small>
+          </div>
         </button>
         <button class="nav-btn" data-view="view-checklist">
-          <span>✅</span> Care Checklist
+          <span class="nav-btn-icon">✅</span>
+          <div class="nav-btn-text">
+            <strong>Care Checklist</strong>
+            <small>Diagnostic scans, lab tests & tasks</small>
+          </div>
         </button>
         <button class="nav-btn" data-view="view-vaccines">
-          <span>💉</span> Vaccines
+          <span class="nav-btn-icon">💉</span>
+          <div class="nav-btn-text">
+            <strong>Vaccines & Immunization</strong>
+            <small>HPV, Tdap & maternal schedules</small>
+          </div>
         </button>
         <button class="nav-btn" data-view="view-awareness">
-          <span>🧠</span> Anatomy & Videos
+          <span class="nav-btn-icon">🧠</span>
+          <div class="nav-btn-text">
+            <strong>Anatomy & Videos</strong>
+            <small>Interactive organ atlas & education</small>
+          </div>
         </button>
         <button class="nav-btn" data-view="view-login" id="nav-login-btn">
-          <span>👤</span> Account
+          <span class="nav-btn-icon">👤</span>
+          <div class="nav-btn-text">
+            <strong>Account & Settings</strong>
+            <small>Security, data backup & preferences</small>
+          </div>
         </button>
       </nav>
 
-      <!-- Action Buttons -->
+      <div class="side-nav-footer">
+        <div class="side-nav-privacy-card">
+          <span>🔒</span>
+          <div>
+            <strong>100% Client-Side Privacy</strong>
+            <p>Your health data is encrypted on your local device.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right Sliding Profile Panel Backdrop -->
+  <div class="right-profile-backdrop" id="right-profile-backdrop" onclick="closeRightProfileDrawer()"></div>
+
+  <!-- Right Sliding Profile Panel Drawer -->
+  <aside class="right-profile-drawer" id="right-profile-drawer" aria-label="Patient Profile Drawer">
+    <div class="profile-drawer-header">
+      <div class="profile-drawer-title-area">
+        <span class="profile-drawer-header-icon">🌸</span>
+        <div>
+          <h3>Patient Profile</h3>
+          <span class="profile-drawer-header-sub">Confidential Health Record</span>
+        </div>
+      </div>
+      <button class="drawer-close-btn" id="btn-close-profile-drawer" onclick="closeRightProfileDrawer()" aria-label="Close Profile Panel" title="Close Profile">✕</button>
+    </div>
+
+    <div class="profile-drawer-body">
+      <!-- Active Patient Card -->
+      <div class="drawer-patient-card">
+        <div class="drawer-avatar-wrap">
+          <span class="drawer-avatar" id="drawer-user-avatar">🌸</span>
+          <span class="drawer-status-dot" title="Active on Device"></span>
+        </div>
+        <div class="drawer-user-info">
+          <h4 id="drawer-user-name">Priya Sharma</h4>
+          <div class="drawer-badge-row">
+            <span class="drawer-badge-age" id="drawer-user-age">26 Years</span>
+            <span class="drawer-badge-stage" id="drawer-user-stage">Pregnancy Wk 19</span>
+          </div>
+          <p class="drawer-user-email" id="drawer-user-email">priya.sharma@example.com</p>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="drawer-metrics-grid">
+        <div class="drawer-metric-tile">
+          <span class="metric-label">Cycle / Gestation</span>
+          <strong id="drawer-user-stat">Week 19 Gestation</strong>
+        </div>
+        <div class="drawer-metric-tile">
+          <span class="metric-label">LMP Date</span>
+          <strong id="drawer-user-lmp">12 Oct 2026</strong>
+        </div>
+        <div class="drawer-metric-tile">
+          <span class="metric-label">Typical Cycle</span>
+          <strong id="drawer-user-cycle">28 Days</strong>
+        </div>
+        <div class="drawer-metric-tile">
+          <span class="metric-label">Local Storage</span>
+          <strong style="color: var(--sage-700);">🔒 Private & Local</strong>
+        </div>
+      </div>
+
+      <!-- Emergency / Caregiver Contact Tile -->
+      <div class="drawer-contact-tile" id="drawer-contact-box">
+        <span class="metric-label">Emergency Caregiver Contact</span>
+        <strong id="drawer-user-contact">Aakash Sharma: +91 98765 43210</strong>
+      </div>
+
+      <!-- Profile Drawer Actions -->
+      <div class="drawer-actions-list">
+        <button class="drawer-action-btn primary" onclick="closeRightProfileDrawer(); openUserProfileModal();">
+          <span>⚙️</span> Edit Profile Details
+        </button>
+        <button class="drawer-action-btn" onclick="closeRightProfileDrawer(); switchView('view-summary');">
+          <span>📋</span> View Doctor SBAR Report
+        </button>
+        <button class="drawer-action-btn" onclick="closeRightProfileDrawer(); openPrivacyModal();">
+          <span>🔒</span> Privacy Settings & PIN
+        </button>
+        <button class="drawer-action-btn" onclick="closeRightProfileDrawer(); switchView('view-login');">
+          <span>👤</span> Account & Login Options
+        </button>
+        <button class="drawer-action-btn danger" onclick="closeRightProfileDrawer(); handleLogout();">
+          <span>🚪</span> Sign Out
+        </button>
+      </div>
+
+      <div class="drawer-footer-note">
+        <small>🛡️ Data is strictly preserved on your local device. Zero cloud profiling.</small>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Sticky Top Clean Header -->
+  <header class="app-header">
+    <div class="header-container">
+      
+      <!-- Left: Side Navigation Toggle & Brand -->
+      <div class="header-left">
+        <button class="btn-side-nav-toggle" id="btn-side-nav-toggle" onclick="toggleSideNav()" aria-label="Toggle Side Navigation" title="Open Navigation Menu">
+          <span class="toggle-icon">☰</span>
+          <span class="toggle-text">Menu</span>
+        </button>
+
+        <div class="brand-wrapper" onclick="switchView('view-ai-agent')">
+          <div class="brand-icon">🌸</div>
+          <div class="brand-text">
+            <h1>Arogini</h1>
+            <span class="brand-badge">Clinical AI Suite</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Action Buttons & Always-Visible Profile Widget -->
       <div class="header-actions">
         <button class="btn-pill btn-emergency" id="btn-emergency-header" title="Calm emergency screening for serious signs">
           <span>🚨</span> Symptom Check
@@ -70,10 +224,22 @@
         <button class="btn-pill" id="btn-privacy-header" title="Privacy Settings & Device PIN">
           <span>🔒</span> Privacy
         </button>
-        <div id="header-auth-slot" class="header-auth-slot">
-          <!-- Populated dynamically: Sign In button OR Logged-in User Profile Chip -->
+
+        <!-- Always-Visible Profile Widget (Icon + Name + Age) -->
+        <button class="always-visible-profile-pill" id="btn-always-visible-profile" onclick="toggleRightProfileDrawer()" aria-label="Open Profile Panel" title="View & Edit Patient Profile">
+          <span class="profile-pill-avatar" id="header-profile-avatar">🌸</span>
+          <div class="profile-pill-details">
+            <span class="profile-pill-name" id="header-profile-name">Priya Sharma</span>
+            <span class="profile-pill-age" id="header-profile-age">26 yrs</span>
+          </div>
+          <span class="profile-pill-arrow" title="Open Profile Panel">◨</span>
+        </button>
+
+        <div id="header-auth-slot" class="header-auth-slot" style="display: none;">
+          <!-- Kept for backward compatibility if needed -->
         </div>
       </div>
+
     </div>
   </header>
 
@@ -173,39 +339,7 @@
               <span>🔐</span> Sign In to Arogini
             </button>
 
-            <!-- Quick Persona Fill / Preview -->
-            <div class="auth-divider">
-              <span>OR PREVIEW WITH SAMPLE PERSONA</span>
-            </div>
-
-            <div class="quick-personas-wrap">
-              <p class="quick-persona-hint">Click a pre-configured profile for instant 1-click preview:</p>
-              <div class="persona-buttons-grid">
-                <button type="button" class="persona-chip-btn" onclick="quickLoginPersona('priya')">
-                  <span class="persona-avatar">🤰</span>
-                  <div class="persona-text">
-                    <strong>Priya Sharma (26)</strong>
-                    <span>Obstetrics • Week 19 Gestation</span>
-                  </div>
-                </button>
-                <button type="button" class="persona-chip-btn" onclick="quickLoginPersona('ananya')">
-                  <span class="persona-avatar">🔬</span>
-                  <div class="persona-text">
-                    <strong>Ananya Desai (26)</strong>
-                    <span>Gynecology • PCOS & Cycle Tracking</span>
-                  </div>
-                </button>
-                <button type="button" class="persona-chip-btn" onclick="quickLoginPersona('meera')">
-                  <span class="persona-avatar">🌸</span>
-                  <div class="persona-text">
-                    <strong>Meera Patel (29)</strong>
-                    <span>Cycle Tracking & Wellness</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <div class="auth-switch-prompt">
+            <div class="auth-switch-prompt" style="margin-top: 1.5rem;">
               Don't have an account yet? <a href="javascript:void(0)" onclick="switchAuthTab('register')">Create one now</a>
             </div>
           </form>
