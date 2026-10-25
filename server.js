@@ -292,10 +292,11 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
+const HOST = '0.0.0.0';
+server.listen(PORT, HOST, () => {
   console.log(`\n======================================================`);
   console.log(`  🌸 Arogini - Women's Reproductive Wellness Platform`);
-  console.log(`  Local URL:   http://localhost:${PORT}`);
+  console.log(`  Server URL:  http://${HOST}:${PORT}`);
   console.log(`  Status:      Running smoothly`);
   console.log(`======================================================\n`);
 });
