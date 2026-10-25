@@ -90,14 +90,21 @@ const server = http.createServer((req, res) => {
       }
 
       loadEnv();
-      const anthropicKey = (process.env.ANTHROPIC_API_KEY || '').trim();
-      const openaiKey = (process.env.OPENAI_API_KEY || '').trim();
+      let geminiKey = (process.env.GEMINI_API_KEY || '').trim();
+      let anthropicKey = (process.env.ANTHROPIC_API_KEY || '').trim();
+      let openaiKey = (process.env.OPENAI_API_KEY || '').trim();
 
-      if (!anthropicKey && !openaiKey) {
+      // If the key in ANTHROPIC_API_KEY starts with AQ. or AIza, it is a Google Gemini key!
+      if (!geminiKey && (anthropicKey.startsWith('AQ.') || anthropicKey.startsWith('AIza'))) {
+        geminiKey = anthropicKey;
+        anthropicKey = '';
+      }
+
+      if (!geminiKey && !anthropicKey && !openaiKey) {
         res.writeHead(503, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify({
           error: 'No AI API key configured',
-          reply: 'Anatomy AI Chat is currently unavailable. Please configure OPENAI_API_KEY or ANTHROPIC_API_KEY in your .env file to enable this educational assistant.'
+          reply: 'Anatomy AI Chat is currently unavailable. Please configure GEMINI_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY in your .env file to enable this educational assistant.'
         }));
         return;
       }
@@ -105,7 +112,59 @@ const server = http.createServer((req, res) => {
       try {
         let replyText = '';
 
-        if (openaiKey) {
+        if (geminiKey) {
+          // Call Google Gemini API (model: gemini-3.5-flash-lite with fallback)
+          const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-2.5-pro'];
+          let geminiSuccess = false;
+          let lastErrMsg = '';
+
+          for (const modelName of modelsToTry) {
+            try {
+              const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  system_instruction: {
+                    parts: [{ text: ANATOMY_SYSTEM_PROMPT }]
+                  },
+                  contents: [
+                    {
+                      parts: [{ text: `Organ: ${organ}\nQuestion: ${message}` }]
+                    }
+                  ],
+                  generationConfig: {
+                    maxOutputTokens: 300,
+                    temperature: 0.3
+                  }
+                })
+              });
+
+              if (response.ok) {
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text && text.trim()) {
+                  replyText = text.trim();
+                  geminiSuccess = true;
+                  break;
+                }
+              } else {
+                const errData = await response.json().catch(() => ({}));
+                lastErrMsg = (errData && errData.error && errData.error.message) || 'Gemini API error';
+              }
+            } catch (netErr) {
+              lastErrMsg = netErr.message;
+            }
+          }
+
+          if (!geminiSuccess && !replyText) {
+            res.writeHead(502, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({
+              error: lastErrMsg || 'Gemini API unavailable',
+              reply: 'Anatomy AI Chat encountered an issue communicating with Gemini. ' + (lastErrMsg || 'Please try again.')
+            }));
+            return;
+          }
+        } else if (openaiKey) {
           // Call OpenAI API (model: gpt-4o-mini)
           const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
