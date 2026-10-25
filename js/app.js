@@ -1,10 +1,10 @@
 /**
- * HerVita - Women's Reproductive Wellness Application
- * Agentic AI & Clinical RAG Platform
+ * Arogini - Women's Reproductive Wellness Application
+ * Clinical Health Platform
  */
 
 // --- Global Application State ---
-const HerVitaState = {
+const AroginiState = {
   activeDomain: 'obs', // 'obs' (Obstetrics) | 'gyn' (Gynecology)
   obsSubTab: 'obs-tracker',
   gynSubTab: 'gyn-menstrual',
@@ -17,7 +17,6 @@ const HerVitaState = {
   pin: null,
   isLocked: false,
   entries: [],
-  checklist: [],
   vaccines: [],
   userProfile: {
     name: 'Priya Sharma',
@@ -633,32 +632,6 @@ const STARTER_HEALTH_RECORDS = {
       notes: 'Recurred exactly 3 days before September cycle.'
     }
   ],
-  checklist: [
-    {
-      id: 'chk-1',
-      title: 'Pelvic Ultrasound (USG Abdomen & Pelvis)',
-      category: 'Diagnostic Scan',
-      dueDate: '2026-11-05',
-      doctor: 'Dr. Ananya Roy (Gynaecology)',
-      done: false
-    },
-    {
-      id: 'chk-2',
-      title: 'Serum Ferritin & CBC (Iron levels check)',
-      category: 'Lab Blood Test',
-      dueDate: '2026-10-30',
-      doctor: 'Dr. Ananya Roy',
-      done: true
-    },
-    {
-      id: 'chk-3',
-      title: 'Maintain daily HerVita diary for 3 consecutive cycles',
-      category: 'Clinical Self-Monitoring',
-      dueDate: '2026-12-15',
-      doctor: 'Clinic recommendation',
-      done: false
-    }
-  ],
   vaccines: [
     {
       id: 'vac-1',
@@ -739,26 +712,50 @@ const STARTER_HEALTH_RECORDS = {
     { id: 'rec-1', title: 'Pelvic & Transvaginal Ultrasound Scan', category: 'Ultrasound / Imaging', date: '2026-09-20', doctor: 'Dr. S. Kulkarni (Radiology)', keyFindings: 'Anteverted uterus (7.8 x 4.2 cm). Left ovary demonstrates peripheral ring of 11-12 small follicles (<8mm) suggestive of PCO morphology. Endometrial thickness 6.4 mm.', fileMock: 'USG_Pelvis_Report.pdf' },
     { id: 'rec-2', title: 'Serum Ferritin, Iron Profile & CBC', category: 'Lab Blood Test', date: '2026-10-15', doctor: 'Dr. Ananya Roy (Gynaecology)', keyFindings: 'Hemoglobin: 11.4 g/dL (Mild borderline anemia). Serum Ferritin: 21 ng/mL (Low iron stores). Platelets: 275k. Advised oral iron supplement.', fileMock: 'CBC_Iron_Panel.pdf' },
     { id: 'rec-3', title: 'Prescription: Prenatal DHA & Ferrous Ascorbate', category: 'Prescription', date: '2026-10-16', doctor: 'Dr. Ananya Roy', keyFindings: 'Ferrous Ascorbate 100mg once daily with citrus juice. Prenatal multivitamin with 400mcg methylfolate.', fileMock: 'Rx_DrRoy_Oct2026.pdf' },
-    { id: 'rec-4', title: 'Annual Gynaecology Consultation Note', category: 'Consultation Note', date: '2026-09-22', doctor: 'Dr. Ananya Roy', keyFindings: 'Discussed dysmenorrhea pattern and cycle irregularity. Advised continuous HerVita diary tracking for 3 cycles before deciding on hormonal intervention.', fileMock: 'Clinical_Note_Sep2026.pdf' }
+    { id: 'rec-4', title: 'Annual Gynaecology Consultation Note', category: 'Consultation Note', date: '2026-09-22', doctor: 'Dr. Ananya Roy', keyFindings: 'Discussed dysmenorrhea pattern and cycle irregularity. Advised continuous Arogini diary tracking for 3 cycles before deciding on hormonal intervention.', fileMock: 'Clinical_Note_Sep2026.pdf' }
   ]
 };
 
-// --- Storage Utilities ---
+// --- Storage Migration & Utilities ---
+function migrateHervitaStorage() {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('hervita_')) {
+        const newKey = key.replace(/^hervita_/, 'arogini_');
+        if (localStorage.getItem(newKey) === null) {
+          localStorage.setItem(newKey, localStorage.getItem(key));
+        }
+      }
+    }
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && key.startsWith('hervita_')) {
+        const newKey = key.replace(/^hervita_/, 'arogini_');
+        if (sessionStorage.getItem(newKey) === null) {
+          sessionStorage.setItem(newKey, sessionStorage.getItem(key));
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Migration of legacy storage failed', e);
+  }
+}
+
 function saveToStorage() {
   try {
-    localStorage.setItem('hervita_entries', JSON.stringify(HerVitaState.entries));
-    localStorage.setItem('hervita_checklist', JSON.stringify(HerVitaState.checklist));
-    localStorage.setItem('hervita_vaccines', JSON.stringify(HerVitaState.vaccines));
-    localStorage.setItem('hervita_questions', JSON.stringify(HerVitaState.selectedQuestions));
-    localStorage.setItem('hervita_milestones', JSON.stringify(HerVitaState.pregnancyMilestones));
-    localStorage.setItem('hervita_antenatal', JSON.stringify(HerVitaState.antenatalVisits));
-    localStorage.setItem('hervita_postpartum', JSON.stringify(HerVitaState.postpartumRecords));
-    localStorage.setItem('hervita_periods', JSON.stringify(HerVitaState.periodLogs));
-    localStorage.setItem('hervita_pcos', JSON.stringify(HerVitaState.pcosLogs));
-    localStorage.setItem('hervita_pelvicpain', JSON.stringify(HerVitaState.pelvicPainLogs));
-    localStorage.setItem('hervita_medrecords', JSON.stringify(HerVitaState.medicalRecords));
-    localStorage.setItem('hervita_pin', HerVitaState.pin || '');
-    localStorage.setItem('arogini_user_profile', JSON.stringify(HerVitaState.userProfile));
+    localStorage.setItem('arogini_entries', JSON.stringify(AroginiState.entries));
+    localStorage.setItem('arogini_vaccines', JSON.stringify(AroginiState.vaccines));
+    localStorage.setItem('arogini_questions', JSON.stringify(AroginiState.selectedQuestions));
+    localStorage.setItem('arogini_milestones', JSON.stringify(AroginiState.pregnancyMilestones));
+    localStorage.setItem('arogini_antenatal', JSON.stringify(AroginiState.antenatalVisits));
+    localStorage.setItem('arogini_postpartum', JSON.stringify(AroginiState.postpartumRecords));
+    localStorage.setItem('arogini_periods', JSON.stringify(AroginiState.periodLogs));
+    localStorage.setItem('arogini_pcos', JSON.stringify(AroginiState.pcosLogs));
+    localStorage.setItem('arogini_pelvicpain', JSON.stringify(AroginiState.pelvicPainLogs));
+    localStorage.setItem('arogini_medrecords', JSON.stringify(AroginiState.medicalRecords));
+    localStorage.setItem('arogini_pin', AroginiState.pin || '');
+    localStorage.setItem('arogini_user_profile', JSON.stringify(AroginiState.userProfile));
   } catch (e) {
     console.warn('Storage write failed', e);
   }
@@ -767,33 +764,31 @@ function saveToStorage() {
 function loadFromStorage() {
   try {
     loadUserSession();
-    const storedEntries = localStorage.getItem('hervita_entries');
+    const storedEntries = localStorage.getItem('arogini_entries');
     if (storedEntries) {
-      HerVitaState.entries = JSON.parse(storedEntries);
-      HerVitaState.checklist = JSON.parse(localStorage.getItem('hervita_checklist') || '[]');
-      HerVitaState.vaccines = JSON.parse(localStorage.getItem('hervita_vaccines') || '[]');
-      HerVitaState.selectedQuestions = JSON.parse(localStorage.getItem('hervita_questions') || '[]');
-      HerVitaState.pregnancyMilestones = JSON.parse(localStorage.getItem('hervita_milestones') || '[]');
-      HerVitaState.antenatalVisits = JSON.parse(localStorage.getItem('hervita_antenatal') || '[]');
-      HerVitaState.postpartumRecords = JSON.parse(localStorage.getItem('hervita_postpartum') || '[]');
-      HerVitaState.periodLogs = JSON.parse(localStorage.getItem('hervita_periods') || '[]');
-      HerVitaState.pcosLogs = JSON.parse(localStorage.getItem('hervita_pcos') || '[]');
-      HerVitaState.pelvicPainLogs = JSON.parse(localStorage.getItem('hervita_pelvicpain') || '[]');
-      HerVitaState.medicalRecords = JSON.parse(localStorage.getItem('hervita_medrecords') || '[]');
-      HerVitaState.pin = localStorage.getItem('hervita_pin') || '';
+      AroginiState.entries = JSON.parse(storedEntries);
+      AroginiState.vaccines = JSON.parse(localStorage.getItem('arogini_vaccines') || '[]');
+      AroginiState.selectedQuestions = JSON.parse(localStorage.getItem('arogini_questions') || '[]');
+      AroginiState.pregnancyMilestones = JSON.parse(localStorage.getItem('arogini_milestones') || '[]');
+      AroginiState.antenatalVisits = JSON.parse(localStorage.getItem('arogini_antenatal') || '[]');
+      AroginiState.postpartumRecords = JSON.parse(localStorage.getItem('arogini_postpartum') || '[]');
+      AroginiState.periodLogs = JSON.parse(localStorage.getItem('arogini_periods') || '[]');
+      AroginiState.pcosLogs = JSON.parse(localStorage.getItem('arogini_pcos') || '[]');
+      AroginiState.pelvicPainLogs = JSON.parse(localStorage.getItem('arogini_pelvicpain') || '[]');
+      AroginiState.medicalRecords = JSON.parse(localStorage.getItem('arogini_medrecords') || '[]');
+      AroginiState.pin = localStorage.getItem('arogini_pin') || '';
     } else {
-      HerVitaState.entries = [];
-      HerVitaState.checklist = [];
-      HerVitaState.vaccines = [];
-      HerVitaState.selectedQuestions = [];
-      HerVitaState.pregnancyMilestones = [];
-      HerVitaState.antenatalVisits = [];
-      HerVitaState.postpartumRecords = [];
-      HerVitaState.periodLogs = [];
-      HerVitaState.pcosLogs = [];
-      HerVitaState.pelvicPainLogs = [];
-      HerVitaState.medicalRecords = [];
-      HerVitaState.pin = '';
+      AroginiState.entries = [];
+      AroginiState.vaccines = [];
+      AroginiState.selectedQuestions = [];
+      AroginiState.pregnancyMilestones = [];
+      AroginiState.antenatalVisits = [];
+      AroginiState.postpartumRecords = [];
+      AroginiState.periodLogs = [];
+      AroginiState.pcosLogs = [];
+      AroginiState.pelvicPainLogs = [];
+      AroginiState.medicalRecords = [];
+      AroginiState.pin = '';
     }
   } catch (e) {
     console.error('Error loading storage', e);
@@ -802,17 +797,16 @@ function loadFromStorage() {
 
 function clearAllData() {
   if (confirm('Are you sure you want to delete all logged data? This cannot be undone.')) {
-    HerVitaState.entries = [];
-    HerVitaState.checklist = [];
-    HerVitaState.vaccines = [];
-    HerVitaState.selectedQuestions = [];
-    HerVitaState.pregnancyMilestones = [];
-    HerVitaState.antenatalVisits = [];
-    HerVitaState.postpartumRecords = [];
-    HerVitaState.periodLogs = [];
-    HerVitaState.pcosLogs = [];
-    HerVitaState.pelvicPainLogs = [];
-    HerVitaState.medicalRecords = [];
+    AroginiState.entries = [];
+    AroginiState.vaccines = [];
+    AroginiState.selectedQuestions = [];
+    AroginiState.pregnancyMilestones = [];
+    AroginiState.antenatalVisits = [];
+    AroginiState.postpartumRecords = [];
+    AroginiState.periodLogs = [];
+    AroginiState.pcosLogs = [];
+    AroginiState.pelvicPainLogs = [];
+    AroginiState.medicalRecords = [];
     saveToStorage();
     renderAllViews();
     showToast('All personal health data cleared from device.');
@@ -960,9 +954,7 @@ function switchView(viewId) {
   });
 
   // Re-render view-specific dynamic content
-  if (viewId === 'view-ai-agent') {
-    renderAroginiAIHub();
-  } else if (viewId === 'view-login') {
+  if (viewId === 'view-login') {
     renderLoginView();
   } else if (viewId === 'view-obstetrics') {
     renderObstetrics();
@@ -972,8 +964,6 @@ function switchView(viewId) {
     renderPatternView();
   } else if (viewId === 'view-summary') {
     renderDoctorSummary();
-  } else if (viewId === 'view-checklist') {
-    renderChecklist();
   } else if (viewId === 'view-vaccines') {
     renderVaccines();
   }
@@ -1004,7 +994,7 @@ function initBodyMap() {
 }
 
 function selectOrgan(organId) {
-  HerVitaState.activeOrgan = organId;
+  AroginiState.activeOrgan = organId;
   const data = ORGAN_DATA[organId];
   if (!data) return;
 
@@ -1064,8 +1054,8 @@ function selectOrgan(organId) {
         ${data.doctorQuestions.map(q => `
           <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.85rem;">
             <span>${q}</span>
-            <button class="add-question-btn ${HerVitaState.selectedQuestions.includes(q) ? 'added' : ''}" onclick="toggleDoctorQuestion('${q.replace(/'/g, "\\'")}')">
-              ${HerVitaState.selectedQuestions.includes(q) ? '✓ Added' : '+ Add to Summary'}
+            <button class="add-question-btn ${AroginiState.selectedQuestions.includes(q) ? 'added' : ''}" onclick="toggleDoctorQuestion('${q.replace(/'/g, "\\'")}')">
+              ${AroginiState.selectedQuestions.includes(q) ? '✓ Added' : '+ Add to Summary'}
             </button>
           </div>
         `).join('')}
@@ -1122,7 +1112,7 @@ function renderVideoModalContent(video, mode) {
   if (!modalContent) return;
 
   const embedUrl = `https://www.youtube-nocookie.com/embed/${video.youtubeId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
-  const isQuestionAdded = HerVitaState.selectedQuestions.includes(video.doctorQuestion);
+  const isQuestionAdded = AroginiState.selectedQuestions.includes(video.doctorQuestion);
 
   modalContent.innerHTML = `
     <div class="video-header-row">
@@ -1426,7 +1416,7 @@ function renderDoctorQuestions() {
       </div>
       <ul class="questions-list">
         ${group.questions.map(q => {
-          const isAdded = HerVitaState.selectedQuestions.includes(q);
+          const isAdded = AroginiState.selectedQuestions.includes(q);
           return `
             <li class="question-item">
               <span>${q}</span>
@@ -1442,17 +1432,17 @@ function renderDoctorQuestions() {
 }
 
 function toggleDoctorQuestion(question) {
-  const idx = HerVitaState.selectedQuestions.indexOf(question);
+  const idx = AroginiState.selectedQuestions.indexOf(question);
   if (idx > -1) {
-    HerVitaState.selectedQuestions.splice(idx, 1);
+    AroginiState.selectedQuestions.splice(idx, 1);
     showToast('Removed question from Doctor Summary.');
   } else {
-    HerVitaState.selectedQuestions.push(question);
+    AroginiState.selectedQuestions.push(question);
     showToast('Added question to Doctor Visit Summary! 🩺');
   }
   saveToStorage();
   renderDoctorQuestions();
-  selectOrgan(HerVitaState.activeOrgan);
+  selectOrgan(AroginiState.activeOrgan);
 }
 
 // --- Module 2: Symptom Diary ---
@@ -1470,7 +1460,7 @@ function initSymptomDiary() {
     opt.addEventListener('click', () => {
       severityOpts.forEach(o => o.classList.remove('active'));
       opt.classList.add('active');
-      HerVitaState.selectedSeverity = parseInt(opt.dataset.val, 10);
+      AroginiState.selectedSeverity = parseInt(opt.dataset.val, 10);
     });
   });
 
@@ -1510,13 +1500,13 @@ function initSymptomDiary() {
         timeOfDay: timeVal,
         cycleDay: cycleDayVal,
         symptom: symptomVal,
-        severity: HerVitaState.selectedSeverity,
+        severity: AroginiState.selectedSeverity,
         duration: durationVal,
         impacts: checkedImpacts,
         notes: notesVal
       };
 
-      HerVitaState.entries.unshift(newEntry);
+      AroginiState.entries.unshift(newEntry);
       saveToStorage();
       renderDiaryEntries();
       showToast('Symptom entry saved to your device.');
@@ -1535,10 +1525,10 @@ function renderDiaryEntries() {
   if (!container) return;
 
   if (countBadge) {
-    countBadge.textContent = `${HerVitaState.entries.length} entries`;
+    countBadge.textContent = `${AroginiState.entries.length} entries`;
   }
 
-  if (HerVitaState.entries.length === 0) {
+  if (AroginiState.entries.length === 0) {
     container.innerHTML = `
       <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
         <p style="font-size: 1.05rem; margin-bottom: 0.5rem;">No symptoms logged yet.</p>
@@ -1548,7 +1538,7 @@ function renderDiaryEntries() {
     return;
   }
 
-  container.innerHTML = HerVitaState.entries.map(entry => `
+  container.innerHTML = AroginiState.entries.map(entry => `
     <div class="entry-card">
       <button class="entry-delete-btn" onclick="deleteDiaryEntry('${entry.id}')" title="Delete entry">✕</button>
       <div class="entry-card-header">
@@ -1578,7 +1568,7 @@ function renderDiaryEntries() {
 }
 
 function deleteDiaryEntry(entryId) {
-  HerVitaState.entries = HerVitaState.entries.filter(e => e.id !== entryId);
+  AroginiState.entries = AroginiState.entries.filter(e => e.id !== entryId);
   saveToStorage();
   renderDiaryEntries();
   showToast('Entry removed.');
@@ -1605,7 +1595,7 @@ function renderPatternView() {
   const patternsFound = [];
 
   // 1. Check for recurring Day 1-3 Pelvic Cramps
-  const cycleDay1to3Pain = HerVitaState.entries.filter(e => 
+  const cycleDay1to3Pain = AroginiState.entries.filter(e => 
     e.cycleDay >= 1 && e.cycleDay <= 3 && 
     (e.symptom.includes('Cramp') || e.symptom.includes('Pelvic'))
   );
@@ -1621,7 +1611,7 @@ function renderPatternView() {
   }
 
   // 2. Check for Luteal Phase Headaches / Fatigue (Days 23 to 28)
-  const lutealSymptoms = HerVitaState.entries.filter(e => 
+  const lutealSymptoms = AroginiState.entries.filter(e => 
     e.cycleDay >= 22 && e.cycleDay <= 28
   );
 
@@ -1636,9 +1626,9 @@ function renderPatternView() {
   }
 
   // 3. Functional Life Impact Pattern
-  const workAffected = HerVitaState.entries.filter(e => e.impacts && e.impacts.includes('work'));
+  const workAffected = AroginiState.entries.filter(e => e.impacts && e.impacts.includes('work'));
   if (workAffected.length > 0) {
-    const pct = Math.round((workAffected.length / Math.max(1, HerVitaState.entries.length)) * 100);
+    const pct = Math.round((workAffected.length / Math.max(1, AroginiState.entries.length)) * 100);
     patternsFound.push({
       type: 'stable',
       title: `Functional Impact on Work / School (${pct}% of entries)`,
@@ -1655,7 +1645,7 @@ function renderPatternView() {
       title: 'Gathering Cycle Data',
       icon: '📊',
       badge: 'Baseline Tracking',
-      description: 'HerVita is analyzing your symptom timing. Log symptoms across 2–3 full menstrual cycles to reveal recurring patterns.'
+      description: 'Arogini is analyzing your symptom timing. Log symptoms across 2–3 full menstrual cycles to reveal recurring patterns.'
     });
   }
 
@@ -1678,7 +1668,7 @@ function renderPatternView() {
     else if (d >= 13 && d <= 16) phaseClass = 'phase-ovulation';
     else if (d >= 22) phaseClass = 'phase-luteal';
 
-    const matching = HerVitaState.entries.filter(e => e.cycleDay === d);
+    const matching = AroginiState.entries.filter(e => e.cycleDay === d);
     const hasSymptom = matching.length > 0;
 
     daysHtml.push(`
@@ -1697,13 +1687,8 @@ function renderDoctorSummary() {
   const container = document.getElementById('doctor-summary-paper-content');
   if (!container) return;
 
-  // Guarantee AI SBAR report card is rendered above the paper
-  if (typeof ensureAISBARSummaryRendered === 'function') {
-    ensureAISBARSummaryRendered();
-  }
-
   const todayStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  const entries = HerVitaState.entries;
+  const entries = AroginiState.entries;
 
   // Synthesize Chief Complaints
   const symptomCounts = {};
@@ -1722,12 +1707,12 @@ function renderDoctorSummary() {
   container.innerHTML = `
     <div class="paper-header">
       <div class="paper-title">
-        <h2>HerVita Clinical Visit Summary</h2>
+        <h2>Arogini Clinical Visit Summary</h2>
         <p>Patient-Reported Symptom Chronology & Discussion Guide (Non-Diagnostic)</p>
       </div>
       <div class="paper-meta">
         <div><strong>Date Generated:</strong> ${todayStr}</div>
-        <div><strong>Document ID:</strong> HV-${Date.now().toString().slice(-6)}</div>
+        <div><strong>Document ID:</strong> ARG-${Date.now().toString().slice(-6)}</div>
         <div style="color: var(--sage-700); font-weight: 700;">Verified Private Local Copy</div>
       </div>
     </div>
@@ -1735,19 +1720,19 @@ function renderDoctorSummary() {
     <div class="patient-info-grid">
       <div class="info-box">
         <span class="title">Patient Name</span>
-        <span class="val">${HerVitaState.userProfile.name || 'Anonymous Patient'}</span>
+        <span class="val">${AroginiState.userProfile.name || 'Anonymous Patient'}</span>
       </div>
       <div class="info-box">
         <span class="title">Patient Age</span>
-        <span class="val">${HerVitaState.userProfile.age} Years</span>
+        <span class="val">${AroginiState.userProfile.age} Years</span>
       </div>
       <div class="info-box">
         <span class="title">Health Focus</span>
-        <span class="val" style="text-transform: capitalize;">${HerVitaState.userProfile.stage || 'General'}</span>
+        <span class="val" style="text-transform: capitalize;">${AroginiState.userProfile.stage || 'General'}</span>
       </div>
       <div class="info-box">
         <span class="title">Cycle Length & LMP</span>
-        <span class="val">${HerVitaState.userProfile.cycleLength}d • ${HerVitaState.userProfile.lmp}</span>
+        <span class="val">${AroginiState.userProfile.cycleLength}d • ${AroginiState.userProfile.lmp}</span>
       </div>
       <div class="info-box">
         <span class="title">Log Horizon</span>
@@ -1789,22 +1774,22 @@ function renderDoctorSummary() {
       </table>
     </div>
 
-    ${HerVitaState.selectedQuestions.length > 0 ? `
+    ${AroginiState.selectedQuestions.length > 0 ? `
       <div class="summary-block">
         <h3><span>❓</span> Questions Prepared for the Physician</h3>
         <div class="summary-questions-box">
           <ol>
-            ${HerVitaState.selectedQuestions.map(q => `<li>${q}</li>`).join('')}
+            ${AroginiState.selectedQuestions.map(q => `<li>${q}</li>`).join('')}
           </ol>
         </div>
       </div>
     ` : ''}
 
-    ${HerVitaState.antenatalVisits.length > 0 ? `
+    ${AroginiState.antenatalVisits.length > 0 ? `
       <div class="summary-block">
         <h3><span>🤰</span> Obstetrics & Antenatal Visit Schedule</h3>
         <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
-          LMP: <strong>${HerVitaState.userProfile.pregnancyLmp}</strong> • Estimated Gestation: <strong>Week 19</strong> (Second Trimester)
+          LMP: <strong>${AroginiState.userProfile.pregnancyLmp}</strong> • Estimated Gestation: <strong>Week 19</strong> (Second Trimester)
         </p>
         <table class="summary-table">
           <thead>
@@ -1816,7 +1801,7 @@ function renderDoctorSummary() {
             </tr>
           </thead>
           <tbody>
-            ${HerVitaState.antenatalVisits.slice(0, 5).map(v => `
+            ${AroginiState.antenatalVisits.slice(0, 5).map(v => `
               <tr>
                 <td><strong>${v.week}</strong></td>
                 <td>${v.title}</td>
@@ -1829,18 +1814,18 @@ function renderDoctorSummary() {
       </div>
     ` : ''}
 
-    ${HerVitaState.periodLogs.length > 0 || HerVitaState.pcosLogs.length > 0 || HerVitaState.pelvicPainLogs.length > 0 ? `
+    ${AroginiState.periodLogs.length > 0 || AroginiState.pcosLogs.length > 0 || AroginiState.pelvicPainLogs.length > 0 ? `
       <div class="summary-block">
         <h3><span>🔬</span> Gynecological Profile & Hormonal Snapshot</h3>
         <div style="background: var(--bg-subtle); padding: 0.85rem 1rem; border-radius: var(--radius-md); font-size: 0.875rem; margin-bottom: 0.75rem; line-height: 1.5;">
-          <strong>Menstrual Rhythm:</strong> ${HerVitaState.periodLogs.length} cycles recorded. Average cycle length: 28–30 days. Flow: Moderate to Heavy.<br/>
+          <strong>Menstrual Rhythm:</strong> ${AroginiState.periodLogs.length} cycles recorded. Average cycle length: 28–30 days. Flow: Moderate to Heavy.<br/>
           <strong>PCOS Biomarkers:</strong> LH/FSH Ratio: 2.3:1 (clinical evaluation advised) | Fasting Insulin: 14.8 uIU/mL | Total Testosterone: 62 ng/dL.<br/>
-          <strong>Pelvic Pain Episodes:</strong> ${HerVitaState.pelvicPainLogs.length} episode(s) logged (Anatomy: Left lower quadrant; triggers: period onset & intercourse).
+          <strong>Pelvic Pain Episodes:</strong> ${AroginiState.pelvicPainLogs.length} episode(s) logged (Anatomy: Left lower quadrant; triggers: period onset & intercourse).
         </div>
       </div>
     ` : ''}
 
-    ${HerVitaState.medicalRecords.length > 0 ? `
+    ${AroginiState.medicalRecords.length > 0 ? `
       <div class="summary-block">
         <h3><span>📁</span> Medical Vault Filed Documents</h3>
         <table class="summary-table">
@@ -1853,7 +1838,7 @@ function renderDoctorSummary() {
             </tr>
           </thead>
           <tbody>
-            ${HerVitaState.medicalRecords.map(r => `
+            ${AroginiState.medicalRecords.map(r => `
               <tr>
                 <td><strong>${r.date}</strong></td>
                 <td>${r.title} (${r.doctor})</td>
@@ -1866,7 +1851,7 @@ function renderDoctorSummary() {
       </div>
     ` : ''}
 
-    ${HerVitaState.vaccines.length > 0 ? `
+    ${AroginiState.vaccines.length > 0 ? `
       <div class="summary-block">
         <h3><span>💉</span> Reproductive Immunisation Record</h3>
         <table class="summary-table">
@@ -1879,7 +1864,7 @@ function renderDoctorSummary() {
             </tr>
           </thead>
           <tbody>
-            ${HerVitaState.vaccines.map(v => `
+            ${AroginiState.vaccines.map(v => `
               <tr>
                 <td><strong>${v.name}</strong></td>
                 <td>${v.dose}</td>
@@ -1916,83 +1901,6 @@ function getSeverityText(score) {
   if (score === 3) return 'Disruptive';
   if (score === 4) return 'Severe';
   return 'Debilitating';
-}
-
-// --- Module 2: Care Checklist ---
-function renderChecklist() {
-  const container = document.getElementById('checklist-items-container');
-  if (!container) return;
-
-  if (HerVitaState.checklist.length === 0) {
-    container.innerHTML = `
-      <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-        <p>No follow-up items in checklist.</p>
-        <p style="font-size: 0.85rem;">Add doctor recommendations, lab tests, or prescriptions above.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = HerVitaState.checklist.map(item => `
-    <div class="checklist-item ${item.done ? 'done' : ''}">
-      <div class="check-left">
-        <div class="custom-checkbox ${item.done ? 'checked' : ''}" onclick="toggleChecklistItem('${item.id}')">
-          ✓
-        </div>
-        <div class="item-details">
-          <h4 class="item-title">${item.title}</h4>
-          <span class="category">${item.category} • Due: ${item.dueDate} • Recommended by: ${item.doctor}</span>
-        </div>
-      </div>
-      <button class="entry-delete-btn" onclick="deleteChecklistItem('${item.id}')" title="Delete">✕</button>
-    </div>
-  `).join('');
-}
-
-function toggleChecklistItem(id) {
-  const item = HerVitaState.checklist.find(i => i.id === id);
-  if (item) {
-    item.done = !item.done;
-    saveToStorage();
-    renderChecklist();
-  }
-}
-
-function deleteChecklistItem(id) {
-  HerVitaState.checklist = HerVitaState.checklist.filter(i => i.id !== id);
-  saveToStorage();
-  renderChecklist();
-  showToast('Checklist item removed.');
-}
-
-function initChecklistForm() {
-  const form = document.getElementById('checklist-form');
-  if (!form) return;
-
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const titleVal = document.getElementById('check-title').value.trim();
-    const catVal = document.getElementById('check-category').value;
-    const dueVal = document.getElementById('check-due').value;
-    const docVal = document.getElementById('check-doctor').value.trim() || 'Attending Physician';
-
-    if (!titleVal) return;
-
-    const newItem = {
-      id: 'chk-' + Date.now(),
-      title: titleVal,
-      category: catVal,
-      dueDate: dueVal || 'Ongoing',
-      doctor: docVal,
-      done: false
-    };
-
-    HerVitaState.checklist.push(newItem);
-    saveToStorage();
-    renderChecklist();
-    showToast('Follow-up task added to Care Checklist.');
-    form.reset();
-  });
 }
 
 // --- Red-Flag Symptom Check (Calm Emergency Triage) ---
@@ -2106,7 +2014,7 @@ function renderVaccines() {
     </div>
   `).join('');
 
-  if (HerVitaState.vaccines.length === 0) {
+  if (AroginiState.vaccines.length === 0) {
     logContainer.innerHTML = `
       <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
         <p>No vaccines logged yet.</p>
@@ -2116,8 +2024,8 @@ function renderVaccines() {
     return;
   }
 
-  logContainer.innerHTML = HerVitaState.vaccines.map(item => `
-    <div class="checklist-item">
+  logContainer.innerHTML = AroginiState.vaccines.map(item => `
+    <div class="vaccine-entry-card">
       <div class="check-left">
         <div style="font-size: 1.4rem;">💉</div>
         <div class="item-details">
@@ -2154,7 +2062,7 @@ function initVaccineForm() {
       notes: ''
     };
 
-    HerVitaState.vaccines.push(newVac);
+    AroginiState.vaccines.push(newVac);
     saveToStorage();
     renderVaccines();
     showToast('Vaccine recorded in your profile.');
@@ -2163,7 +2071,7 @@ function initVaccineForm() {
 }
 
 function deleteVaccine(id) {
-  HerVitaState.vaccines = HerVitaState.vaccines.filter(v => v.id !== id);
+  AroginiState.vaccines = AroginiState.vaccines.filter(v => v.id !== id);
   saveToStorage();
   renderVaccines();
   showToast('Vaccine entry removed.');
@@ -2223,7 +2131,7 @@ function initPrivacyControls() {
     setPinBtn.addEventListener('click', () => {
       const pinVal = document.getElementById('pin-input-field').value.trim();
       if (pinVal.length === 4 && /^\d+$/.test(pinVal)) {
-        HerVitaState.pin = pinVal;
+        AroginiState.pin = pinVal;
         saveToStorage();
         showToast('4-digit PIN protection activated! 🔒');
         closeAllModals();
@@ -2236,26 +2144,25 @@ function initPrivacyControls() {
 
 function exportDataJSON() {
   const exportPayload = {
-    appName: 'HerVita',
+    appName: 'Arogini',
     version: '2.0',
     exportDate: new Date().toISOString(),
-    entries: HerVitaState.entries,
-    checklist: HerVitaState.checklist,
-    vaccines: HerVitaState.vaccines,
-    questions: HerVitaState.selectedQuestions,
-    pregnancyMilestones: HerVitaState.pregnancyMilestones,
-    antenatalVisits: HerVitaState.antenatalVisits,
-    postpartumRecords: HerVitaState.postpartumRecords,
-    periodLogs: HerVitaState.periodLogs,
-    pcosLogs: HerVitaState.pcosLogs,
-    pelvicPainLogs: HerVitaState.pelvicPainLogs,
-    medicalRecords: HerVitaState.medicalRecords
+    entries: AroginiState.entries,
+    vaccines: AroginiState.vaccines,
+    questions: AroginiState.selectedQuestions,
+    pregnancyMilestones: AroginiState.pregnancyMilestones,
+    antenatalVisits: AroginiState.antenatalVisits,
+    postpartumRecords: AroginiState.postpartumRecords,
+    periodLogs: AroginiState.periodLogs,
+    pcosLogs: AroginiState.pcosLogs,
+    pelvicPainLogs: AroginiState.pelvicPainLogs,
+    medicalRecords: AroginiState.medicalRecords
   };
 
   const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportPayload, null, 2));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute('href', dataStr);
-  downloadAnchor.setAttribute('download', `hervita_health_backup_${new Date().toISOString().split('T')[0]}.json`);
+  downloadAnchor.setAttribute('download', `arogini_health_backup_${new Date().toISOString().split('T')[0]}.json`);
   document.body.appendChild(downloadAnchor);
   downloadAnchor.click();
   downloadAnchor.remove();
@@ -2270,24 +2177,23 @@ function handleImportJSON(e) {
   reader.onload = (event) => {
     try {
       const data = JSON.parse(event.target.result);
-      if (data.entries) HerVitaState.entries = data.entries;
-      if (data.checklist) HerVitaState.checklist = data.checklist;
-      if (data.vaccines) HerVitaState.vaccines = data.vaccines;
-      if (data.questions) HerVitaState.selectedQuestions = data.questions;
-      if (data.pregnancyMilestones) HerVitaState.pregnancyMilestones = data.pregnancyMilestones;
-      if (data.antenatalVisits) HerVitaState.antenatalVisits = data.antenatalVisits;
-      if (data.postpartumRecords) HerVitaState.postpartumRecords = data.postpartumRecords;
-      if (data.periodLogs) HerVitaState.periodLogs = data.periodLogs;
-      if (data.pcosLogs) HerVitaState.pcosLogs = data.pcosLogs;
-      if (data.pelvicPainLogs) HerVitaState.pelvicPainLogs = data.pelvicPainLogs;
-      if (data.medicalRecords) HerVitaState.medicalRecords = data.medicalRecords;
+      if (data.entries) AroginiState.entries = data.entries;
+      if (data.vaccines) AroginiState.vaccines = data.vaccines;
+      if (data.questions) AroginiState.selectedQuestions = data.questions;
+      if (data.pregnancyMilestones) AroginiState.pregnancyMilestones = data.pregnancyMilestones;
+      if (data.antenatalVisits) AroginiState.antenatalVisits = data.antenatalVisits;
+      if (data.postpartumRecords) AroginiState.postpartumRecords = data.postpartumRecords;
+      if (data.periodLogs) AroginiState.periodLogs = data.periodLogs;
+      if (data.pcosLogs) AroginiState.pcosLogs = data.pcosLogs;
+      if (data.pelvicPainLogs) AroginiState.pelvicPainLogs = data.pelvicPainLogs;
+      if (data.medicalRecords) AroginiState.medicalRecords = data.medicalRecords;
 
       saveToStorage();
       renderAllViews();
       closeAllModals();
       showToast('Data imported successfully! ✨');
     } catch (err) {
-      alert('Invalid HerVita backup JSON file.');
+      alert('Invalid Arogini backup JSON file.');
     }
   };
   reader.readAsText(file);
@@ -2311,7 +2217,7 @@ function renderPregnancyTracker() {
   if (!container) return;
 
   // Calculate Gestational Age
-  const lmpDate = new Date(HerVitaState.userProfile.pregnancyLmp || '2026-06-15');
+  const lmpDate = new Date(AroginiState.userProfile.pregnancyLmp || '2026-06-15');
   const today = new Date();
   const diffDays = Math.max(0, Math.floor((today - lmpDate) / (1000 * 60 * 60 * 24)));
   const currentWeek = Math.min(40, Math.floor(diffDays / 7) + 1);
@@ -2339,7 +2245,7 @@ function renderPregnancyTracker() {
             <span style="font-size: 1.1rem; color: var(--text-secondary); font-weight: 600;">+ ${currentDay} Days</span>
           </div>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">
-            Estimated Due Date: <strong>${dueDateStr}</strong> (based on LMP: ${HerVitaState.userProfile.pregnancyLmp})
+            Estimated Due Date: <strong>${dueDateStr}</strong> (based on LMP: ${AroginiState.userProfile.pregnancyLmp})
           </p>
         </div>
         <div style="background: #fff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 0.85rem 1.25rem; text-align: center;">
@@ -2380,7 +2286,7 @@ function renderPregnancyTracker() {
         <div>
           <h4 style="font-size: 1rem; color: var(--primary-900); margin-bottom: 0.75rem;">Recorded Pregnancy Milestones</h4>
           <div style="display: flex; flex-direction: column; gap: 0.65rem;">
-            ${HerVitaState.pregnancyMilestones.map(m => `
+            ${AroginiState.pregnancyMilestones.map(m => `
               <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: #fff; border: 1px solid var(--border-light); border-radius: var(--radius-md);">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                   <span style="font-size: 1.2rem;">${m.completed ? '✅' : '⏳'}</span>
@@ -2461,14 +2367,14 @@ function handleMilestoneSubmit(e) {
     completed: Boolean(date)
   };
 
-  HerVitaState.pregnancyMilestones.unshift(newMilestone);
+  AroginiState.pregnancyMilestones.unshift(newMilestone);
   saveToStorage();
   renderPregnancyTracker();
   showToast('Pregnancy milestone recorded! 🌸');
 }
 
 function deletePregnancyMilestone(id) {
-  HerVitaState.pregnancyMilestones = HerVitaState.pregnancyMilestones.filter(m => m.id !== id);
+  AroginiState.pregnancyMilestones = AroginiState.pregnancyMilestones.filter(m => m.id !== id);
   saveToStorage();
   renderPregnancyTracker();
   showToast('Milestone removed.');
@@ -2489,7 +2395,7 @@ function renderAntenatalPlanner() {
     </div>
 
     <div class="antenatal-schedule-grid">
-      ${HerVitaState.antenatalVisits.map(v => `
+      ${AroginiState.antenatalVisits.map(v => `
         <div class="antenatal-card ${v.status === 'Completed' ? 'completed' : 'pending'}">
           <div class="antenatal-card-top">
             <span class="antenatal-week-badge ${v.status === 'Completed' ? 'badge-sage' : 'badge-amber'}">
@@ -2521,7 +2427,7 @@ function renderAntenatalPlanner() {
 }
 
 function toggleAntenatalStatus(id) {
-  const visit = HerVitaState.antenatalVisits.find(v => v.id === id);
+  const visit = AroginiState.antenatalVisits.find(v => v.id === id);
   if (visit) {
     visit.status = visit.status === 'Completed' ? 'Upcoming' : 'Completed';
     saveToStorage();
@@ -2531,7 +2437,7 @@ function toggleAntenatalStatus(id) {
 }
 
 function deleteAntenatalVisit(id) {
-  HerVitaState.antenatalVisits = HerVitaState.antenatalVisits.filter(v => v.id !== id);
+  AroginiState.antenatalVisits = AroginiState.antenatalVisits.filter(v => v.id !== id);
   saveToStorage();
   renderAntenatalPlanner();
   showToast('Visit removed.');
@@ -2700,7 +2606,7 @@ function renderPostpartumSupport() {
 
           <div>
             <h5 style="font-size: 0.95rem; color: var(--primary-900); margin-bottom: 0.5rem;">Recent Logged Recovery Concerns:</h5>
-            ${HerVitaState.postpartumRecords.map(pp => `
+            ${AroginiState.postpartumRecords.map(pp => `
               <div style="padding: 0.6rem 0.8rem; border: 1px solid var(--border-light); border-radius: var(--radius-sm); margin-bottom: 0.4rem; font-size: 0.825rem;">
                 <strong>${pp.category}:</strong> ${pp.concern}<br/>
                 <span style="color: var(--sage-700);">→ ${pp.action}</span>
@@ -2768,7 +2674,7 @@ function renderMenstrualHealth() {
       <div class="card">
         <h4 style="font-size: 1.15rem; color: var(--primary-900); margin-bottom: 0.75rem;">Logged Menstrual Cycles</h4>
         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-          ${HerVitaState.periodLogs.map(p => `
+          ${AroginiState.periodLogs.map(p => `
             <div style="background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; display: flex; align-items: center; justify-content: space-between;">
               <div>
                 <div style="font-weight: 700; color: var(--primary-900); font-size: 0.95rem;">${p.startDate} to ${p.endDate}</div>
@@ -2849,7 +2755,7 @@ function handlePeriodSubmit(e) {
     clots: flow === 'Heavy' ? 'Yes' : 'No'
   };
 
-  HerVitaState.periodLogs.unshift(newPeriod);
+  AroginiState.periodLogs.unshift(newPeriod);
   saveToStorage();
   renderMenstrualHealth();
   showToast('Period entry recorded in your diary.');
@@ -2865,7 +2771,7 @@ function renderPCOSJournal() {
     <div style="background: #FDF2F8; border: 1px solid #FBCFE8; border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
       <span style="font-size: 1.4rem;">🩺</span>
       <div style="font-size: 0.875rem; color: var(--primary-900); line-height: 1.45;">
-        <strong>Clinical Boundary Notice (ACOG Guideline):</strong> HerVita organises patterns and lab trends for your doctor. 
+        <strong>Clinical Boundary Notice (ACOG Guideline):</strong> Arogini organises patterns and lab trends for your doctor. 
         <em>Do not diagnose PCOS from symptoms alone.</em> A formal diagnosis requires clinical evaluation including pelvic ultrasound (polycystic ovarian morphology) and laboratory blood hormone panels.
       </div>
     </div>
@@ -2894,7 +2800,7 @@ function renderPCOSJournal() {
       <div class="card">
         <h4 style="font-size: 1.15rem; color: var(--primary-900); margin-bottom: 0.75rem;">Logged Hormonal Symptoms</h4>
         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-          ${HerVitaState.pcosLogs.map(l => `
+          ${AroginiState.pcosLogs.map(l => `
             <div style="background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 0.85rem 1rem;">
               <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
                 <span style="font-weight: 700; color: var(--primary-900);">${l.date}</span>
@@ -2976,7 +2882,7 @@ function handlePCOSSubmit(e) {
     notes: notes
   };
 
-  HerVitaState.pcosLogs.unshift(newLog);
+  AroginiState.pcosLogs.unshift(newLog);
   saveToStorage();
   renderPCOSJournal();
   showToast('Hormonal entry saved.');
@@ -3000,7 +2906,7 @@ function renderPelvicPainDiary() {
       <div class="card">
         <h4 style="font-size: 1.15rem; color: var(--primary-900); margin-bottom: 0.75rem;">Pelvic Pain Chronology</h4>
         <div style="display: flex; flex-direction: column; gap: 0.85rem;">
-          ${HerVitaState.pelvicPainLogs.map(p => `
+          ${AroginiState.pelvicPainLogs.map(p => `
             <div style="background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1rem;">
               <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.35rem;">
                 <span style="font-weight: 700; color: var(--primary-900); font-size: 0.95rem;">${p.date} • ${p.duration}</span>
@@ -3105,7 +3011,7 @@ function handlePelvicPainSubmit(e) {
     notes: ''
   };
 
-  HerVitaState.pelvicPainLogs.unshift(newPain);
+  AroginiState.pelvicPainLogs.unshift(newPain);
   saveToStorage();
   renderPelvicPainDiary();
   showToast('Pelvic pain entry logged.');
@@ -3213,7 +3119,7 @@ function renderMedicalRecords() {
     <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.75rem; align-items: start;">
       <!-- Vault Records List -->
       <div class="records-vault-grid">
-        ${HerVitaState.medicalRecords.map(r => `
+        ${AroginiState.medicalRecords.map(r => `
           <div class="record-vault-card">
             <div class="record-left">
               <div class="record-type-icon ${getRecordIconClass(r.category)}">
@@ -3313,14 +3219,14 @@ function handleRecordSubmit(e) {
     keyFindings: findings || 'Document filed securely.'
   };
 
-  HerVitaState.medicalRecords.unshift(newRec);
+  AroginiState.medicalRecords.unshift(newRec);
   saveToStorage();
   renderMedicalRecords();
   showToast('Medical record archived in vault.');
 }
 
 function deleteMedicalRecord(id) {
-  HerVitaState.medicalRecords = HerVitaState.medicalRecords.filter(r => r.id !== id);
+  AroginiState.medicalRecords = AroginiState.medicalRecords.filter(r => r.id !== id);
   saveToStorage();
   renderMedicalRecords();
   showToast('Record deleted.');
@@ -3328,7 +3234,7 @@ function deleteMedicalRecord(id) {
 
 // Master Domain Switcher
 function switchMainDomain(domain) {
-  HerVitaState.activeDomain = domain;
+  AroginiState.activeDomain = domain;
   const obsSec = document.getElementById('view-obstetrics');
   const gynSec = document.getElementById('view-gynecology');
   const obsBtn = document.getElementById('domain-btn-obs');
@@ -3352,1179 +3258,18 @@ function switchMainDomain(domain) {
   document.querySelectorAll('.view-section:not(#view-obstetrics):not(#view-gynecology)').forEach(v => v.classList.remove('active-view'));
 }
 
-// ==========================================================================
-// AROGINI CLINICAL RAG KNOWLEDGE CORPUS (Indexed Vector Guidelines)
-// ==========================================================================
-const RAG_KNOWLEDGE_CORPUS = [
-  {
-    id: 'rag-acog-222',
-    authority: 'ACOG Practice Bulletin #222',
-    title: 'Gestational Hypertension & Preeclampsia Diagnosis',
-    category: 'Obstetrics',
-    evidenceTier: 'Grade A Evidence',
-    citation: 'American College of Obstetricians and Gynecologists (2020)',
-    keywords: ['preeclampsia', 'headache', 'blood pressure', 'hypertension', 'blurred vision', 'swelling', 'edema', 'proteinuria', '32 weeks', 'third trimester', 'scotoma'],
-    content: 'Preeclampsia is defined as new-onset hypertension (systolic BP >= 140 mmHg or diastolic BP >= 90 mmHg on two occasions at least 4 hours apart) occurring after 20 weeks of gestation in a previously normotensive woman, combined with proteinuria or end-organ dysfunction. Severe features include persistent severe throbbing frontal headache unresponsive to analgesics, visual disturbances (photopsia, scotomata, cortical blindness), persistent epigastric or right upper quadrant pain, platelet count < 100,000/uL, and serum creatinine > 1.1 mg/dL. Immediate clinical evaluation and fetal monitoring are mandated.'
-  },
-  {
-    id: 'rag-rotterdam-pcos',
-    authority: 'Rotterdam ESHRE/ASRM Consensus',
-    title: 'Diagnostic Criteria for Polycystic Ovary Syndrome (PCOS)',
-    category: 'Gynecology & Endocrine',
-    evidenceTier: 'Gold Standard',
-    citation: 'Rotterdam Consensus Group (Revised International Guidelines 2023)',
-    keywords: ['pcos', 'irregular', 'cycles', 'acne', 'hirsutism', 'ovulation', 'hair fall', 'weight gain', 'androgen', 'follicles', 'ultrasound', 'metabolic'],
-    content: 'Diagnosis of PCOS requires meeting at least two of the following three criteria, after excluding other related etiologies (congenital adrenal hyperplasia, androgen-secreting tumors, hyperprolactinemia): (1) Oligo- or anovulation manifested as cycles > 35 days or < 21 days; (2) Clinical and/or biochemical signs of hyperandrogenism (hirsutism evaluated by modified Ferriman-Gallwey score, severe cystic facial/jawline acne, androgenic alopecia, elevated free or total testosterone); (3) Polycystic ovarian morphology on transvaginal ultrasound (presence of >= 20 follicles per ovary measuring 2-9 mm, or ovarian volume >= 10 mL). Insulin resistance and metabolic cofactors are prevalent in over 70% of individuals.'
-  },
-  {
-    id: 'rag-acog-760',
-    authority: 'ACOG Committee Opinion #760',
-    title: 'Primary Dysmenorrhea vs Secondary Endometriosis Evaluation',
-    category: 'Gynecology',
-    evidenceTier: 'Clinical Guideline',
-    citation: 'ACOG Committee on Adolescent Health Care (2018)',
-    keywords: ['cramps', 'dysmenorrhea', 'pelvic pain', 'endometriosis', 'prostaglandin', 'menstrual', 'pain', 'thighs', 'backache', 'nsaid', 'day 1'],
-    content: 'Primary dysmenorrhea is recurrent lower abdominal cramping occurring on menstrual days 1-3 without identifiable pelvic pathology, driven by elevated myometrial prostaglandins (PGF2-alpha). Secondary dysmenorrhea is pain caused by underlying pelvic pathology, most commonly endometriosis, adenomyosis, or pelvic adhesions. Red flags for secondary etiology include: pain beginning days before flow or persisting after flow stops, deep dyspareunia, dyschezia, acyclic pelvic pain, and poor response to standard NSAID or combined oral contraceptive therapy. Pelvic ultrasound is indicated to exclude endometriomas and adenomyotic myometrial heterogeneity.'
-  },
-  {
-    id: 'rag-who-postpartum',
-    authority: 'WHO Maternal Health Guidelines',
-    title: 'Fourth Trimester Care: Postpartum Mental Health & Physical Recovery',
-    category: 'Postpartum Care',
-    evidenceTier: 'Global Consensus',
-    citation: 'World Health Organization Postpartum Recommendations (2022)',
-    keywords: ['postpartum', 'baby blues', 'depression', 'tearfulness', 'sadness', 'fatigue', 'lochia', 'crying', 'insomnia', 'fourth trimester', 'anxiety'],
-    content: 'The postpartum period encompasses the 6 weeks following childbirth. Transient postpartum baby blues (affecting up to 80% of mothers) peak on postpartum days 3-5 and typically resolve spontaneously within 10-14 days without functional impairment. Symptoms persisting beyond 2 weeks—such as pervasive hopelessness, emotional numbness, inability to bond with the infant, severe sleep disruption unrelated to infant waking, or obsessive intrusive thoughts—meet criteria for Postpartum Depression (PPD) and require standardized Edinburgh Postnatal Depression Scale (EPDS) screening and professional multidisciplinary support.'
-  },
-  {
-    id: 'rag-fogsi-hpv',
-    authority: 'FOGSI & WHO National Advisory',
-    title: 'Human Papillomavirus (HPV) Vaccination for Cervical Cancer Prevention',
-    category: 'Preventive Care',
-    evidenceTier: 'Grade A Prevention',
-    citation: 'Federation of Obstetric and Gynaecological Societies of India (2023)',
-    keywords: ['hpv', 'vaccine', 'gardasil', 'cervical cancer', 'cervix', 'dose', 'immunisation', 'screening', 'pap smear', 'prevention', 'india'],
-    content: 'Persistent high-risk Human Papillomavirus (HPV) infection (types 16 and 18) accounts for >80% of cervical cancer cases in India. HPV vaccination is most immunogenic between ages 9-14 (2-dose schedule: 0 and 6 months). For females aged 15-26, a 3-dose schedule (0, 1-2, and 6 months) is recommended. The nonavalent vaccine (Gardasil 9) confers protection against HPV types 6, 11, 16, 18, 31, 33, 45, 52, and 58. Vaccination remains clinically beneficial even if previously sexually active, though routine cervical screening (Pap smear / HPV DNA test every 3-5 years) remains essential starting at age 25-30.'
-  },
-  {
-    id: 'rag-fogsi-anemia',
-    authority: 'FOGSI & NHM India Guidelines',
-    title: 'Maternal Anemia, Ferritin Profiling & Iron Supplementation',
-    category: 'Maternal Health',
-    evidenceTier: 'National Clinical Protocol',
-    citation: 'Anemia Mukt Bharat & FOGSI Clinical Advisory (2023)',
-    keywords: ['anemia', 'iron', 'ferritin', 'hemoglobin', 'fatigue', 'pregnancy', 'cbc', 'weakness', 'breathlessness', 'supplement'],
-    content: 'Anemia in pregnancy is defined as hemoglobin < 11.0 g/dL in Trimesters 1 and 3, and < 10.5 g/dL in Trimester 2. Serum ferritin < 30 ng/mL signifies depleted iron stores prior to overt microcytic hypochromic anemia. In Indian obstetric practice, oral elemental iron (100 mg elemental iron + 500 mcg folic acid daily) is standard prophylaxis. When serum ferritin is < 20-30 ng/mL, therapeutic oral iron (ferrous ascorbate or iron bisglycinate) taken with vitamin C on an empty stomach improves bioavailability, with follow-up reticulocyte and CBC assessment at 4 weeks.'
-  },
-  {
-    id: 'rag-figo-aub',
-    authority: 'FIGO Menstrual Disorders Committee',
-    title: 'Abnormal Uterine Bleeding (PALM-COEIN Classification)',
-    category: 'Gynecology',
-    evidenceTier: 'International Standard',
-    citation: 'International Federation of Gynecology and Obstetrics (FIGO 2018)',
-    keywords: ['heavy', 'bleeding', 'clots', 'pads', 'aub', 'menorrhagia', 'uterus', 'fibroid', 'polyp', 'adenomyosis', 'flow', 'cycle'],
-    content: 'Abnormal Uterine Bleeding (AUB) is systematically categorized by the PALM-COEIN classification. Structural causes (PALM): Polyp, Adenomyosis, Leiomyoma (fibroids), Malignancy & hyperplasia. Non-structural causes (COEIN): Coagulopathy, Ovulatory dysfunction (most common in PCOS and perimenopause), Endometrial disorders, Iatrogenic, Not otherwise classified. Heavy Menstrual Bleeding (HMB) is defined as excessive menstrual blood loss that interferes with physical, social, and emotional quality of life, frequently indicated by changing pads every 1-2 hours or passing clots > 2.5 cm.'
-  },
-  {
-    id: 'rag-acog-ectopic',
-    authority: 'ACOG Practice Bulletin #193',
-    title: 'Early Pregnancy Bleeding & Ectopic Pregnancy Triage',
-    category: 'Obstetric Emergency',
-    evidenceTier: 'Critical Safety Protocol',
-    citation: 'ACOG Committee on Practice Bulletins—Obstetrics (2018)',
-    keywords: ['ectopic', 'bleeding', 'early pregnancy', 'shoulder pain', 'one-sided', 'fainting', 'hcg', 'emergency', 'fallopian tube'],
-    content: 'First-trimester vaginal bleeding accompanied by unilateral pelvic or lower abdominal pain is considered an ectopic pregnancy until proven otherwise. Warning signs of tubal rupture or intra-abdominal hemorrhage include sudden knife-like pain, syncopal episodes (fainting), referred shoulder tip pain (diaphragmatic irritation from hemoperitoneum), and hemodynamic instability. Immediate transvaginal ultrasound and serial quantitative serum beta-hCG measurements are required.'
-  }
-];
-
-// ==========================================================================
-// RAG VECTOR SEARCH ENGINE (Semantic TF-IDF & Cosine Similarity)
-// ==========================================================================
-function searchRAGVectorIndex(userQuery, topK = 3) {
-  if (!userQuery || !userQuery.trim()) return [];
-
-  const rawQuery = userQuery.toLowerCase();
-  const queryTokens = rawQuery
-    .replace(/[^\w\s]/g, ' ')
-    .split(/\s+/)
-    .filter(t => t.length > 2);
-
-  // Synonyms and clinical concept expansion
-  const expandedTokens = [...queryTokens];
-  if (rawQuery.includes('headache') || rawQuery.includes('bp') || rawQuery.includes('vision')) {
-    expandedTokens.push('preeclampsia', 'hypertension', 'blood pressure');
-  }
-  if (rawQuery.includes('pcos') || rawQuery.includes('facial hair') || rawQuery.includes('irregular')) {
-    expandedTokens.push('pcos', 'acne', 'hirsutism', 'ovulation', 'androgen');
-  }
-  if (rawQuery.includes('cramp') || rawQuery.includes('pain') || rawQuery.includes('period')) {
-    expandedTokens.push('dysmenorrhea', 'prostaglandin', 'endometriosis', 'pelvic');
-  }
-  if (rawQuery.includes('sad') || rawQuery.includes('crying') || rawQuery.includes('postpartum')) {
-    expandedTokens.push('postpartum', 'baby blues', 'depression', 'fourth trimester');
-  }
-  if (rawQuery.includes('hpv') || rawQuery.includes('cancer') || rawQuery.includes('vaccin')) {
-    expandedTokens.push('hpv', 'vaccine', 'cervical cancer', 'gardasil');
-  }
-
-  const scoredDocs = RAG_KNOWLEDGE_CORPUS.map(doc => {
-    let matchCount = 0;
-    const docFullText = (doc.title + ' ' + doc.keywords.join(' ') + ' ' + doc.content).toLowerCase();
-
-    // Keyword & Token matching
-    expandedTokens.forEach(token => {
-      if (doc.keywords.includes(token)) {
-        matchCount += 3.5;
-      } else if (docFullText.includes(token)) {
-        matchCount += 1.5;
-      }
-    });
-
-    // Compute synthetic cosine similarity (normalized 0.70 to 0.98 for relevant matches)
-    const baseSimilarity = matchCount > 0 ? Math.min(0.985, 0.72 + (matchCount * 0.035)) : 0.42;
-    const roundedPercent = (baseSimilarity * 100).toFixed(1);
-
-    return {
-      doc: doc,
-      score: baseSimilarity,
-      scorePercent: roundedPercent,
-      matchCount: matchCount
-    };
-  });
-
-  scoredDocs.sort((a, b) => b.score - a.score);
-  return scoredDocs.slice(0, topK);
-}
-
-// ==========================================================================
-// AROGINI MULTI-AGENT ORCHESTRATOR
-// ==========================================================================
-class AroginiMultiAgentOrchestrator {
-  constructor() {
-    this.state = HerVitaState;
-  }
-
-  // AGENT 1: Red-Flag Clinical Safety & Triage Guardrail
-  evaluateSafetyGuardrail(query) {
-    const q = query.toLowerCase();
-    const urgentTriggers = [
-      'sudden headache', 'blurred vision', 'high bp', 'severe bleeding',
-      'soaking pad', 'fainting', 'shoulder pain', 'clot', 'fever with pain',
-      'chest pain', 'breathlessness', 'severe one-sided', 'rupture', 'epigastric'
-    ];
-
-    const moderateTriggers = [
-      'irregular', 'pcos', 'acne', 'hirsutism', 'cramp', 'pain',
-      'sad', 'tearfulness', 'depression', 'vaccine', 'anemia', 'ferritin'
-    ];
-
-    let riskLevel = 'GREEN';
-    let riskLabel = 'Supportive Clinical Education (Low Risk)';
-    let emergencyAction = null;
-
-    for (const trigger of urgentTriggers) {
-      if (q.includes(trigger)) {
-        riskLevel = 'RED';
-        riskLabel = 'High Priority • Doctor Consultation Promptly Advised';
-        emergencyAction = 'Based on clinical guidelines (ACOG/FOGSI), symptoms such as persistent severe headache in pregnancy, vision changes, or severe acute abdominal pain warrant timely clinical evaluation by your obstetrician or nearest emergency triage.';
-        break;
-      }
-    }
-
-    if (riskLevel === 'GREEN') {
-      for (const trigger of moderateTriggers) {
-        if (q.includes(trigger)) {
-          riskLevel = 'AMBER';
-          riskLabel = 'Clinical Follow-up Recommended (Moderate Concern)';
-          break;
-        }
-      }
-    }
-
-    return {
-      riskLevel,
-      riskLabel,
-      emergencyAction
-    };
-  }
-
-  // AGENT 3: Longitudinal Patient Phenotype Synthesizer
-  synthesizePatientPhenotype(query) {
-    const profile = this.state.userProfile || { name: 'Priya Sharma', age: 26 };
-    const weeksPregnant = 19; // Active patient profile
-    const recentSymptoms = this.state.entries.slice(0, 3).map(e => e.symptom).join(', ') || 'Dysmenorrhea (Cycle Day 1), Fatigue';
-    const ferritin = '21 ng/mL (Low Iron Stores)';
-
-    return {
-      patientName: profile.name,
-      patientAge: profile.age,
-      contextString: `Patient ${profile.name} (Age ${profile.age}), approx 19 Weeks Gestation or Cycle Day tracking with history of ${recentSymptoms} and baseline Ferritin ${ferritin}.`,
-      cycleCorrelation: query.toLowerCase().includes('pregnant') || query.toLowerCase().includes('32 weeks')
-        ? 'Active Pregnancy Trimester Protocol: Week 19-32 Antenatal Pathway'
-        : 'Menstrual Cycle Phase: Luteal to Menstrual Transition'
-    };
-  }
-
-  // AGENT 4: Clinical SBAR Formulation
-  generateSBAR(query, retrievedSources, phenotype) {
-    const primarySource = retrievedSources && retrievedSources[0] ? retrievedSources[0].doc : null;
-    const sourceAuthority = primarySource ? primarySource.authority : 'Rotterdam ESHRE/ASRM Consensus';
-
-    let sbar = {
-      situation: '',
-      background: '',
-      assessment: '',
-      recommendation: '',
-      icd10: '',
-      friendlyTitle: '',
-      situationFriendly: '',
-      backgroundFriendly: '',
-      assessmentFriendly: '',
-      recommendationFriendly: '',
-      jargonGlossary: [],
-      questionsForDoctor: []
-    };
-
-    const q = (query || '').toLowerCase();
-
-    if (q.includes('headache') || q.includes('preeclampsia') || q.includes('32 weeks') || q.includes('bp')) {
-      sbar.friendlyTitle = 'Pregnancy Blood Pressure & Well-being Check';
-      sbar.situation = '32-week pregnant individual presenting with persistent throbbing headache, visual disturbances, and pedal edema.';
-      sbar.situationFriendly = 'I am 32 weeks pregnant and experiencing a persistent headache, changes in my vision (blurriness or light sensitivity), and noticeable swelling in my hands and feet.';
-      sbar.background = `${phenotype.patientName}, age ${phenotype.patientAge}, active pregnancy tracking, currently entering early 3rd trimester.`;
-      sbar.backgroundFriendly = `${phenotype.patientName} (Age ${phenotype.patientAge}) is actively tracking third-trimester prenatal milestones in Arogini.`;
-      sbar.assessment = `Clinical presentation warrants evaluation to rule out Gestational Hypertension or Preeclampsia with severe features as per ${sourceAuthority}.`;
-      sbar.assessmentFriendly = 'These symptoms require prompt clinical evaluation to check blood pressure and ensure mother and baby are safe from preeclampsia (pregnancy high blood pressure).';
-      sbar.recommendation = 'Immediate clinical blood pressure check, urinalysis for proteinuria, complete metabolic panel, and fetal biophysical profile.';
-      sbar.recommendationFriendly = 'Please see your obstetrician or maternity emergency room promptly for a quick blood pressure check, urine protein test, and baby movement check.';
-      sbar.icd10 = 'O14.0 (Mild-to-moderate preeclampsia) / O14.9 (Unspecified preeclampsia)';
-      sbar.jargonGlossary = [
-        { term: 'Preeclampsia', meaning: 'A temporary pregnancy condition involving higher blood pressure, safely managed when evaluated early.' },
-        { term: 'Pedal Edema', meaning: 'Swelling of the feet and lower legs caused by fluid buildup during pregnancy.' },
-        { term: 'Proteinuria', meaning: 'A simple urine test doctors use to ensure kidney health during pregnancy.' }
-      ];
-      sbar.questionsForDoctor = [
-        'Could my headache and swelling indicate preeclampsia or elevated blood pressure?',
-        'Can we measure my blood pressure and do a urine protein dipstick today?',
-        'What warning signs should prompt me to go directly to maternity triage?'
-      ];
-    } else if (q.includes('cramp') || q.includes('dysmenorrhea') || q.includes('pelvic')) {
-      sbar.friendlyTitle = 'Period Pain & Menstrual Relief Plan';
-      sbar.situation = 'Recurrent severe lower pelvic pain radiating to thighs and lower back on cycle days 1–2, impacting daily activities.';
-      sbar.situationFriendly = 'I experience severe cramping in my lower belly and back during the first 1–2 days of my period, radiating to my thighs and making daily work or school difficult.';
-      sbar.background = `${phenotype.patientName}, log history reflects severity score 4/5 over 4 consecutive cycles with small clot passage.`;
-      sbar.backgroundFriendly = `${phenotype.patientName} has recorded pain scores averaging 4 out of 5 across 4 consecutive menstrual cycles.`;
-      sbar.assessment = `Symptoms consistent with severe Primary Dysmenorrhea (prostaglandin-mediated) with need to exclude secondary endometriosis as per ${sourceAuthority}.`;
-      sbar.assessmentFriendly = 'Your logged pain pattern points to strong period cramping (dysmenorrhea). A doctor consultation will verify targeted pain relief and ensure there are no underlying pelvic conditions.';
-      sbar.recommendation = 'Assess responsiveness to scheduled first-line NSAIDs taken prior to flow onset; evaluate for pelvic ultrasound to exclude endometriomas.';
-      sbar.recommendationFriendly = 'Discuss effective pain-relief options with your doctor (such as starting anti-inflammatory medicines right before bleeding begins) and ask if an ultrasound is recommended.';
-      sbar.icd10 = 'N94.6 (Dysmenorrhea, unspecified) / N94.4 (Primary dysmenorrhea)';
-      sbar.jargonGlossary = [
-        { term: 'Dysmenorrhea', meaning: 'The medical term for painful menstrual cramps.' },
-        { term: 'Prostaglandins', meaning: 'Natural body chemicals that stimulate the uterine muscles to shed the monthly lining.' },
-        { term: 'First-Line NSAIDs', meaning: 'Standard anti-inflammatory pain medications (such as ibuprofen or mefenamic acid) that doctors prescribe.' }
-      ];
-      sbar.questionsForDoctor = [
-        'What pain-management strategy will give me the quickest relief on days 1 and 2 of my period?',
-        'Would an ultrasound scan help rule out ovarian cysts or endometriosis?',
-        'Are there specific heat therapies, dietary tweaks, or supplements you recommend?'
-      ];
-    } else if (q.includes('postpartum') || q.includes('sad') || q.includes('crying') || q.includes('baby blues')) {
-      sbar.friendlyTitle = 'Postpartum Emotional & Mental Wellness';
-      sbar.situation = 'Postpartum individual at 2 weeks experiencing persistent tearfulness, sadness, and anxiety.';
-      sbar.situationFriendly = 'I gave birth 2 weeks ago and have been feeling overwhelmed by sadness, frequent crying spells, and anxious thoughts that haven\'t eased.';
-      sbar.background = `${phenotype.patientName}, 4th trimester recovery journey following recent birth; symptoms persisting beyond typical day 10 window.`;
-      sbar.backgroundFriendly = `${phenotype.patientName} is in the 4th trimester recovery window following childbirth.`;
-      sbar.assessment = `Symptoms exceeding typical transient "baby blues" timeframe; screen for Postpartum Depression as recommended by ${sourceAuthority}.`;
-      sbar.assessmentFriendly = 'While hormone shifts after birth are very common, symptoms lasting past the initial 10 days benefit from a gentle, supportive check for postpartum depression or anxiety.';
-      sbar.recommendation = 'Administer Edinburgh Postnatal Depression Scale (EPDS); coordinate maternal mental health counseling and community support.';
-      sbar.recommendationFriendly = 'Share these feelings openly with your doctor or midwife. Compassionate emotional support, gentle counseling, and practical care are ready for you.';
-      sbar.icd10 = 'F53.0 (Postpartum depression)';
-      sbar.jargonGlossary = [
-        { term: '4th Trimester', meaning: 'The vital 12-week healing and adjustment phase for mother and baby after childbirth.' },
-        { term: 'Baby Blues vs PPD', meaning: 'Mild temporary mood swings in the first week versus persistent emotional distress that improves with clinical support.' },
-        { term: 'EPDS Scale', meaning: 'A simple, confidential 10-question questionnaire to help doctors understand how new mothers are feeling.' }
-      ];
-      sbar.questionsForDoctor = [
-        'How can I tell if what I\'m feeling is normal postpartum exhaustion or postpartum depression?',
-        'What safe, gentle counseling or support groups are available in our clinic/hospital?',
-        'Are there postpartum vitamins, sleep strategies, or therapies that can support my emotional health?'
-      ];
-    } else {
-      // Default to PCOS / cycle variance (exact match for user's screenshot)
-      sbar.friendlyTitle = 'Cycle Irregularity & Hormonal Wellness (PCOS Assessment)';
-      sbar.situation = 'Individual reports oligomenorrhea (cycle length > 38 days) with cutaneous hyperandrogenism (jawline acne, hirsutism).';
-      sbar.situationFriendly = 'I have irregular menstrual cycles (periods arriving more than 38 days apart) along with signs of hormone imbalance, including persistent jawline acne and noticeable excess facial or body hair (hirsutism).';
-      sbar.background = `${phenotype.patientName}, age ${phenotype.patientAge}, longitudinal menstrual log reflects 4 cycles with cycle length variance.`;
-      sbar.backgroundFriendly = `${phenotype.patientName} (Age ${phenotype.patientAge}) has maintained a continuous menstrual tracking diary over the last 4 cycles, showing irregular cycle intervals and duration variance.`;
-      sbar.assessment = `Symptoms align with 2 of 3 Rotterdam Criteria for Polycystic Ovary Syndrome (Oligo-ovulation + Clinical Hyperandrogenism) as referenced in Rotterdam ESHRE/ASRM Consensus.`;
-      sbar.assessmentFriendly = 'Your recorded symptoms match 2 of 3 standard medical signs for Polycystic Ovary Syndrome (PCOS): irregular ovulation and physical signs of elevated androgen hormones. This aligns with international medical consensus (Rotterdam Guidelines) to help your physician evaluate PCOS.';
-      sbar.recommendation = 'Order fasting serum insulin, total & free testosterone, DHEAS, TSH, and schedule a pelvic ultrasound for ovarian follicle morphology.';
-      sbar.recommendationFriendly = 'Helpful discussion points & tests for your doctor\'s visit: Ask about checking baseline hormone levels (fasting insulin, total & free testosterone, DHEAS, thyroid/TSH) and scheduling a gentle pelvic ultrasound to check your ovaries.';
-      sbar.icd10 = 'E28.2 (Polycystic ovarian syndrome)';
-      sbar.jargonGlossary = [
-        { term: 'Oligomenorrhea', meaning: 'Irregular or delayed menstrual cycles occurring more than 35–38 days apart.' },
-        { term: 'Cutaneous Hyperandrogenism & Hirsutism', meaning: 'Slight elevations in natural androgen hormones that can cause jawline acne breakouts and extra hair growth.' },
-        { term: 'Rotterdam Criteria', meaning: 'The standard, globally accepted medical guidelines doctors use to diagnose and care for PCOS.' },
-        { term: 'Pelvic Ultrasound & Hormone Panel', meaning: 'Simple, painless diagnostic checks to verify ovary health and measure insulin & hormone balance.' }
-      ];
-      sbar.questionsForDoctor = [
-        'Could my irregular cycles and jawline acne breakouts be linked to PCOS or insulin sensitivity?',
-        'Would you recommend doing a baseline hormone blood panel (insulin, testosterone, TSH, DHEAS)?',
-        'What nutrition, lifestyle habits, or supplements would best support regular ovulation and skin health?'
-      ];
-    }
-
-    return sbar;
-  }
-
-  // AGENT 5: Autonomous Care Action Proposer
-  formulateAutonomousAction(query, sbar) {
-    const q = query.toLowerCase();
-
-    if (q.includes('headache') || q.includes('32 weeks') || q.includes('bp')) {
-      return {
-        id: 'auto-act-' + Date.now(),
-        title: 'Emergency Obstetric BP Check & Urine Protein Screen',
-        category: 'Diagnostic Scan / Ultrasound',
-        dueDate: new Date().toISOString().split('T')[0],
-        doctor: 'Dr. Ananya Roy (Obstetrics)',
-        rationale: 'Guideline-directed urgent evaluation for preeclampsia warning signs.'
-      };
-    } else if (q.includes('pcos') || q.includes('acne') || q.includes('cycle')) {
-      return {
-        id: 'auto-act-' + Date.now(),
-        title: 'Pelvic Ultrasound (Ovarian Follicle Morphology) & Fasting Insulin',
-        category: 'Lab Blood Test',
-        dueDate: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-        doctor: 'Fortis Diagnostics',
-        rationale: 'Confirms Rotterdam PCOS ultrasound criteria and metabolic markers.'
-      };
-    } else if (q.includes('cramp') || q.includes('dysmenorrhea')) {
-      return {
-        id: 'auto-act-' + Date.now(),
-        title: 'Pelvic USG to Rule Out Endometriosis & Serum Ferritin',
-        category: 'Diagnostic Scan / Ultrasound',
-        dueDate: new Date(Date.now() + 10 * 86400000).toISOString().split('T')[0],
-        doctor: 'Dr. Ananya Roy (Gynaecology)',
-        rationale: 'Assesses myometrial and ovarian structure for secondary dysmenorrhea.'
-      };
-    } else {
-      return {
-        id: 'auto-act-' + Date.now(),
-        title: 'Consultation & Review of Care Summary with Gynecologist',
-        category: 'Doctor Follow-up Visit',
-        dueDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
-        doctor: 'Dr. Ananya Roy',
-        rationale: 'Proactive review of HerVita longitudinal symptom report.'
-      };
-    }
-  }
-
-  // Master Orchestration Pipeline
-  async runMultiAgentPipeline(query, progressCallback) {
-    if (progressCallback) progressCallback(1, 'Decomposing query and recognizing medical entities...');
-    await new Promise(r => setTimeout(r, 260));
-
-    // Agent 1: Safety Guardrail
-    if (progressCallback) progressCallback(2, 'Querying RAG Vector Index over 28 clinical guidelines...');
-    const safety = this.evaluateSafetyGuardrail(query);
-    await new Promise(r => setTimeout(r, 320));
-
-    // Agent 2: RAG Vector Search
-    const retrievedSources = searchRAGVectorIndex(query, 3);
-    if (progressCallback) progressCallback(3, `Evaluating ACOG/WHO safety bounds (Risk: ${safety.riskLevel})...`);
-    await new Promise(r => setTimeout(r, 280));
-
-    // Agent 3: Phenotype Tracker
-    if (progressCallback) progressCallback(4, 'Synthesizing patient profile & longitudinal diary context...');
-    const phenotype = this.synthesizePatientPhenotype(query);
-    await new Promise(r => setTimeout(r, 240));
-
-    // Agent 4: Clinical SBAR
-    if (progressCallback) progressCallback(5, 'Formulating medical SBAR, ICD-10 suggestions, and care actions...');
-    const sbar = this.generateSBAR(query, retrievedSources, phenotype);
-    const action = this.formulateAutonomousAction(query, sbar);
-    await new Promise(r => setTimeout(r, 200));
-
-    return {
-      query,
-      safety,
-      retrievedSources,
-      phenotype,
-      sbar,
-      action
-    };
-  }
-}
-
-// Global Orchestrator Instance
-const AroginiAgent = new AroginiMultiAgentOrchestrator();
-
-// ==========================================================================
-// AROGINI UI RENDERING & VOICE INTEGRATION
-// ==========================================================================
-function renderAroginiAIHub() {
-  renderRAGCorpusCards();
-  initVoiceRecognition();
-  initAISBARInDoctorSummary();
-}
-
-// Friendly card metadata for clinical guidelines (English only)
-const CORPUS_FRIENDLY_META = {
-  'rag-acog-222': {
-    emoji: '🤰',
-    friendlyTitle: 'High BP in Pregnancy (Preeclampsia)',
-    tip: 'If you have swelling, headache or blurred vision during pregnancy — see your doctor right away.',
-    color: '#fce4ec',
-    accent: '#e91e63'
-  },
-  'rag-rotterdam-pcos': {
-    emoji: '🌿',
-    friendlyTitle: 'Irregular Periods & PCOS',
-    tip: 'Irregular cycles, facial hair, acne or weight gain could be signs of PCOS. Early clinical evaluation helps manage symptoms effectively.',
-    color: '#e8f5e9',
-    accent: '#388e3c'
-  },
-  'rag-acog-760': {
-    emoji: '💗',
-    friendlyTitle: 'Period Pain & Endometriosis',
-    tip: 'Severe period cramps that don\'t get better with medicine could mean something needs checking.',
-    color: '#fce4ec',
-    accent: '#c2185b'
-  },
-  'rag-who-postpartum': {
-    emoji: '👶',
-    friendlyTitle: 'Baby Blues & Recovery After Delivery',
-    tip: 'Feeling sad or overwhelmed after having a baby is common. You deserve support. Please talk to someone.',
-    color: '#e3f2fd',
-    accent: '#1976d2'
-  },
-  'rag-fogsi-aub': {
-    emoji: '🩸',
-    friendlyTitle: 'Heavy or Unusual Bleeding',
-    tip: 'Changing pads every 1-2 hours or passing large clots is not normal. Visit a doctor.',
-    color: '#fff3e0',
-    accent: '#e65100'
-  },
-  'rag-acog-ectopic': {
-    emoji: '🚨',
-    friendlyTitle: 'Bleeding in Early Pregnancy (Emergency)',
-    tip: 'One-sided stomach pain + bleeding in early pregnancy = see emergency care immediately.',
-    color: '#ffebee',
-    accent: '#b71c1c'
-  }
-};
-
-function renderRAGCorpusCards() {
-  const container = document.getElementById('rag-corpus-cards-container');
-  if (!container) return;
-
-  container.innerHTML = RAG_KNOWLEDGE_CORPUS.map(item => {
-    const meta = CORPUS_FRIENDLY_META[item.id] || {
-      emoji: '📋', friendlyTitle: item.title, tip: '',
-      color: '#f3e5f5', accent: '#7b1fa2'
-    };
-    return `
-    <article class="corpus-doc-card" style="--card-accent: ${meta.accent}; --card-bg: ${meta.color};">
-      <div class="corpus-card-header">
-        <span class="corpus-emoji">${meta.emoji}</span>
-        <div class="corpus-title-block">
-          <h4 class="corpus-title">${meta.friendlyTitle}</h4>
-        </div>
-        <span class="corpus-verified-badge">✔ Verified</span>
-      </div>
-      <p class="corpus-tip">💡 ${meta.tip}</p>
-      <p class="corpus-desc">${item.content.substring(0, 130)}…</p>
-      <div class="corpus-meta-row">
-        <span class="corpus-category-chip">${item.category}</span>
-        <span class="corpus-evidence-tag" style="color: ${meta.accent};">${item.evidenceTier}</span>
-      </div>
-    </article>
-  `}).join('');
-}
-
-// Speech-to-Text Setup
-function initVoiceRecognition() {
-  const micBtn = document.getElementById('btn-mic-input');
-  const inputField = document.getElementById('ai-query-input');
-  if (!micBtn || !inputField) return;
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    micBtn.title = 'Speech-to-text not supported in this browser';
-    return;
-  }
-
-  const recognition = new SpeechRecognition();
-  recognition.continuous = false;
-  recognition.lang = 'en-US';
-
-  micBtn.addEventListener('click', () => {
-    if (micBtn.classList.contains('mic-listening')) {
-      recognition.stop();
-      micBtn.classList.remove('mic-listening');
-    } else {
-      micBtn.classList.add('mic-listening');
-      recognition.start();
-      showToast('Listening... Speak your symptom or question 🎙️');
-    }
-  });
-
-  recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    inputField.value = transcript;
-    micBtn.classList.remove('mic-listening');
-    showToast('Voice captured! Click "Run Multi-Agent Analysis" 🚀');
-  };
-
-  recognition.onerror = () => {
-    micBtn.classList.remove('mic-listening');
-    showToast('Voice input stopped.');
-  };
-
-  recognition.onend = () => {
-    micBtn.classList.remove('mic-listening');
-  };
-}
-
-// Text-to-Speech Playback
-function playClinicalSpeech(text) {
-  if (!window.speechSynthesis) {
-    showToast('Audio playback not supported in this browser.');
-    return;
-  }
-
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.95;
-  utterance.pitch = 1.0;
-  utterance.lang = 'en-US';
-
-  const audioBar = document.getElementById('ai-audio-bar');
-  if (audioBar) audioBar.classList.add('audio-playing');
-
-  utterance.onend = () => {
-    if (audioBar) audioBar.classList.remove('audio-playing');
-  };
-
-  utterance.onerror = () => {
-    if (audioBar) audioBar.classList.remove('audio-playing');
-  };
-
-  window.speechSynthesis.speak(utterance);
-}
-
-// Multi-Agent Execution UI Trigger
-async function executeAgentAnalysis(queryText) {
-  const query = queryText || document.getElementById('ai-query-input').value.trim();
-  if (!query) {
-    showToast('Please type or speak your symptom question first! 🌸');
-    return;
-  }
-
-  const statusBadge = document.getElementById('cot-status-badge');
-  const resultsWrapper = document.getElementById('ai-results-wrapper');
-  
-  if (statusBadge) statusBadge.textContent = 'Orchestrating...';
-  if (resultsWrapper) resultsWrapper.style.display = 'none';
-
-  // Animate Swarm Cards
-  const swarmCards = document.querySelectorAll('.swarm-agent-card');
-  swarmCards.forEach(c => c.classList.remove('agent-active'));
-
-  // Update Stepper
-  const updateStepper = (stepNum, metaMsg) => {
-    for (let i = 1; i <= 5; i++) {
-      const stepElem = document.getElementById(`cot-step-${i}`);
-      if (stepElem) {
-        if (i < stepNum) {
-          stepElem.className = 'cot-step-item step-done';
-        } else if (i === stepNum) {
-          stepElem.className = 'cot-step-item step-active';
-        } else {
-          stepElem.className = 'cot-step-item';
-        }
-      }
-    }
-    const metaElem = document.getElementById(`cot-meta-${stepNum}`);
-    if (metaElem && metaMsg) metaElem.textContent = metaMsg;
-
-    // Highlight active agent card
-    const cardMap = {
-      1: 'swarm-card-safety',
-      2: 'swarm-card-rag',
-      3: 'swarm-card-safety',
-      4: 'swarm-card-pheno',
-      5: 'swarm-card-sbar'
-    };
-    if (cardMap[stepNum]) {
-      swarmCards.forEach(c => c.classList.remove('agent-active'));
-      const activeCard = document.getElementById(cardMap[stepNum]);
-      if (activeCard) activeCard.classList.add('agent-active');
-    }
-  };
-
-  try {
-    const pipelineResult = await AroginiAgent.runMultiAgentPipeline(query, updateStepper);
-
-    // Complete Stepper
-    for (let i = 1; i <= 5; i++) {
-      const stepElem = document.getElementById(`cot-step-${i}`);
-      if (stepElem) stepElem.className = 'cot-step-item step-done';
-    }
-    if (statusBadge) statusBadge.textContent = 'Completed';
-
-    renderPipelineResults(pipelineResult);
-  } catch (err) {
-    console.error('Multi-Agent pipeline failed', err);
-    if (statusBadge) statusBadge.textContent = 'Error';
-    showToast('Agent synthesis error. Please retry.');
-  }
-}
-
-function renderPipelineResults(result) {
-  const container = document.getElementById('ai-results-wrapper');
-  if (!container) return;
-
-  const safety = result.safety;
-  const sbar = result.sbar;
-  const sources = result.retrievedSources;
-  const action = result.action;
-
-  let triageClass = 'triage-green';
-  let triageIcon = '🟢';
-  if (safety.riskLevel === 'AMBER') {
-    triageClass = 'triage-amber';
-    triageIcon = '🟡';
-  } else if (safety.riskLevel === 'RED') {
-    triageClass = 'triage-red';
-    triageIcon = '🚨';
-  }
-
-  // Primary Clinical Advice text
-  const primaryDoc = sources[0] ? sources[0].doc : null;
-  const primaryText = primaryDoc
-    ? primaryDoc.content
-    : 'Clinical guidelines recommend continuous cycle observation and consultation with a registered healthcare practitioner.';
-
-  container.innerHTML = `
-    <article class="agent-result-card">
-      
-      <!-- Result Top Header -->
-      <div class="agent-result-header">
-        <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
-          <span class="triage-indicator-badge ${triageClass}">
-            <span>${triageIcon}</span>
-            <span>${safety.riskLabel}</span>
-          </span>
-          <span style="font-size: 0.82rem; color: var(--text-muted);">
-            Correlated with ${result.phenotype.patientName} (${result.phenotype.cycleCorrelation})
-          </span>
-        </div>
-
-        <!-- Audio Player Button -->
-        <button id="ai-audio-bar" class="ai-audio-bar" onclick="playClinicalSpeech('${escapeHtml(sbar.situation + ' ' + sbar.assessment)}')">
-          <span class="audio-wave">
-            <span class="wave-bar"></span>
-            <span class="wave-bar"></span>
-            <span class="wave-bar"></span>
-            <span class="wave-bar"></span>
-          </span>
-          <span>🔊 Listen to Clinical Guidance</span>
-        </button>
-      </div>
-
-      <!-- Emergency Red Flag Alert (If RED) -->
-      ${safety.emergencyAction ? `
-        <div style="background: #FEE2E2; border: 1.5px solid #FCA5A5; border-radius: var(--radius-md); padding: 1.15rem 1.35rem; margin-bottom: 1.5rem; color: #991B1B;">
-          <h4 style="font-size: 1rem; color: #991B1B; margin-bottom: 0.3rem;">⚠️ Important Clinical Triage Notice:</h4>
-          <p style="font-size: 0.9rem; line-height: 1.5;">${safety.emergencyAction}</p>
-        </div>
-      ` : ''}
-
-      <!-- Clinical Answer Body -->
-      <div class="clinical-answer-body">
-        <h4 style="font-size: 1.25rem; color: var(--primary-900); margin-bottom: 0.65rem;">
-          Clinical Analysis & Guideline Synthesis
-        </h4>
-        <p>${primaryText}</p>
-      </div>
-
-      <!-- SBAR Structured Layout -->
-      <div class="sbar-container">
-        <div class="sbar-top-bar">
-          <h5>📋 Clinical SBAR Translation (Ready for Consultation)</h5>
-          <span style="font-size: 0.75rem; background: var(--primary-200); color: var(--primary-800); padding: 0.2rem 0.55rem; border-radius: var(--radius-full); font-weight: 700;">
-            ICD-10: ${sbar.icd10}
-          </span>
-        </div>
-
-        <div class="sbar-grid">
-          <div class="sbar-item">
-            <span class="sbar-letter">S — Situation</span>
-            <p class="sbar-desc">${sbar.situation}</p>
-          </div>
-          <div class="sbar-item">
-            <span class="sbar-letter">B — Background</span>
-            <p class="sbar-desc">${sbar.background}</p>
-          </div>
-          <div class="sbar-item">
-            <span class="sbar-letter">A — Assessment</span>
-            <p class="sbar-desc">${sbar.assessment}</p>
-          </div>
-          <div class="sbar-item">
-            <span class="sbar-letter">R — Recommendation</span>
-            <p class="sbar-desc">${sbar.recommendation}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Retrieved RAG Evidence Chunks -->
-      <div class="rag-sources-section">
-        <div class="rag-sources-header">
-          <h5><span>🔍</span> RAG Evidence Passages (${sources.length} Retrieved Chunks)</h5>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">TF-IDF Semantic Vector Similarity</span>
-        </div>
-
-        <div class="rag-sources-grid">
-          ${sources.map(src => `
-            <div class="rag-chunk-card">
-              <div class="chunk-source-tag">
-                <span>${src.doc.authority}</span>
-                <span class="chunk-score-meter">${src.scorePercent}% Match</span>
-              </div>
-              <p class="chunk-text-snippet">"${src.doc.content.substring(0, 150)}..."</p>
-              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: auto;">
-                ${src.doc.citation}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-
-      <!-- Autonomous Care Action Proposal -->
-      <div class="autonomous-action-card">
-        <div class="auto-action-info">
-          <div class="auto-action-icon">⚡</div>
-          <div class="auto-action-text">
-            <h5>Agent Proposed Care Task: ${action.title}</h5>
-            <p>Target Category: ${action.category} • Due: ${action.dueDate} (${action.rationale})</p>
-          </div>
-        </div>
-
-        <button class="btn-approve-action" onclick="approveAgentAction('${encodeURIComponent(JSON.stringify(action))}')">
-          <span>➕</span> Approve & Add to Care Checklist
-        </button>
-      </div>
-
-    </article>
-  `;
-
-  container.style.display = 'block';
-  container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// 1-Click Approval of Autonomous Agent Task
-function approveAgentAction(encodedActionJson) {
-  try {
-    const action = JSON.parse(decodeURIComponent(encodedActionJson));
-    const newTask = {
-      id: 'chk-' + Date.now(),
-      title: action.title,
-      category: action.category,
-      dueDate: action.dueDate,
-      doctor: action.doctor,
-      done: false
-    };
-
-    HerVitaState.checklist.unshift(newTask);
-    saveToStorage();
-    renderChecklist();
-    showToast(`✅ Agent Task added to your Care Checklist: "${action.title}"!`);
-  } catch (e) {
-    console.error('Failed to approve action', e);
-  }
-}
-
-// Helper to escape HTML quotes for attribute
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-}
-
-// ==============================================================
-// AI SBAR & USER-FRIENDLY CLINICAL SUMMARY ENGINE
-// ==============================================================
-
-let currentSBARMode = 'friendly'; // 'friendly' | 'clinical' | 'dual'
-let activeSBARData = null;
-
-function setSBARViewMode(mode) {
-  currentSBARMode = mode;
-  if (!activeSBARData) {
-    const patientPhenotype = AroginiAgent.synthesizePatientPhenotype('pcos and cycle variance');
-    activeSBARData = AroginiAgent.generateSBAR(
-      'PCOS oligomenorrhea cycle variance and jawline acne',
-      searchRAGVectorIndex('pcos acne hirsutism rotterdam', 2),
-      patientPhenotype
-    );
-  }
-  renderAISBARSummaryCard(activeSBARData, currentSBARMode);
-  showToast(`Switched view to ${mode === 'friendly' ? 'Patient-Friendly Plain Language' : (mode === 'clinical' ? 'Clinical Doctor SBAR' : 'Dual View')} 🌿`);
-}
-
-function copyPlainSummaryToClipboard() {
-  if (!activeSBARData) return;
-  const patientName = HerVitaState.userProfile.name || 'Patient';
-  const text = `🌸 Arogini Health Summary (${patientName}, Age ${HerVitaState.userProfile.age || 26}):\n\n` +
-    `📍 What is Happening (Situation):\n"${activeSBARData.situationFriendly}"\n\n` +
-    `📖 Health Background:\n${activeSBARData.backgroundFriendly}\n\n` +
-    `🔍 What This Suggests:\n${activeSBARData.assessmentFriendly}\n\n` +
-    `📋 Recommended Next Steps to Discuss with Doctor:\n${activeSBARData.recommendationFriendly}\n\n` +
-    `💡 Reference ICD-10 Code: ${activeSBARData.icd10}`;
-  
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text);
-  }
-  showToast('Copied Plain-Language summary to clipboard! 📋🌿');
-}
-
-function copyClinicalSBARToClipboard() {
-  if (!activeSBARData) return;
-  const patientName = HerVitaState.userProfile.name || 'Patient';
-  const text = `AROGINI AI CLINICAL SBAR REPORT\n` +
-    `Patient: ${patientName}, Age ${HerVitaState.userProfile.age || 26} | Suggested ICD-10: ${activeSBARData.icd10}\n\n` +
-    `[S - SITUATION]\n${activeSBARData.situation}\n\n` +
-    `[B - BACKGROUND]\n${activeSBARData.background}\n\n` +
-    `[A - ASSESSMENT]\n${activeSBARData.assessment}\n\n` +
-    `[R - RECOMMENDATION]\n${activeSBARData.recommendation}\n\n` +
-    `Standard: WHO Clinical Communication SBAR Protocol`;
-  
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text);
-  }
-  showToast('Copied Clinical SBAR for EHR / Doctor Notes! 🩺📋');
-}
-
-// Client-side PDF Downloader Engine using html2pdf.js
-function downloadDoctorSummaryPDF(targetId = 'printable-summary-document', filename = null) {
-  const element = document.getElementById(targetId) || document.getElementById('printable-summary-document') || document.getElementById('doctor-summary-paper-content');
-  if (!element) {
-    showToast('Document not found for PDF download. Opening print preview...');
-    window.print();
-    return;
-  }
-  
-  const patientName = (HerVitaState.userProfile && HerVitaState.userProfile.name) 
-    ? HerVitaState.userProfile.name.replace(/\s+/g, '_') 
-    : 'Patient';
-  const defaultFilename = (targetId === 'arogini-sbar-report-card') 
-    ? `Arogini_SBAR_Report_${patientName}.pdf` 
-    : `Arogini_Doctor_Visit_Summary_${patientName}.pdf`;
-  const finalFilename = filename || defaultFilename;
-
-  showToast('Generating high-quality PDF document... ⏳');
-
-  if (typeof html2pdf !== 'undefined') {
-    const opt = {
-      margin: [10, 10, 10, 10],
-      filename: finalFilename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { 
-        scale: 2, 
-        useCORS: true, 
-        logging: false,
-        backgroundColor: '#FFFFFF',
-        windowWidth: 1024
-      },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
-
-    html2pdf().set(opt).from(element).save().then(() => {
-      showToast(`Downloaded ${finalFilename}! 📄✨`);
-    }).catch(err => {
-      console.warn('html2pdf generation error, falling back to print dialog:', err);
-      showToast('Opening print dialog to Save as PDF... 🖨️');
-      window.print();
-    });
-  } else {
-    showToast('Opening print preview (Select "Save as PDF")... 🖨️');
-    window.print();
-  }
-}
-
-// Render the AI SBAR card with interactive language toggles and user-friendly explanations
-function renderAISBARSummaryCard(sbarData, mode = 'friendly') {
-  const slot = document.getElementById('ai-sbar-summary-slot');
-  if (!slot) return;
-  activeSBARData = sbarData;
-  currentSBARMode = mode;
-
-  const patientName = HerVitaState.userProfile.name || 'Patient';
-
-  function renderBoxContent(friendlyBadge, friendlyText, clinicalBadge, clinicalText) {
-    if (mode === 'friendly') {
-      return `
-        <div class="sbar-friendly-box">
-          <span class="sbar-friendly-badge">${friendlyBadge}</span>
-          <p style="margin: 0; font-size: 0.88rem; line-height: 1.45; color: var(--text-primary); font-weight: 500;">
-            "${friendlyText}"
-          </p>
-        </div>
-        <div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.35; margin-top: auto; padding-top: 0.25rem;">
-          <span style="font-weight: 600; color: #64748B;">Clinical terminology:</span> ${clinicalText}
-        </div>
-      `;
-    } else if (mode === 'clinical') {
-      return `
-        <div class="sbar-clinical-box" style="margin-top: 0; background: #FFF; border: none; padding: 0;">
-          <span class="sbar-clinical-badge">${clinicalBadge}</span>
-          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem; line-height: 1.45;">
-            ${clinicalText}
-          </p>
-        </div>
-      `;
-    } else {
-      // dual mode
-      return `
-        <div class="sbar-friendly-box" style="margin-bottom: 0.5rem;">
-          <span class="sbar-friendly-badge">${friendlyBadge}</span>
-          <p style="margin: 0; font-size: 0.86rem; line-height: 1.4; color: var(--text-primary); font-weight: 500;">
-            "${friendlyText}"
-          </p>
-        </div>
-        <div class="sbar-clinical-box">
-          <span class="sbar-clinical-badge">${clinicalBadge}</span>
-          <p style="margin: 0; font-size: 0.78rem; line-height: 1.35; color: #475569;">
-            ${clinicalText}
-          </p>
-        </div>
-      `;
-    }
-  }
-
-  slot.innerHTML = `
-    <div id="arogini-sbar-report-card" class="sbar-card-container card">
-      <div class="sbar-header-row">
-        <div class="sbar-title-wrap">
-          <div class="sbar-title-icon">🤖</div>
-          <div>
-            <h4 style="font-size: 1.15rem; color: var(--primary-900); margin: 0; font-weight: 700;">
-              AI-Synthesized Clinical & Patient SBAR Report
-            </h4>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.15rem 0 0 0;">
-              Formatted according to WHO clinical communication standards • Translated to user-friendly plain language
-            </p>
-          </div>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
-          <span style="background: var(--primary-100); color: var(--primary-800); font-weight: 700; font-size: 0.8rem; padding: 0.3rem 0.75rem; border-radius: var(--radius-full); border: 1px solid var(--primary-200);">
-            Suggested Code: ${sbarData.icd10}
-          </span>
-          <div class="sbar-mode-toggle no-print" role="group" aria-label="Summary Language View Mode">
-            <button type="button" class="sbar-mode-btn ${mode === 'friendly' ? 'active' : ''}" onclick="setSBARViewMode('friendly')">
-              🌿 Plain Language
-            </button>
-            <button type="button" class="sbar-mode-btn ${mode === 'clinical' ? 'active' : ''}" onclick="setSBARViewMode('clinical')">
-              🩺 Doctor SBAR
-            </button>
-            <button type="button" class="sbar-mode-btn ${mode === 'dual' ? 'active' : ''}" onclick="setSBARViewMode('dual')">
-              ✨ Dual View
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="sbar-grid">
-        <div class="sbar-grid-box">
-          <div class="sbar-box-header">
-            <span class="sbar-box-title"><span>📍</span> Situation</span>
-            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">What is happening</span>
-          </div>
-          ${renderBoxContent(
-            '🌿 In Plain Words',
-            sbarData.situationFriendly,
-            '🩺 Clinical SBAR',
-            sbarData.situation
-          )}
-        </div>
-
-        <div class="sbar-grid-box">
-          <div class="sbar-box-header">
-            <span class="sbar-box-title"><span>📖</span> Background</span>
-            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Your health history</span>
-          </div>
-          ${renderBoxContent(
-            '🌿 Tracked Diary History',
-            sbarData.backgroundFriendly,
-            '🩺 Longitudinal History',
-            sbarData.background
-          )}
-        </div>
-
-        <div class="sbar-grid-box">
-          <div class="sbar-box-header">
-            <span class="sbar-box-title"><span>🔍</span> Assessment</span>
-            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Clinical insight</span>
-          </div>
-          ${renderBoxContent(
-            '🌿 What This Means For You',
-            sbarData.assessmentFriendly,
-            '🩺 Evidence Match',
-            sbarData.assessment
-          )}
-        </div>
-
-        <div class="sbar-grid-box">
-          <div class="sbar-box-header">
-            <span class="sbar-box-title"><span>📋</span> Recommendation</span>
-            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Next discussion points</span>
-          </div>
-          ${renderBoxContent(
-            '🌿 Suggested Next Steps',
-            sbarData.recommendationFriendly,
-            '🩺 Recommended Workup',
-            sbarData.recommendation
-          )}
-        </div>
-      </div>
-
-      ${sbarData.jargonGlossary && sbarData.jargonGlossary.length > 0 ? `
-        <div class="sbar-glossary-card">
-          <div class="sbar-glossary-title">
-            <span>💡</span> Medical Jargon Translated (Plain English Glossary)
-          </div>
-          <div class="sbar-glossary-grid">
-            ${sbarData.jargonGlossary.map(j => `
-              <div class="sbar-glossary-item">
-                <strong>📌 ${j.term}</strong>
-                <span>${j.meaning}</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
-
-      ${sbarData.questionsForDoctor && sbarData.questionsForDoctor.length > 0 ? `
-        <div class="sbar-questions-section">
-          <h5><span>💬</span> Ready-to-Ask Questions for Your Doctor Appointment</h5>
-          <ul class="sbar-questions-list">
-            ${sbarData.questionsForDoctor.map(q => `<li>${q}</li>`).join('')}
-          </ul>
-        </div>
-      ` : ''}
-
-      <div class="sbar-actions-row">
-        <div style="font-size: 0.78rem; color: var(--text-muted);">
-          <span>🔒</span> Verified private device copy • Ready for your doctor consultation or personal record
-        </div>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          <button class="btn-pill no-print" onclick="copyPlainSummaryToClipboard()">
-            <span>🌿</span> Copy Plain Summary
-          </button>
-          <button class="btn-pill no-print" onclick="copyClinicalSBARToClipboard()">
-            <span>🩺</span> Copy Doctor SBAR
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// Guarantee the SBAR report card is populated when loading the view
-function ensureAISBARSummaryRendered() {
-  const slot = document.getElementById('ai-sbar-summary-slot');
-  if (!slot) return;
-  if (!activeSBARData) {
-    const patientPhenotype = AroginiAgent.synthesizePatientPhenotype('pcos menstrual cramps and cycle variance');
-    activeSBARData = AroginiAgent.generateSBAR(
-      'PCOS oligomenorrhea cycle variance and jawline acne',
-      searchRAGVectorIndex('pcos acne hirsutism rotterdam', 2),
-      patientPhenotype
-    );
-  }
-  if (!slot.firstElementChild) {
-    renderAISBARSummaryCard(activeSBARData, currentSBARMode);
-  }
-}
-
-// AI SBAR Transformation in Doctor Visit Summary Tab
-function initAISBARInDoctorSummary() {
-  const btnSbar = document.getElementById('btn-generate-ai-sbar');
-
-  if (btnSbar) {
-    btnSbar.addEventListener('click', () => {
-      btnSbar.innerHTML = '<span>⏳</span> Synthesizing SBAR...';
-      
-      setTimeout(() => {
-        btnSbar.innerHTML = '<span>🤖</span> Re-synthesize AI SBAR';
-        const patientPhenotype = AroginiAgent.synthesizePatientPhenotype('pcos menstrual cramps and cycle variance');
-        activeSBARData = AroginiAgent.generateSBAR(
-          'PCOS oligomenorrhea cycle variance and jawline acne',
-          searchRAGVectorIndex('pcos acne hirsutism rotterdam', 2),
-          patientPhenotype
-        );
-        renderAISBARSummaryCard(activeSBARData, currentSBARMode);
-        showToast('Synthesized fresh SBAR summary with plain-language explanations! 📋✨');
-      }, 350);
-    });
-  }
-
-  // Pre-render immediately so tab is never blank
-  ensureAISBARSummaryRendered();
-}
-
-// Master AI Initialization Hook
-function initAroginiAIHub() {
-  renderAroginiAIHub();
-
-  // Run Button
-  const runBtn = document.getElementById('btn-run-agent');
-  if (runBtn) {
-    runBtn.addEventListener('click', () => executeAgentAnalysis());
-  }
-
-  // Enter Key on Textarea (Cmd+Enter or Enter)
-  const queryInput = document.getElementById('ai-query-input');
-  if (queryInput) {
-    queryInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-        executeAgentAnalysis();
-      }
-    });
-  }
-
-  // Sample Prompt Chips
-  const chips = document.querySelectorAll('.prompt-chip');
-  chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      const prompt = chip.dataset.prompt;
-      if (queryInput) {
-        queryInput.value = prompt;
-        executeAgentAnalysis(prompt);
-      }
-    });
-  });
-}
-
 // --- Render All Master Function ---
 function renderAllViews() {
-  selectOrgan(HerVitaState.activeOrgan);
+  selectOrgan(AroginiState.activeOrgan);
   renderExplainerVideos();
   renderGlossary(GLOSSARY_TERMS);
   renderDoctorQuestions();
   renderDiaryEntries();
   renderPatternView();
   renderDoctorSummary();
-  renderChecklist();
   renderVaccines();
   renderObstetrics();
   renderGynecology();
-  renderAroginiAIHub();
   renderHeaderAuth();
   renderLoginView();
 }
@@ -4606,8 +3351,8 @@ function loadUserSession() {
     const sessionUserRaw = localStorage.getItem('arogini_current_user');
     if (sessionUserRaw) {
       const user = JSON.parse(sessionUserRaw);
-      HerVitaState.currentUser = user;
-      HerVitaState.userProfile = {
+      AroginiState.currentUser = user;
+      AroginiState.userProfile = {
         name: user.name || 'Ananya Desai',
         email: user.email || '',
         age: user.age || 26,
@@ -4624,8 +3369,8 @@ function loadUserSession() {
   }
   // Default to active persona Ananya Desai (26, PCOS & Cycle Tracking)
   const defaultUser = DEFAULT_AUTH_USERS[1];
-  HerVitaState.currentUser = defaultUser;
-  HerVitaState.userProfile = {
+  AroginiState.currentUser = defaultUser;
+  AroginiState.userProfile = {
     name: defaultUser.name,
     email: defaultUser.email,
     age: defaultUser.age,
@@ -4649,7 +3394,7 @@ function initAuthSystem() {
 }
 
 function renderHeaderAuth() {
-  const profile = HerVitaState.userProfile || {
+  const profile = AroginiState.userProfile || {
     name: 'Priya Sharma',
     age: 26,
     stage: 'pregnancy',
@@ -4659,7 +3404,7 @@ function renderHeaderAuth() {
     emergencyContact: 'Aakash Sharma: +91 98765 43210'
   };
 
-  const user = HerVitaState.currentUser;
+  const user = AroginiState.currentUser;
   const avatar = (user && user.avatar) ? user.avatar : '🌸';
   const name = (user && user.name) ? user.name : (profile.name || 'Priya Sharma');
   const age = (user && user.age) ? user.age : (profile.age || 26);
@@ -4743,7 +3488,7 @@ function renderLoginView() {
   const tabsNav = document.querySelector('.auth-tabs-nav');
   if (!signinForm || !registerForm || !loggedInBox) return;
 
-  if (HerVitaState.currentUser) {
+  if (AroginiState.currentUser) {
     signinForm.style.display = 'none';
     registerForm.style.display = 'none';
     loggedInBox.style.display = 'flex';
@@ -4764,17 +3509,17 @@ function renderLoginView() {
     const ageElem = document.getElementById('logged-user-age');
     const statElem = document.getElementById('logged-user-stat');
 
-    if (avatarElem) avatarElem.textContent = HerVitaState.currentUser.avatar || '🌸';
-    if (nameElem) nameElem.textContent = HerVitaState.userProfile.name;
-    if (stageElem) stageElem.textContent = stageTitles[HerVitaState.userProfile.stage] || 'Active Health Profile';
-    if (emailElem) emailElem.textContent = HerVitaState.currentUser.email || HerVitaState.currentUser.username || 'Private Account';
-    if (ageElem) ageElem.textContent = `${HerVitaState.userProfile.age} Years Old`;
+    if (avatarElem) avatarElem.textContent = AroginiState.currentUser.avatar || '🌸';
+    if (nameElem) nameElem.textContent = AroginiState.userProfile.name;
+    if (stageElem) stageElem.textContent = stageTitles[AroginiState.userProfile.stage] || 'Active Health Profile';
+    if (emailElem) emailElem.textContent = AroginiState.currentUser.email || AroginiState.currentUser.username || 'Private Account';
+    if (ageElem) ageElem.textContent = `${AroginiState.userProfile.age} Years Old`;
     
     if (statElem) {
-      if (HerVitaState.userProfile.stage === 'pregnancy') {
-        statElem.textContent = `LMP: ${HerVitaState.userProfile.pregnancyLmp} (Est. Week 19)`;
+      if (AroginiState.userProfile.stage === 'pregnancy') {
+        statElem.textContent = `LMP: ${AroginiState.userProfile.pregnancyLmp} (Est. Week 19)`;
       } else {
-        statElem.textContent = `Cycle: ${HerVitaState.userProfile.cycleLength} Days • LMP: ${HerVitaState.userProfile.lmp}`;
+        statElem.textContent = `Cycle: ${AroginiState.userProfile.cycleLength} Days • LMP: ${AroginiState.userProfile.lmp}`;
       }
     }
   } else {
@@ -4886,7 +3631,7 @@ function handleLoginSubmit(event) {
     const newUser = {
       id: `user_${Date.now()}`,
       username: userInput.toLowerCase(),
-      email: userInput.includes('@') ? userInput : `${userInput.toLowerCase()}@local.hervita`,
+      email: userInput.includes('@') ? userInput : `${userInput.toLowerCase()}@local.arogini`,
       password: passwordInput,
       name: nameFromInput,
       age: 26,
@@ -4977,8 +3722,8 @@ function quickLoginPersona(key) {
 }
 
 function loginUser(user) {
-  HerVitaState.currentUser = user;
-  HerVitaState.userProfile = {
+  AroginiState.currentUser = user;
+  AroginiState.userProfile = {
     name: user.name,
     email: user.email,
     age: user.age,
@@ -4990,25 +3735,24 @@ function loginUser(user) {
   };
 
   if (user.stage === 'pregnancy') {
-    HerVitaState.userProfile.pregnancyLmp = user.pregnancyLmp || user.lmp || '2026-06-15';
+    AroginiState.userProfile.pregnancyLmp = user.pregnancyLmp || user.lmp || '2026-06-15';
   }
 
   localStorage.setItem('arogini_current_user', JSON.stringify(user));
-  localStorage.setItem('arogini_user_profile', JSON.stringify(HerVitaState.userProfile));
+  localStorage.setItem('arogini_user_profile', JSON.stringify(AroginiState.userProfile));
 
   // If testing with one of the pre-configured personas, ensure their rich data is populated
   if (user.username === 'priya' || user.username === 'ananya' || user.username === 'meera') {
-    if (HerVitaState.entries.length === 0) {
-      HerVitaState.entries = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.entries));
-      HerVitaState.checklist = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.checklist));
-      HerVitaState.vaccines = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.vaccines));
-      HerVitaState.pregnancyMilestones = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pregnancyMilestones));
-      HerVitaState.antenatalVisits = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.antenatalVisits));
-      HerVitaState.postpartumRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.postpartumRecords));
-      HerVitaState.periodLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.periodLogs));
-      HerVitaState.pcosLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pcosLogs));
-      HerVitaState.pelvicPainLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pelvicPainLogs));
-      HerVitaState.medicalRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.medicalRecords));
+    if (AroginiState.entries.length === 0) {
+      AroginiState.entries = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.entries));
+      AroginiState.vaccines = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.vaccines));
+      AroginiState.pregnancyMilestones = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pregnancyMilestones));
+      AroginiState.antenatalVisits = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.antenatalVisits));
+      AroginiState.postpartumRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.postpartumRecords));
+      AroginiState.periodLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.periodLogs));
+      AroginiState.pcosLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pcosLogs));
+      AroginiState.pelvicPainLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pelvicPainLogs));
+      AroginiState.medicalRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.medicalRecords));
       saveToStorage();
     }
   }
@@ -5022,12 +3766,12 @@ function loginUser(user) {
   } else if (user.stage === 'pcos') {
     switchView('view-gynecology');
   } else {
-    switchView('view-ai-agent');
+    switchView('view-obstetrics');
   }
 }
 
 function handleLogout() {
-  HerVitaState.currentUser = null;
+  AroginiState.currentUser = null;
   localStorage.removeItem('arogini_current_user');
   renderHeaderAuth();
   renderLoginView();
@@ -5044,7 +3788,7 @@ function openUserProfileModal() {
   const modal = document.getElementById('user-profile-modal');
   if (!modal) return;
 
-  const profile = HerVitaState.userProfile;
+  const profile = AroginiState.userProfile;
   const nameInput = document.getElementById('modal-edit-name');
   const ageInput = document.getElementById('modal-edit-age');
   const stageSelect = document.getElementById('modal-edit-stage');
@@ -5079,42 +3823,42 @@ function saveUserProfileEdits() {
   const contactInput = document.getElementById('modal-edit-contact');
 
   if (nameInput && nameInput.value.trim()) {
-    HerVitaState.userProfile.name = nameInput.value.trim();
+    AroginiState.userProfile.name = nameInput.value.trim();
   }
   if (ageInput && ageInput.value) {
-    HerVitaState.userProfile.age = parseInt(ageInput.value, 10);
+    AroginiState.userProfile.age = parseInt(ageInput.value, 10);
   }
   if (stageSelect) {
-    HerVitaState.userProfile.stage = stageSelect.value;
+    AroginiState.userProfile.stage = stageSelect.value;
   }
   if (cycleInput && cycleInput.value) {
-    HerVitaState.userProfile.cycleLength = parseInt(cycleInput.value, 10);
+    AroginiState.userProfile.cycleLength = parseInt(cycleInput.value, 10);
   }
   if (lmpInput && lmpInput.value) {
-    HerVitaState.userProfile.lmp = lmpInput.value;
+    AroginiState.userProfile.lmp = lmpInput.value;
   }
   if (pregLmpInput && pregLmpInput.value) {
-    HerVitaState.userProfile.pregnancyLmp = pregLmpInput.value;
+    AroginiState.userProfile.pregnancyLmp = pregLmpInput.value;
   }
   if (contactInput) {
-    HerVitaState.userProfile.emergencyContact = contactInput.value.trim();
+    AroginiState.userProfile.emergencyContact = contactInput.value.trim();
   }
 
-  if (HerVitaState.currentUser) {
-    HerVitaState.currentUser.name = HerVitaState.userProfile.name;
-    HerVitaState.currentUser.age = HerVitaState.userProfile.age;
-    HerVitaState.currentUser.stage = HerVitaState.userProfile.stage;
-    HerVitaState.currentUser.cycleLength = HerVitaState.userProfile.cycleLength;
-    HerVitaState.currentUser.lmp = HerVitaState.userProfile.lmp;
-    HerVitaState.currentUser.pregnancyLmp = HerVitaState.userProfile.pregnancyLmp;
-    HerVitaState.currentUser.emergencyContact = HerVitaState.userProfile.emergencyContact;
+  if (AroginiState.currentUser) {
+    AroginiState.currentUser.name = AroginiState.userProfile.name;
+    AroginiState.currentUser.age = AroginiState.userProfile.age;
+    AroginiState.currentUser.stage = AroginiState.userProfile.stage;
+    AroginiState.currentUser.cycleLength = AroginiState.userProfile.cycleLength;
+    AroginiState.currentUser.lmp = AroginiState.userProfile.lmp;
+    AroginiState.currentUser.pregnancyLmp = AroginiState.userProfile.pregnancyLmp;
+    AroginiState.currentUser.emergencyContact = AroginiState.userProfile.emergencyContact;
 
-    localStorage.setItem('arogini_current_user', JSON.stringify(HerVitaState.currentUser));
+    localStorage.setItem('arogini_current_user', JSON.stringify(AroginiState.currentUser));
 
     const users = getStoredUsers();
-    const idx = users.findIndex(u => u.id === HerVitaState.currentUser.id);
+    const idx = users.findIndex(u => u.id === AroginiState.currentUser.id);
     if (idx !== -1) {
-      users[idx] = { ...users[idx], ...HerVitaState.currentUser };
+      users[idx] = { ...users[idx], ...AroginiState.currentUser };
       saveStoredUsers(users);
     }
   }
@@ -5127,45 +3871,41 @@ function saveUserProfileEdits() {
 
 // --- Initial Setup on DOM Ready ---
 document.addEventListener('DOMContentLoaded', () => {
+  migrateHervitaStorage();
   loadFromStorage();
   initAuthSystem();
   initNavigation();
   initBodyMap();
   initGlossary();
   initSymptomDiary();
-  initChecklistForm();
   initTriage();
   initVaccineForm();
   initPrivacyControls();
-  initAroginiAIHub();
   renderAllViews();
 
   // If user is logged in, populate starter records if empty
-  if (HerVitaState.currentUser) {
-    if (HerVitaState.entries.length === 0 && typeof STARTER_HEALTH_RECORDS !== 'undefined') {
-      HerVitaState.entries = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.entries));
-      HerVitaState.checklist = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.checklist));
-      HerVitaState.vaccines = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.vaccines));
-      HerVitaState.periodLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.periodLogs));
-      HerVitaState.pcosLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pcosLogs));
-      HerVitaState.medicalRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.medicalRecords));
+  if (AroginiState.currentUser) {
+    if (AroginiState.entries.length === 0 && typeof STARTER_HEALTH_RECORDS !== 'undefined') {
+      AroginiState.entries = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.entries));
+      AroginiState.vaccines = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.vaccines));
+      AroginiState.periodLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.periodLogs));
+      AroginiState.pcosLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pcosLogs));
+      AroginiState.medicalRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.medicalRecords));
       saveToStorage();
     }
-  } else {
-    switchView('view-login');
   }
 
-  // Pre-render SBAR report in Doctor Visit Summary
-  ensureAISBARSummaryRendered();
+  // Make Obstetrics the default active view on load
+  switchView('view-obstetrics');
 
   // Dedicated Download PDF Handler using client-side html2pdf
   const downloadPdfBtn = document.getElementById('btn-download-pdf');
   if (downloadPdfBtn) {
     downloadPdfBtn.addEventListener('click', () => {
-      const patientName = (HerVitaState.userProfile && HerVitaState.userProfile.name) 
-        ? HerVitaState.userProfile.name.replace(/\s+/g, '_') 
+      const patientName = (AroginiState.userProfile && AroginiState.userProfile.name) 
+        ? AroginiState.userProfile.name.replace(/\s+/g, '_') 
         : 'Patient';
-      const fileName = `HerVita_Clinical_Visit_Summary_${patientName}.pdf`;
+      const fileName = `Arogini_Clinical_Visit_Summary_${patientName}.pdf`;
       const element = document.getElementById('printable-summary-document');
 
       if (!element) return;
@@ -5222,15 +3962,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Print button handler: Prints/Saves strictly the HerVita Clinical Visit Summary
+  // Print button handler: Prints/Saves strictly the Arogini Clinical Visit Summary
   const printBtn = document.getElementById('btn-print-summary');
   if (printBtn) {
     printBtn.addEventListener('click', () => {
       const origTitle = document.title;
-      const patientName = (HerVitaState.userProfile && HerVitaState.userProfile.name) 
-        ? HerVitaState.userProfile.name.replace(/\s+/g, '_') 
+      const patientName = (AroginiState.userProfile && AroginiState.userProfile.name) 
+        ? AroginiState.userProfile.name.replace(/\s+/g, '_') 
         : 'Patient';
-      document.title = `HerVita_Clinical_Visit_Summary_${patientName}`;
+      document.title = `Arogini_Clinical_Visit_Summary_${patientName}`;
       window.print();
       setTimeout(() => {
         document.title = origTitle;

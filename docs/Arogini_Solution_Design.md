@@ -1,4 +1,4 @@
-# HerVita: Final Solution Design
+# Arogini: Final Solution Design
 
 **Track:** Women's Healthcare  |  **Format:** 36-hour online hackathon  |  **Team:** 3
 
@@ -8,12 +8,12 @@ Many Indian women feel uncomfortable talking about reproductive health or menstr
 
 ## 2. Solution
 
-HerVita is a simple, private web app with two modules:
+Arogini is a simple, private web app with two modules:
 
 1. **Awareness:** short, easy videos and plain-language notes on the reproductive system, what each part does, and everyday habits that support it.
 2. **Symptom Awareness:** a symptom diary that helps users notice patterns and turns their notes into a short summary they can take to a doctor.
 
-HerVita informs and organises. It does not diagnose and does not replace a doctor.
+Arogini informs and organises. It does not diagnose and does not replace a doctor.
 
 ## 3. Target Users
 

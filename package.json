@@ -1,7 +1,7 @@
 {
-  "name": "hervita",
+  "name": "arogini",
   "version": "1.0.0",
-  "description": "HerVita - Women's Reproductive Health Awareness & Symptom Tracking Web App",
+  "description": "Arogini - Women's Reproductive Health Awareness & Symptom Tracking Web App",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -13,6 +13,6 @@
     "reproduction",
     "symptom-tracker"
   ],
-  "author": "HerVita Team",
+  "author": "Arogini Team",
   "license": "MIT"
 }

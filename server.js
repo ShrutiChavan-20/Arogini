@@ -76,7 +76,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   console.log(`\n======================================================`);
-  console.log(`  🌸 HerVita - Women's Reproductive Wellness Platform`);
+  console.log(`  🌸 Arogini - Women's Reproductive Wellness Platform`);
   console.log(`  Local URL:   http://localhost:${PORT}`);
   console.log(`  Status:      Running smoothly`);
   console.log(`======================================================\n`);
