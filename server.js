@@ -90,56 +90,95 @@ const server = http.createServer((req, res) => {
       }
 
       loadEnv();
-      const apiKey = process.env.ANTHROPIC_API_KEY;
-      if (!apiKey || !apiKey.trim()) {
+      const anthropicKey = (process.env.ANTHROPIC_API_KEY || '').trim();
+      const openaiKey = (process.env.OPENAI_API_KEY || '').trim();
+
+      if (!anthropicKey && !openaiKey) {
         res.writeHead(503, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify({
-          error: 'ANTHROPIC_API_KEY is not configured',
-          reply: 'Anatomy AI Chat is currently unavailable. Please configure ANTHROPIC_API_KEY in your .env file to enable this educational assistant.'
+          error: 'No AI API key configured',
+          reply: 'Anatomy AI Chat is currently unavailable. Please configure OPENAI_API_KEY or ANTHROPIC_API_KEY in your .env file to enable this educational assistant.'
         }));
         return;
       }
 
       try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey.trim(),
-            'anthropic-version': '2023-06-01'
-          },
-          body: JSON.stringify({
-            model: 'claude-haiku-5-5',
-            max_tokens: 300,
-            system: ANATOMY_SYSTEM_PROMPT,
-            messages: [
-              {
-                role: 'user',
-                content: `Organ: ${organ}\nQuestion: ${message}`
-              }
-            ]
-          })
-        });
+        let replyText = '';
 
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          const errMsg = (errData && errData.error && errData.error.message) || 'AI service response error';
-          let userFriendlyReply = errMsg;
-          if (errMsg.toLowerCase().includes('credit') || errMsg.toLowerCase().includes('balance')) {
-            userFriendlyReply = 'Your Anthropic API key is connected, but your credit balance is too low ($0.00). Please add credits in your Anthropic Console (Plans & Billing) to enable AI responses.';
+        if (openaiKey) {
+          // Call OpenAI API (model: gpt-4o-mini)
+          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${openaiKey}`
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [
+                { role: 'system', content: ANATOMY_SYSTEM_PROMPT },
+                { role: 'user', content: `Organ: ${organ}\nQuestion: ${message}` }
+              ],
+              max_tokens: 300,
+              temperature: 0.3
+            })
+          });
+
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            const errMsg = (errData && errData.error && errData.error.message) || 'OpenAI service error';
+            let userFriendlyReply = errMsg;
+            if (errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('billing') || errMsg.toLowerCase().includes('credit')) {
+              userFriendlyReply = 'Your OpenAI API key is connected, but your account quota/credits are exhausted. Please verify billing on platform.openai.com.';
+            }
+            res.writeHead(response.status >= 500 ? 502 : response.status, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ error: errMsg, reply: userFriendlyReply }));
+            return;
           }
-          res.writeHead(response.status >= 500 ? 502 : response.status, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({
-            error: errMsg,
-            reply: userFriendlyReply
-          }));
-          return;
-        }
 
-        const data = await response.json();
-        const replyText = data.content && data.content[0] && data.content[0].text
-          ? data.content[0].text.trim()
-          : 'I could not generate an answer at this moment.';
+          const data = await response.json();
+          replyText = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
+            ? data.choices[0].message.content.trim()
+            : 'I could not generate an answer at this moment.';
+        } else {
+          // Call Anthropic API (model: claude-haiku-5-5)
+          const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': anthropicKey,
+              'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+              model: 'claude-haiku-5-5',
+              max_tokens: 300,
+              system: ANATOMY_SYSTEM_PROMPT,
+              messages: [
+                {
+                  role: 'user',
+                  content: `Organ: ${organ}\nQuestion: ${message}`
+                }
+              ]
+            })
+          });
+
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            const errMsg = (errData && errData.error && errData.error.message) || 'AI service response error';
+            let userFriendlyReply = errMsg;
+            if (errMsg.toLowerCase().includes('credit') || errMsg.toLowerCase().includes('balance')) {
+              userFriendlyReply = 'Your Anthropic API key is connected, but your credit balance is too low ($0.00). Please add credits in your Anthropic Console (Plans & Billing) to enable AI responses.';
+            }
+            res.writeHead(response.status >= 500 ? 502 : response.status, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ error: errMsg, reply: userFriendlyReply }));
+            return;
+          }
+
+          const data = await response.json();
+          replyText = data.content && data.content[0] && data.content[0].text
+            ? data.content[0].text.trim()
+            : 'I could not generate an answer at this moment.';
+        }
 
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify({ reply: replyText }));
