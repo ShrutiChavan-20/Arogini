@@ -152,8 +152,8 @@ Open **`http://localhost:3000`** in your browser.
 
 **Team Members** : 
 - **Shruti Chavan** — *Team Lead*
-  **Sanjali Paygude**
-  **Yadni Mali** 
+- **Sanjali Paygude**
+- **Yadni Mali** 
 ---
 
 <p align="center">
