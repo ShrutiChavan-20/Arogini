@@ -36,7 +36,7 @@ function loadEnv() {
           if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
             val = val.slice(1, -1);
           }
-          if (key && !process.env[key]) {
+          if (key) {
             process.env[key] = val;
           }
         }
@@ -89,6 +89,7 @@ const server = http.createServer((req, res) => {
         return;
       }
 
+      loadEnv();
       const apiKey = process.env.ANTHROPIC_API_KEY;
       if (!apiKey || !apiKey.trim()) {
         res.writeHead(503, { 'Content-Type': 'application/json; charset=utf-8' });
