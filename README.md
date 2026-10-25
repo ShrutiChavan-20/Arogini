@@ -137,12 +137,7 @@ Open **`http://localhost:3000`** in your browser.
 ---
 
 ## ☁️ Live Cloud Deployment
-
-Arogini is pre-configured with turnkey cloud configurations:
-
-- **Render (Recommended)**: Push to GitHub and deploy with [render.yaml](render.yaml) as a free Web Service.
-- **Railway**: Auto-configured via [Procfile](Procfile).
-- **Vercel / Netlify**: Fully compatible static & Node.js hosting.
+      https://arogini.onrender.com/
 
 ---
 
@@ -155,9 +150,10 @@ Arogini is pre-configured with turnkey cloud configurations:
 
 ## 🏆 Project Team & Credits
 
-- **Shruti Chavan** — *Lead Developer & Full-Stack Architect*
-- **Clinical Reviewers** — *Obstetric Guidelines & Medical Validation (ACOG/WHO Standards)*
-
+**Team Members** : 
+- **Shruti Chavan** — *Team Lead*
+  **Sanjali Paygude**
+  **Yadni Mali** 
 ---
 
 <p align="center">
