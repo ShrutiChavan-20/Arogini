@@ -191,8 +191,8 @@
                 <button type="button" class="persona-chip-btn" onclick="quickLoginPersona('ananya')">
                   <span class="persona-avatar">🔬</span>
                   <div class="persona-text">
-                    <strong>Ananya Desai (24)</strong>
-                    <span>Gynecology • PCOS & Irregular Cycles</span>
+                    <strong>Ananya Desai (26)</strong>
+                    <span>Gynecology • PCOS & Cycle Tracking</span>
                   </div>
                 </button>
                 <button type="button" class="persona-chip-btn" onclick="quickLoginPersona('meera')">
@@ -1077,23 +1077,29 @@
             <h2 style="font-size: 1.6rem; color: var(--primary-900);">Doctor Visit Summary</h2>
             <p style="font-size: 0.875rem; color: var(--text-secondary);">One-page clinically phrased summary ready for your doctor's appointment.</p>
           </div>
-          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;">
             <button class="btn-pill" id="btn-generate-ai-sbar" style="background: linear-gradient(135deg, var(--primary-600), #7E22CE); color: #fff; border: none; font-weight: 700;">
-              <span>🤖</span> Synthesize AI SBAR Analysis
+              <span>🤖</span> Re-synthesize AI SBAR
             </button>
-            <button class="btn-primary" id="btn-print-summary" style="width: auto;">
-              <span>🖨️</span> Print / Save as PDF
+            <button class="btn-primary" id="btn-download-pdf" style="width: auto; background: linear-gradient(135deg, #059669, #0D9488); border: none;">
+              <span>📥</span> Download PDF
+            </button>
+            <button class="btn-secondary" id="btn-print-summary" style="width: auto;">
+              <span>🖨️</span> Print
             </button>
           </div>
         </div>
 
-        <!-- AI Clinical SBAR Synthesis Slot -->
-        <div id="ai-sbar-summary-slot" style="margin-bottom: 1.5rem;"></div>
+        <!-- Printable Document Wrapper (Target for PDF Generation and Print) -->
+        <div id="printable-summary-document" class="printable-summary-document">
+          <!-- AI Clinical SBAR Synthesis Slot -->
+          <div id="ai-sbar-summary-slot" style="margin-bottom: 1.5rem;"></div>
 
-        <!-- The Printable Clinical Report Sheet -->
-        <article class="summary-paper" id="doctor-summary-paper-content">
-          <!-- Dynamically populated by app.js -->
-        </article>
+          <!-- The Printable Clinical Report Sheet -->
+          <article class="summary-paper" id="doctor-summary-paper-content">
+            <!-- Dynamically populated by app.js -->
+          </article>
+        </div>
       </div>
     </section>
 
@@ -1406,6 +1412,9 @@
       </div>
     </div>
   </footer>
+
+  <!-- Client-side PDF Generation Engine -->
+  <script src="./js/html2pdf.bundle.min.js"></script>
 
   <!-- App Script -->
   <script src="./js/app.js"></script>

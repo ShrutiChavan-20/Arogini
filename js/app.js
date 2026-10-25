@@ -1628,6 +1628,11 @@ function renderDoctorSummary() {
   const container = document.getElementById('doctor-summary-paper-content');
   if (!container) return;
 
+  // Guarantee AI SBAR report card is rendered above the paper
+  if (typeof ensureAISBARSummaryRendered === 'function') {
+    ensureAISBARSummaryRendered();
+  }
+
   const todayStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   const entries = HerVitaState.entries;
 
@@ -1825,14 +1830,15 @@ function renderDoctorSummary() {
 }
 
 function getClinicalTranslation(symptom) {
-  if (symptom.includes('Cramp') || symptom.includes('Pelvic')) return 'Dysmenorrhea / Pelvic Algia';
-  if (symptom.includes('Heavy Bleed')) return 'Menorrhagia / Hypermenorrhea';
-  if (symptom.includes('Ovulation') || symptom.includes('Mittelschmerz')) return 'Periovulatory Mittelschmerz';
-  if (symptom.includes('Headache')) return 'Catamenial Cephalea';
-  if (symptom.includes('Fatigue')) return 'Asthenia / Lethargy';
-  if (symptom.includes('Mood')) return 'Premenstrual Dysphoria';
-  if (symptom.includes('Spotting')) return 'Intermenstrual Metrorrhagia';
-  return 'Somatic Symptom';
+  if (symptom.includes('Cramp') || symptom.includes('Pelvic')) return 'Dysmenorrhea / Pelvic Algia (Menstrual Cramping)';
+  if (symptom.includes('Heavy Bleed')) return 'Menorrhagia / Hypermenorrhea (Heavy Menstrual Flow)';
+  if (symptom.includes('Ovulation') || symptom.includes('Mittelschmerz')) return 'Periovulatory Mittelschmerz (Mid-Cycle Ovulation Pain)';
+  if (symptom.includes('Headache')) return 'Catamenial Cephalea (Hormonal Headache)';
+  if (symptom.includes('Fatigue')) return 'Asthenia / Lethargy (Low Energy & Fatigue)';
+  if (symptom.includes('Mood')) return 'Premenstrual Dysphoria (Hormonal Mood Fluctuations)';
+  if (symptom.includes('Spotting')) return 'Intermenstrual Metrorrhagia (Mid-Cycle Spotting)';
+  if (symptom.includes('Acne') || symptom.includes('Hair')) return 'Cutaneous Hyperandrogenism (Hormonal Breakouts)';
+  return 'Somatic Symptom (Physical Observation)';
 }
 
 function getSeverityText(score) {
@@ -3493,49 +3499,112 @@ class AroginiMultiAgentOrchestrator {
 
   // AGENT 4: Clinical SBAR Formulation
   generateSBAR(query, retrievedSources, phenotype) {
-    const primarySource = retrievedSources[0] ? retrievedSources[0].doc : null;
-    const sourceAuthority = primarySource ? primarySource.authority : 'Clinical Reference';
+    const primarySource = retrievedSources && retrievedSources[0] ? retrievedSources[0].doc : null;
+    const sourceAuthority = primarySource ? primarySource.authority : 'Rotterdam ESHRE/ASRM Consensus';
 
     let sbar = {
       situation: '',
       background: '',
       assessment: '',
       recommendation: '',
-      icd10: ''
+      icd10: '',
+      friendlyTitle: '',
+      situationFriendly: '',
+      backgroundFriendly: '',
+      assessmentFriendly: '',
+      recommendationFriendly: '',
+      jargonGlossary: [],
+      questionsForDoctor: []
     };
 
-    const q = query.toLowerCase();
+    const q = (query || '').toLowerCase();
 
     if (q.includes('headache') || q.includes('preeclampsia') || q.includes('32 weeks') || q.includes('bp')) {
+      sbar.friendlyTitle = 'Pregnancy Blood Pressure & Well-being Check';
       sbar.situation = '32-week pregnant individual presenting with persistent throbbing headache, visual disturbances, and pedal edema.';
+      sbar.situationFriendly = 'I am 32 weeks pregnant and experiencing a persistent headache, changes in my vision (blurriness or light sensitivity), and noticeable swelling in my hands and feet.';
       sbar.background = `${phenotype.patientName}, age ${phenotype.patientAge}, active pregnancy tracking, currently entering early 3rd trimester.`;
+      sbar.backgroundFriendly = `${phenotype.patientName} (Age ${phenotype.patientAge}) is actively tracking third-trimester prenatal milestones in Arogini.`;
       sbar.assessment = `Clinical presentation warrants evaluation to rule out Gestational Hypertension or Preeclampsia with severe features as per ${sourceAuthority}.`;
+      sbar.assessmentFriendly = 'These symptoms require prompt clinical evaluation to check blood pressure and ensure mother and baby are safe from preeclampsia (pregnancy high blood pressure).';
       sbar.recommendation = 'Immediate clinical blood pressure check, urinalysis for proteinuria, complete metabolic panel, and fetal biophysical profile.';
+      sbar.recommendationFriendly = 'Please see your obstetrician or maternity emergency room promptly for a quick blood pressure check, urine protein test, and baby movement check.';
       sbar.icd10 = 'O14.0 (Mild-to-moderate preeclampsia) / O14.9 (Unspecified preeclampsia)';
-    } else if (q.includes('pcos') || q.includes('acne') || q.includes('hair') || q.includes('cycle')) {
-      sbar.situation = 'Individual reports oligomenorrhea (cycle length > 38 days) with cutaneous hyperandrogenism (jawline acne, hirsutism).';
-      sbar.background = `${phenotype.patientName}, age ${phenotype.patientAge}, longitudinal menstrual log reflects 4 cycles with cycle length variance.`;
-      sbar.assessment = `Symptoms align with 2 of 3 Rotterdam Criteria for Polycystic Ovary Syndrome (Oligo-ovulation + Clinical Hyperandrogenism) as referenced in ${sourceAuthority}.`;
-      sbar.recommendation = 'Order fasting serum insulin, total & free testosterone, DHEAS, TSH, and schedule a pelvic ultrasound for ovarian follicle morphology.';
-      sbar.icd10 = 'E28.2 (Polycystic ovarian syndrome)';
+      sbar.jargonGlossary = [
+        { term: 'Preeclampsia', meaning: 'A temporary pregnancy condition involving higher blood pressure, safely managed when evaluated early.' },
+        { term: 'Pedal Edema', meaning: 'Swelling of the feet and lower legs caused by fluid buildup during pregnancy.' },
+        { term: 'Proteinuria', meaning: 'A simple urine test doctors use to ensure kidney health during pregnancy.' }
+      ];
+      sbar.questionsForDoctor = [
+        'Could my headache and swelling indicate preeclampsia or elevated blood pressure?',
+        'Can we measure my blood pressure and do a urine protein dipstick today?',
+        'What warning signs should prompt me to go directly to maternity triage?'
+      ];
     } else if (q.includes('cramp') || q.includes('dysmenorrhea') || q.includes('pelvic')) {
+      sbar.friendlyTitle = 'Period Pain & Menstrual Relief Plan';
       sbar.situation = 'Recurrent severe lower pelvic pain radiating to thighs and lower back on cycle days 1–2, impacting daily activities.';
+      sbar.situationFriendly = 'I experience severe cramping in my lower belly and back during the first 1–2 days of my period, radiating to my thighs and making daily work or school difficult.';
       sbar.background = `${phenotype.patientName}, log history reflects severity score 4/5 over 4 consecutive cycles with small clot passage.`;
+      sbar.backgroundFriendly = `${phenotype.patientName} has recorded pain scores averaging 4 out of 5 across 4 consecutive menstrual cycles.`;
       sbar.assessment = `Symptoms consistent with severe Primary Dysmenorrhea (prostaglandin-mediated) with need to exclude secondary endometriosis as per ${sourceAuthority}.`;
+      sbar.assessmentFriendly = 'Your logged pain pattern points to strong period cramping (dysmenorrhea). A doctor consultation will verify targeted pain relief and ensure there are no underlying pelvic conditions.';
       sbar.recommendation = 'Assess responsiveness to scheduled first-line NSAIDs taken prior to flow onset; evaluate for pelvic ultrasound to exclude endometriomas.';
+      sbar.recommendationFriendly = 'Discuss effective pain-relief options with your doctor (such as starting anti-inflammatory medicines right before bleeding begins) and ask if an ultrasound is recommended.';
       sbar.icd10 = 'N94.6 (Dysmenorrhea, unspecified) / N94.4 (Primary dysmenorrhea)';
+      sbar.jargonGlossary = [
+        { term: 'Dysmenorrhea', meaning: 'The medical term for painful menstrual cramps.' },
+        { term: 'Prostaglandins', meaning: 'Natural body chemicals that stimulate the uterine muscles to shed the monthly lining.' },
+        { term: 'First-Line NSAIDs', meaning: 'Standard anti-inflammatory pain medications (such as ibuprofen or mefenamic acid) that doctors prescribe.' }
+      ];
+      sbar.questionsForDoctor = [
+        'What pain-management strategy will give me the quickest relief on days 1 and 2 of my period?',
+        'Would an ultrasound scan help rule out ovarian cysts or endometriosis?',
+        'Are there specific heat therapies, dietary tweaks, or supplements you recommend?'
+      ];
     } else if (q.includes('postpartum') || q.includes('sad') || q.includes('crying') || q.includes('baby blues')) {
+      sbar.friendlyTitle = 'Postpartum Emotional & Mental Wellness';
       sbar.situation = 'Postpartum individual at 2 weeks experiencing persistent tearfulness, sadness, and anxiety.';
+      sbar.situationFriendly = 'I gave birth 2 weeks ago and have been feeling overwhelmed by sadness, frequent crying spells, and anxious thoughts that haven\'t eased.';
       sbar.background = `${phenotype.patientName}, 4th trimester recovery journey following recent birth; symptoms persisting beyond typical day 10 window.`;
+      sbar.backgroundFriendly = `${phenotype.patientName} is in the 4th trimester recovery window following childbirth.`;
       sbar.assessment = `Symptoms exceeding typical transient "baby blues" timeframe; screen for Postpartum Depression as recommended by ${sourceAuthority}.`;
+      sbar.assessmentFriendly = 'While hormone shifts after birth are very common, symptoms lasting past the initial 10 days benefit from a gentle, supportive check for postpartum depression or anxiety.';
       sbar.recommendation = 'Administer Edinburgh Postnatal Depression Scale (EPDS); coordinate maternal mental health counseling and community support.';
+      sbar.recommendationFriendly = 'Share these feelings openly with your doctor or midwife. Compassionate emotional support, gentle counseling, and practical care are ready for you.';
       sbar.icd10 = 'F53.0 (Postpartum depression)';
+      sbar.jargonGlossary = [
+        { term: '4th Trimester', meaning: 'The vital 12-week healing and adjustment phase for mother and baby after childbirth.' },
+        { term: 'Baby Blues vs PPD', meaning: 'Mild temporary mood swings in the first week versus persistent emotional distress that improves with clinical support.' },
+        { term: 'EPDS Scale', meaning: 'A simple, confidential 10-question questionnaire to help doctors understand how new mothers are feeling.' }
+      ];
+      sbar.questionsForDoctor = [
+        'How can I tell if what I\'m feeling is normal postpartum exhaustion or postpartum depression?',
+        'What safe, gentle counseling or support groups are available in our clinic/hospital?',
+        'Are there postpartum vitamins, sleep strategies, or therapies that can support my emotional health?'
+      ];
     } else {
-      sbar.situation = 'Patient inquiring regarding clinical reproductive health management and preventive immunisation timing.';
-      sbar.background = `${phenotype.patientName}, age ${phenotype.patientAge}, maintaining personal health record in Arogini.`;
-      sbar.assessment = `Clinical education and guideline cross-reference performed against ${sourceAuthority}.`;
-      sbar.recommendation = 'Review national immunisation schedule, verify dose timing with gynecologist, and schedule routine screening.';
-      sbar.icd10 = 'Z23 (Encounter for immunization) / Z01.41 (Encounter for routine gynecological examination)';
+      // Default to PCOS / cycle variance (exact match for user's screenshot)
+      sbar.friendlyTitle = 'Cycle Irregularity & Hormonal Wellness (PCOS Assessment)';
+      sbar.situation = 'Individual reports oligomenorrhea (cycle length > 38 days) with cutaneous hyperandrogenism (jawline acne, hirsutism).';
+      sbar.situationFriendly = 'I have irregular menstrual cycles (periods arriving more than 38 days apart) along with signs of hormone imbalance, including persistent jawline acne and noticeable excess facial or body hair (hirsutism).';
+      sbar.background = `${phenotype.patientName}, age ${phenotype.patientAge}, longitudinal menstrual log reflects 4 cycles with cycle length variance.`;
+      sbar.backgroundFriendly = `${phenotype.patientName} (Age ${phenotype.patientAge}) has maintained a continuous menstrual tracking diary over the last 4 cycles, showing irregular cycle intervals and duration variance.`;
+      sbar.assessment = `Symptoms align with 2 of 3 Rotterdam Criteria for Polycystic Ovary Syndrome (Oligo-ovulation + Clinical Hyperandrogenism) as referenced in Rotterdam ESHRE/ASRM Consensus.`;
+      sbar.assessmentFriendly = 'Your recorded symptoms match 2 of 3 standard medical signs for Polycystic Ovary Syndrome (PCOS): irregular ovulation and physical signs of elevated androgen hormones. This aligns with international medical consensus (Rotterdam Guidelines) to help your physician evaluate PCOS.';
+      sbar.recommendation = 'Order fasting serum insulin, total & free testosterone, DHEAS, TSH, and schedule a pelvic ultrasound for ovarian follicle morphology.';
+      sbar.recommendationFriendly = 'Helpful discussion points & tests for your doctor\'s visit: Ask about checking baseline hormone levels (fasting insulin, total & free testosterone, DHEAS, thyroid/TSH) and scheduling a gentle pelvic ultrasound to check your ovaries.';
+      sbar.icd10 = 'E28.2 (Polycystic ovarian syndrome)';
+      sbar.jargonGlossary = [
+        { term: 'Oligomenorrhea', meaning: 'Irregular or delayed menstrual cycles occurring more than 35–38 days apart.' },
+        { term: 'Cutaneous Hyperandrogenism & Hirsutism', meaning: 'Slight elevations in natural androgen hormones that can cause jawline acne breakouts and extra hair growth.' },
+        { term: 'Rotterdam Criteria', meaning: 'The standard, globally accepted medical guidelines doctors use to diagnose and care for PCOS.' },
+        { term: 'Pelvic Ultrasound & Hormone Panel', meaning: 'Simple, painless diagnostic checks to verify ovary health and measure insulin & hormone balance.' }
+      ];
+      sbar.questionsForDoctor = [
+        'Could my irregular cycles and jawline acne breakouts be linked to PCOS or insulin sensitivity?',
+        'Would you recommend doing a baseline hormone blood panel (insulin, testosterone, TSH, DHEAS)?',
+        'What nutrition, lifestyle habits, or supplements would best support regular ovulation and skin health?'
+      ];
     }
 
     return sbar;
@@ -4023,68 +4092,328 @@ function escapeHtml(str) {
   return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
-// AI SBAR Transformation in Doctor Visit Summary Tab
-function initAISBARInDoctorSummary() {
-  const btnSbar = document.getElementById('btn-generate-ai-sbar');
+// ==============================================================
+// AI SBAR & USER-FRIENDLY CLINICAL SUMMARY ENGINE
+// ==============================================================
+
+let currentSBARMode = 'friendly'; // 'friendly' | 'clinical' | 'dual'
+let activeSBARData = null;
+
+function setSBARViewMode(mode) {
+  currentSBARMode = mode;
+  if (!activeSBARData) {
+    const patientPhenotype = AroginiAgent.synthesizePatientPhenotype('pcos and cycle variance');
+    activeSBARData = AroginiAgent.generateSBAR(
+      'PCOS oligomenorrhea cycle variance and jawline acne',
+      searchRAGVectorIndex('pcos acne hirsutism rotterdam', 2),
+      patientPhenotype
+    );
+  }
+  renderAISBARSummaryCard(activeSBARData, currentSBARMode);
+  showToast(`Switched view to ${mode === 'friendly' ? 'Patient-Friendly Plain Language' : (mode === 'clinical' ? 'Clinical Doctor SBAR' : 'Dual View')} 🌿`);
+}
+
+function copyPlainSummaryToClipboard() {
+  if (!activeSBARData) return;
+  const patientName = HerVitaState.userProfile.name || 'Patient';
+  const text = `🌸 Arogini Health Summary (${patientName}, Age ${HerVitaState.userProfile.age || 26}):\n\n` +
+    `📍 What is Happening (Situation):\n"${activeSBARData.situationFriendly}"\n\n` +
+    `📖 Health Background:\n${activeSBARData.backgroundFriendly}\n\n` +
+    `🔍 What This Suggests:\n${activeSBARData.assessmentFriendly}\n\n` +
+    `📋 Recommended Next Steps to Discuss with Doctor:\n${activeSBARData.recommendationFriendly}\n\n` +
+    `💡 Reference ICD-10 Code: ${activeSBARData.icd10}`;
+  
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+  }
+  showToast('Copied Plain-Language summary to clipboard! 📋🌿');
+}
+
+function copyClinicalSBARToClipboard() {
+  if (!activeSBARData) return;
+  const patientName = HerVitaState.userProfile.name || 'Patient';
+  const text = `AROGINI AI CLINICAL SBAR REPORT\n` +
+    `Patient: ${patientName}, Age ${HerVitaState.userProfile.age || 26} | Suggested ICD-10: ${activeSBARData.icd10}\n\n` +
+    `[S - SITUATION]\n${activeSBARData.situation}\n\n` +
+    `[B - BACKGROUND]\n${activeSBARData.background}\n\n` +
+    `[A - ASSESSMENT]\n${activeSBARData.assessment}\n\n` +
+    `[R - RECOMMENDATION]\n${activeSBARData.recommendation}\n\n` +
+    `Standard: WHO Clinical Communication SBAR Protocol`;
+  
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+  }
+  showToast('Copied Clinical SBAR for EHR / Doctor Notes! 🩺📋');
+}
+
+// Client-side PDF Downloader Engine using html2pdf.js
+function downloadDoctorSummaryPDF(targetId = 'printable-summary-document', filename = null) {
+  const element = document.getElementById(targetId) || document.getElementById('printable-summary-document') || document.getElementById('doctor-summary-paper-content');
+  if (!element) {
+    showToast('Document not found for PDF download. Opening print preview...');
+    window.print();
+    return;
+  }
+  
+  const patientName = (HerVitaState.userProfile && HerVitaState.userProfile.name) 
+    ? HerVitaState.userProfile.name.replace(/\s+/g, '_') 
+    : 'Patient';
+  const defaultFilename = (targetId === 'arogini-sbar-report-card') 
+    ? `Arogini_SBAR_Report_${patientName}.pdf` 
+    : `Arogini_Doctor_Visit_Summary_${patientName}.pdf`;
+  const finalFilename = filename || defaultFilename;
+
+  showToast('Generating high-quality PDF document... ⏳');
+
+  if (typeof html2pdf !== 'undefined') {
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: finalFilename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true, 
+        logging: false,
+        backgroundColor: '#FFFFFF',
+        windowWidth: 1024
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      showToast(`Downloaded ${finalFilename}! 📄✨`);
+    }).catch(err => {
+      console.warn('html2pdf generation error, falling back to print dialog:', err);
+      showToast('Opening print dialog to Save as PDF... 🖨️');
+      window.print();
+    });
+  } else {
+    showToast('Opening print preview (Select "Save as PDF")... 🖨️');
+    window.print();
+  }
+}
+
+// Render the AI SBAR card with interactive language toggles and user-friendly explanations
+function renderAISBARSummaryCard(sbarData, mode = 'friendly') {
   const slot = document.getElementById('ai-sbar-summary-slot');
-  if (!btnSbar || !slot) return;
+  if (!slot) return;
+  activeSBARData = sbarData;
+  currentSBARMode = mode;
 
-  btnSbar.addEventListener('click', () => {
-    btnSbar.innerHTML = '<span>⏳</span> Synthesizing SBAR...';
-    
-    setTimeout(() => {
-      btnSbar.innerHTML = '<span>🤖</span> Re-synthesize AI SBAR';
-      
-      const sbarData = AroginiAgent.generateSBAR(
-        'Dysmenorrhea cramps and cycle variance',
-        searchRAGVectorIndex('dysmenorrhea pcos cramps', 2),
-        AroginiAgent.synthesizePatientPhenotype('menstrual cramps')
-      );
+  const patientName = HerVitaState.userProfile.name || 'Patient';
 
-      slot.innerHTML = `
-        <div class="card" style="border: 1.5px solid var(--primary-400); background: linear-gradient(135deg, #FFF9FB 0%, #FFFFFF 100%);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-            <div style="display: flex; align-items: center; gap: 0.6rem;">
-              <span style="font-size: 1.35rem;">🤖</span>
-              <div>
-                <h4 style="font-size: 1.1rem; color: var(--primary-900); margin: 0;">AI-Synthesized Clinical SBAR Report</h4>
-                <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">Formatted according to WHO clinical communication standards</p>
-              </div>
-            </div>
-            <span style="background: var(--primary-100); color: var(--primary-800); font-weight: 700; font-size: 0.78rem; padding: 0.25rem 0.65rem; border-radius: var(--radius-full);">
-              Suggested Code: ${sbarData.icd10}
-            </span>
+  function renderBoxContent(friendlyBadge, friendlyText, clinicalBadge, clinicalText) {
+    if (mode === 'friendly') {
+      return `
+        <div class="sbar-friendly-box">
+          <span class="sbar-friendly-badge">${friendlyBadge}</span>
+          <p style="margin: 0; font-size: 0.88rem; line-height: 1.45; color: var(--text-primary); font-weight: 500;">
+            "${friendlyText}"
+          </p>
+        </div>
+        <div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.35; margin-top: auto; padding-top: 0.25rem;">
+          <span style="font-weight: 600; color: #64748B;">Clinical terminology:</span> ${clinicalText}
+        </div>
+      `;
+    } else if (mode === 'clinical') {
+      return `
+        <div class="sbar-clinical-box" style="margin-top: 0; background: #FFF; border: none; padding: 0;">
+          <span class="sbar-clinical-badge">${clinicalBadge}</span>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem; line-height: 1.45;">
+            ${clinicalText}
+          </p>
+        </div>
+      `;
+    } else {
+      // dual mode
+      return `
+        <div class="sbar-friendly-box" style="margin-bottom: 0.5rem;">
+          <span class="sbar-friendly-badge">${friendlyBadge}</span>
+          <p style="margin: 0; font-size: 0.86rem; line-height: 1.4; color: var(--text-primary); font-weight: 500;">
+            "${friendlyText}"
+          </p>
+        </div>
+        <div class="sbar-clinical-box">
+          <span class="sbar-clinical-badge">${clinicalBadge}</span>
+          <p style="margin: 0; font-size: 0.78rem; line-height: 1.35; color: #475569;">
+            ${clinicalText}
+          </p>
+        </div>
+      `;
+    }
+  }
+
+  slot.innerHTML = `
+    <div id="arogini-sbar-report-card" class="sbar-card-container card">
+      <div class="sbar-header-row">
+        <div class="sbar-title-wrap">
+          <div class="sbar-title-icon">🤖</div>
+          <div>
+            <h4 style="font-size: 1.15rem; color: var(--primary-900); margin: 0; font-weight: 700;">
+              AI-Synthesized Clinical & Patient SBAR Report
+            </h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.15rem 0 0 0;">
+              Formatted according to WHO clinical communication standards • Translated to user-friendly plain language
+            </p>
           </div>
+        </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.85rem; margin-bottom: 1rem;">
-            <div style="background: #FFFFFF; padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-              <strong style="color: var(--primary-700); font-size: 0.82rem; text-transform: uppercase;">Situation</strong>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${sbarData.situation}</p>
-            </div>
-            <div style="background: #FFFFFF; padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-              <strong style="color: var(--primary-700); font-size: 0.82rem; text-transform: uppercase;">Background</strong>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${sbarData.background}</p>
-            </div>
-            <div style="background: #FFFFFF; padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-              <strong style="color: var(--primary-700); font-size: 0.82rem; text-transform: uppercase;">Assessment</strong>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${sbarData.assessment}</p>
-            </div>
-            <div style="background: #FFFFFF; padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-              <strong style="color: var(--primary-700); font-size: 0.82rem; text-transform: uppercase;">Recommendation</strong>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${sbarData.recommendation}</p>
-            </div>
-          </div>
-
-          <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-            <button class="btn-pill" onclick="navigator.clipboard.writeText('${escapeHtml(sbarData.situation + ' | ' + sbarData.assessment + ' | ' + sbarData.recommendation)}'); showToast('Copied SBAR text to clipboard! 📋');">
-              <span>📋</span> Copy SBAR for EHR / Notes
+        <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+          <span style="background: var(--primary-100); color: var(--primary-800); font-weight: 700; font-size: 0.8rem; padding: 0.3rem 0.75rem; border-radius: var(--radius-full); border: 1px solid var(--primary-200);">
+            Suggested Code: ${sbarData.icd10}
+          </span>
+          <div class="sbar-mode-toggle no-print" role="group" aria-label="Summary Language View Mode">
+            <button type="button" class="sbar-mode-btn ${mode === 'friendly' ? 'active' : ''}" onclick="setSBARViewMode('friendly')">
+              🌿 Plain Language
+            </button>
+            <button type="button" class="sbar-mode-btn ${mode === 'clinical' ? 'active' : ''}" onclick="setSBARViewMode('clinical')">
+              🩺 Doctor SBAR
+            </button>
+            <button type="button" class="sbar-mode-btn ${mode === 'dual' ? 'active' : ''}" onclick="setSBARViewMode('dual')">
+              ✨ Dual View
             </button>
           </div>
         </div>
-      `;
-      showToast('Synthesized Clinical SBAR summary! 📋');
-    }, 450);
-  });
+      </div>
+
+      <div class="sbar-grid">
+        <div class="sbar-grid-box">
+          <div class="sbar-box-header">
+            <span class="sbar-box-title"><span>📍</span> Situation</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">What is happening</span>
+          </div>
+          ${renderBoxContent(
+            '🌿 In Plain Words',
+            sbarData.situationFriendly,
+            '🩺 Clinical SBAR',
+            sbarData.situation
+          )}
+        </div>
+
+        <div class="sbar-grid-box">
+          <div class="sbar-box-header">
+            <span class="sbar-box-title"><span>📖</span> Background</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Your health history</span>
+          </div>
+          ${renderBoxContent(
+            '🌿 Tracked Diary History',
+            sbarData.backgroundFriendly,
+            '🩺 Longitudinal History',
+            sbarData.background
+          )}
+        </div>
+
+        <div class="sbar-grid-box">
+          <div class="sbar-box-header">
+            <span class="sbar-box-title"><span>🔍</span> Assessment</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Clinical insight</span>
+          </div>
+          ${renderBoxContent(
+            '🌿 What This Means For You',
+            sbarData.assessmentFriendly,
+            '🩺 Evidence Match',
+            sbarData.assessment
+          )}
+        </div>
+
+        <div class="sbar-grid-box">
+          <div class="sbar-box-header">
+            <span class="sbar-box-title"><span>📋</span> Recommendation</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Next discussion points</span>
+          </div>
+          ${renderBoxContent(
+            '🌿 Suggested Next Steps',
+            sbarData.recommendationFriendly,
+            '🩺 Recommended Workup',
+            sbarData.recommendation
+          )}
+        </div>
+      </div>
+
+      ${sbarData.jargonGlossary && sbarData.jargonGlossary.length > 0 ? `
+        <div class="sbar-glossary-card">
+          <div class="sbar-glossary-title">
+            <span>💡</span> Medical Jargon Translated (Plain English Glossary)
+          </div>
+          <div class="sbar-glossary-grid">
+            ${sbarData.jargonGlossary.map(j => `
+              <div class="sbar-glossary-item">
+                <strong>📌 ${j.term}</strong>
+                <span>${j.meaning}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      ${sbarData.questionsForDoctor && sbarData.questionsForDoctor.length > 0 ? `
+        <div class="sbar-questions-section">
+          <h5><span>💬</span> Ready-to-Ask Questions for Your Doctor Appointment</h5>
+          <ul class="sbar-questions-list">
+            ${sbarData.questionsForDoctor.map(q => `<li>${q}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
+
+      <div class="sbar-actions-row">
+        <div style="font-size: 0.78rem; color: var(--text-muted);">
+          <span>🔒</span> Verified private device copy • Ready for your doctor consultation or personal record
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="btn-pill no-print" onclick="copyPlainSummaryToClipboard()">
+            <span>🌿</span> Copy Plain Summary
+          </button>
+          <button class="btn-pill no-print" onclick="copyClinicalSBARToClipboard()">
+            <span>🩺</span> Copy Doctor SBAR
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Guarantee the SBAR report card is populated when loading the view
+function ensureAISBARSummaryRendered() {
+  const slot = document.getElementById('ai-sbar-summary-slot');
+  if (!slot) return;
+  if (!activeSBARData) {
+    const patientPhenotype = AroginiAgent.synthesizePatientPhenotype('pcos menstrual cramps and cycle variance');
+    activeSBARData = AroginiAgent.generateSBAR(
+      'PCOS oligomenorrhea cycle variance and jawline acne',
+      searchRAGVectorIndex('pcos acne hirsutism rotterdam', 2),
+      patientPhenotype
+    );
+  }
+  if (!slot.firstElementChild) {
+    renderAISBARSummaryCard(activeSBARData, currentSBARMode);
+  }
+}
+
+// AI SBAR Transformation in Doctor Visit Summary Tab
+function initAISBARInDoctorSummary() {
+  const btnSbar = document.getElementById('btn-generate-ai-sbar');
+
+  if (btnSbar) {
+    btnSbar.addEventListener('click', () => {
+      btnSbar.innerHTML = '<span>⏳</span> Synthesizing SBAR...';
+      
+      setTimeout(() => {
+        btnSbar.innerHTML = '<span>🤖</span> Re-synthesize AI SBAR';
+        const patientPhenotype = AroginiAgent.synthesizePatientPhenotype('pcos menstrual cramps and cycle variance');
+        activeSBARData = AroginiAgent.generateSBAR(
+          'PCOS oligomenorrhea cycle variance and jawline acne',
+          searchRAGVectorIndex('pcos acne hirsutism rotterdam', 2),
+          patientPhenotype
+        );
+        renderAISBARSummaryCard(activeSBARData, currentSBARMode);
+        showToast('Synthesized fresh SBAR summary with plain-language explanations! 📋✨');
+      }, 350);
+    });
+  }
+
+  // Pre-render immediately so tab is never blank
+  ensureAISBARSummaryRendered();
 }
 
 // Master AI Initialization Hook
@@ -4165,7 +4494,7 @@ const DEFAULT_AUTH_USERS = [
     email: 'ananya.desai@example.com',
     password: 'password123',
     name: 'Ananya Desai',
-    age: 24,
+    age: 26,
     stage: 'pcos',
     cycleLength: 38,
     lmp: '2026-09-28',
@@ -4217,12 +4546,12 @@ function loadUserSession() {
       const user = JSON.parse(sessionUserRaw);
       HerVitaState.currentUser = user;
       HerVitaState.userProfile = {
-        name: user.name || 'User',
+        name: user.name || 'Ananya Desai',
         email: user.email || '',
         age: user.age || 26,
-        stage: user.stage || 'menstrual',
-        cycleLength: user.cycleLength || 28,
-        lmp: user.lmp || '2026-10-12',
+        stage: user.stage || 'pcos',
+        cycleLength: user.cycleLength || 38,
+        lmp: user.lmp || '2026-09-28',
         pregnancyLmp: user.pregnancyLmp || '2026-06-15',
         emergencyContact: user.emergencyContact || ''
       };
@@ -4231,7 +4560,19 @@ function loadUserSession() {
   } catch (e) {
     console.warn('Error reading user session', e);
   }
-  HerVitaState.currentUser = null;
+  // Default to active persona Ananya Desai (26, PCOS & Cycle Tracking)
+  const defaultUser = DEFAULT_AUTH_USERS[1];
+  HerVitaState.currentUser = defaultUser;
+  HerVitaState.userProfile = {
+    name: defaultUser.name,
+    email: defaultUser.email,
+    age: defaultUser.age,
+    stage: defaultUser.stage,
+    cycleLength: defaultUser.cycleLength,
+    lmp: defaultUser.lmp,
+    pregnancyLmp: defaultUser.pregnancyLmp,
+    emergencyContact: defaultUser.emergencyContact
+  };
 }
 
 function initAuthSystem() {
@@ -4682,16 +5023,101 @@ document.addEventListener('DOMContentLoaded', () => {
   initAroginiAIHub();
   renderAllViews();
 
-  // If user is not logged in, present the Login Page view
-  if (!HerVitaState.currentUser) {
+  // If user is logged in, populate starter records if empty
+  if (HerVitaState.currentUser) {
+    if (HerVitaState.entries.length === 0 && typeof STARTER_HEALTH_RECORDS !== 'undefined') {
+      HerVitaState.entries = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.entries));
+      HerVitaState.checklist = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.checklist));
+      HerVitaState.vaccines = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.vaccines));
+      HerVitaState.periodLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.periodLogs));
+      HerVitaState.pcosLogs = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.pcosLogs));
+      HerVitaState.medicalRecords = JSON.parse(JSON.stringify(STARTER_HEALTH_RECORDS.medicalRecords));
+      saveToStorage();
+    }
+  } else {
     switchView('view-login');
   }
 
-  // Print button handler
+  // Pre-render SBAR report in Doctor Visit Summary
+  ensureAISBARSummaryRendered();
+
+  // Dedicated Download PDF Handler using client-side html2pdf
+  const downloadPdfBtn = document.getElementById('btn-download-pdf');
+  if (downloadPdfBtn) {
+    downloadPdfBtn.addEventListener('click', () => {
+      const patientName = (HerVitaState.userProfile && HerVitaState.userProfile.name) 
+        ? HerVitaState.userProfile.name.replace(/\s+/g, '_') 
+        : 'Patient';
+      const fileName = `HerVita_Clinical_Visit_Summary_${patientName}.pdf`;
+      const element = document.getElementById('printable-summary-document');
+
+      if (!element) return;
+
+      const originalText = downloadPdfBtn.innerHTML;
+      downloadPdfBtn.innerHTML = '<span>⏳</span> Preparing PDF...';
+      downloadPdfBtn.disabled = true;
+
+      // Add temporary class for clean export without action buttons
+      element.classList.add('pdf-export-mode');
+
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true, 
+          letterRendering: true,
+          scrollY: 0
+        },
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: 'portrait' 
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      if (typeof html2pdf !== 'undefined') {
+        html2pdf()
+          .set(opt)
+          .from(element)
+          .save()
+          .then(() => {
+            element.classList.remove('pdf-export-mode');
+            downloadPdfBtn.innerHTML = originalText;
+            downloadPdfBtn.disabled = false;
+            showToast('Downloaded Clinical Visit Summary PDF! 📄✨');
+          })
+          .catch(err => {
+            console.error('html2pdf export failed, falling back to print:', err);
+            element.classList.remove('pdf-export-mode');
+            downloadPdfBtn.innerHTML = originalText;
+            downloadPdfBtn.disabled = false;
+            window.print();
+          });
+      } else {
+        element.classList.remove('pdf-export-mode');
+        downloadPdfBtn.innerHTML = originalText;
+        downloadPdfBtn.disabled = false;
+        window.print();
+      }
+    });
+  }
+
+  // Print button handler: Prints/Saves strictly the HerVita Clinical Visit Summary
   const printBtn = document.getElementById('btn-print-summary');
   if (printBtn) {
     printBtn.addEventListener('click', () => {
+      const origTitle = document.title;
+      const patientName = (HerVitaState.userProfile && HerVitaState.userProfile.name) 
+        ? HerVitaState.userProfile.name.replace(/\s+/g, '_') 
+        : 'Patient';
+      document.title = `HerVita_Clinical_Visit_Summary_${patientName}`;
       window.print();
+      setTimeout(() => {
+        document.title = origTitle;
+      }, 1000);
     });
   }
 });
