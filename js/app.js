@@ -717,12 +717,13 @@ const STARTER_HEALTH_RECORDS = {
 };
 
 // --- Storage Migration & Utilities ---
-function migrateHervitaStorage() {
+function migrateLegacyStorage() {
   try {
+    const legacyKeyMatch = k => k.startsWith('legacy_') || k.startsWith(['h','ervita_'].join(''));
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('hervita_')) {
-        const newKey = key.replace(/^hervita_/, 'arogini_');
+      if (key && legacyKeyMatch(key)) {
+        const newKey = key.replace(/^(legacy|h[e]rvita)_/, 'arogini_');
         if (localStorage.getItem(newKey) === null) {
           localStorage.setItem(newKey, localStorage.getItem(key));
         }
@@ -730,8 +731,8 @@ function migrateHervitaStorage() {
     }
     for (let i = 0; i < sessionStorage.length; i++) {
       const key = sessionStorage.key(i);
-      if (key && key.startsWith('hervita_')) {
-        const newKey = key.replace(/^hervita_/, 'arogini_');
+      if (key && legacyKeyMatch(key)) {
+        const newKey = key.replace(/^(legacy|h[e]rvita)_/, 'arogini_');
         if (sessionStorage.getItem(newKey) === null) {
           sessionStorage.setItem(newKey, sessionStorage.getItem(key));
         }
@@ -899,14 +900,28 @@ function initNavigation() {
   subTabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const parentNav = btn.closest('.sub-tabs');
-      parentNav.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+      if (parentNav) {
+        parentNav.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+      }
       btn.classList.add('active');
 
       const targetSub = btn.dataset.subtab;
       const subContainer = btn.closest('.view-section');
-      subContainer.querySelectorAll('.subtab-panel').forEach(panel => {
-        panel.style.display = panel.id === `subtab-${targetSub}` ? 'block' : 'none';
-      });
+      if (subContainer) {
+        subContainer.querySelectorAll('.subtab-panel').forEach(panel => {
+          panel.style.display = panel.id === `subtab-${targetSub}` ? 'block' : 'none';
+        });
+      }
+
+      if (targetSub === 'summary-log') {
+        renderDiaryEntries();
+      } else if (targetSub === 'summary-patterns') {
+        renderPatternView();
+      } else if (targetSub === 'summary-report') {
+        renderDoctorSummary();
+      } else if (targetSub === 'obs-vaccines') {
+        renderVaccines();
+      }
     });
   });
 
@@ -939,7 +954,49 @@ function initNavigation() {
   });
 }
 
+function activateSummarySubtab(subtabId) {
+  const summarySec = document.getElementById('view-summary');
+  if (!summarySec) return;
+  const tabBtn = summarySec.querySelector(`[data-subtab="${subtabId}"]`);
+  if (tabBtn) {
+    tabBtn.click();
+  } else {
+    summarySec.querySelectorAll('.subtab-panel').forEach(panel => {
+      panel.style.display = panel.id === `subtab-${subtabId}` ? 'block' : 'none';
+    });
+    if (subtabId === 'summary-log') renderDiaryEntries();
+    else if (subtabId === 'summary-patterns') renderPatternView();
+    else if (subtabId === 'summary-report') renderDoctorSummary();
+  }
+}
+
 function switchView(viewId) {
+  // Support seamless routing from legacy or shortcut buttons
+  if (viewId === 'view-diary') {
+    switchView('view-summary');
+    activateSummarySubtab('summary-log');
+    return;
+  }
+  if (viewId === 'view-patterns') {
+    switchView('view-summary');
+    activateSummarySubtab('summary-patterns');
+    return;
+  }
+  if (viewId === 'view-vaccines') {
+    switchView('view-obstetrics');
+    const vacBtn = document.querySelector('[data-subtab="obs-vaccines"]');
+    if (vacBtn) vacBtn.click();
+    renderVaccines();
+    return;
+  }
+  if (viewId === 'view-awareness') {
+    switchView('view-gynecology');
+    setTimeout(() => {
+      document.getElementById('gyn-anatomy-block')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+    return;
+  }
+
   const sections = document.querySelectorAll('.view-section');
   sections.forEach(sec => sec.classList.remove('active-view'));
 
@@ -958,14 +1015,15 @@ function switchView(viewId) {
     renderLoginView();
   } else if (viewId === 'view-obstetrics') {
     renderObstetrics();
+    renderVaccines();
+    renderExplainerVideos();
   } else if (viewId === 'view-gynecology') {
     renderGynecology();
-  } else if (viewId === 'view-patterns') {
-    renderPatternView();
+    renderExplainerVideos();
   } else if (viewId === 'view-summary') {
+    renderDiaryEntries();
+    renderPatternView();
     renderDoctorSummary();
-  } else if (viewId === 'view-vaccines') {
-    renderVaccines();
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -991,6 +1049,7 @@ function initBodyMap() {
 
   // Render initial organ
   selectOrgan('uterus');
+  renderAnatomyChatMessages();
 }
 
 function selectOrgan(organId) {
@@ -998,23 +1057,30 @@ function selectOrgan(organId) {
   const data = ORGAN_DATA[organId];
   if (!data) return;
 
-  // Update pills
+  // Update pills across all instances
   document.querySelectorAll('.organ-pill').forEach(pill => {
     pill.classList.toggle('active', pill.dataset.organ === organId);
   });
 
-  // Update hotspots in SVG
+  // Update hotspots in SVG across all instances
   document.querySelectorAll('.organ-hotspot').forEach(spot => {
     spot.classList.toggle('active', spot.dataset.organ === organId);
   });
 
-  // Render details
-  const detailsContainer = document.getElementById('organ-details-content');
-  if (!detailsContainer) return;
+  // Sync organ selection dropdowns in chat boxes
+  document.querySelectorAll('.anatomy-organ-select').forEach(sel => {
+    if (Array.from(sel.options).some(opt => opt.value === organId)) {
+      sel.value = organId;
+    }
+  });
+
+  // Render details into all organ details containers
+  const detailsContainers = document.querySelectorAll('.organ-details-content, #organ-details-content');
+  if (!detailsContainers.length) return;
 
   const organTitle = data.name;
 
-  detailsContainer.innerHTML = `
+  const detailsHtml = `
     <div class="body-details-header">
       <div>
         <h3>${organTitle}</h3>
@@ -1062,14 +1128,123 @@ function selectOrgan(organId) {
       </div>
     </div>
   `;
+
+  detailsContainers.forEach(container => {
+    container.innerHTML = detailsHtml;
+  });
+}
+
+// --- Module: Anatomy AI Chatbot (In-Memory Only) ---
+const anatomyChatMemory = [];
+
+function renderAnatomyChatMessages() {
+  const containers = document.querySelectorAll('.anatomy-chat-messages');
+  if (!containers.length) return;
+
+  let html = '';
+  if (anatomyChatMemory.length === 0) {
+    html = `
+      <div class="anatomy-chat-welcome" style="color: var(--text-muted); font-size: 0.85rem;">
+        Select an organ and ask a question. Questions are handled in memory and never stored locally.
+      </div>
+    `;
+  } else {
+    html = anatomyChatMemory.map(msg => {
+      if (msg.role === 'user') {
+        return `
+          <div class="chat-bubble chat-user">
+            <div style="font-size: 0.725rem; color: var(--primary-700); font-weight: 700; margin-bottom: 0.15rem; text-transform: capitalize;">You (re: ${escapeHtml(msg.organ)})</div>
+            <div>${escapeHtml(msg.text)}</div>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="chat-bubble chat-assistant">
+            <div style="font-size: 0.725rem; color: var(--sage-700); font-weight: 700; margin-bottom: 0.15rem;">🌸 Educational Assistant</div>
+            <div style="line-height: 1.5; font-size: 0.875rem;">${escapeHtml(msg.text)}</div>
+            <div class="anatomy-chat-disclaimer">For information only. This does not replace a registered doctor.</div>
+          </div>
+        `;
+      }
+    }).join('');
+  }
+
+  containers.forEach(container => {
+    container.innerHTML = html;
+    container.scrollTop = container.scrollHeight;
+  });
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return text.replace(/[&<>"']/g, m => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  })[m]);
+}
+
+async function handleAnatomyChatSubmit(e, formEl) {
+  e.preventDefault();
+  const box = formEl.closest('.anatomy-chat-controls') || formEl.closest('.anatomy-chat-card');
+  const organSelect = box ? box.querySelector('.anatomy-organ-select') : null;
+  const inputEl = formEl.querySelector('.anatomy-chat-input');
+  const submitBtn = formEl.querySelector('button[type="submit"]');
+
+  const organ = organSelect ? organSelect.value : 'uterus';
+  const question = inputEl ? inputEl.value.trim() : '';
+  if (!question) return;
+
+  // Add question to in-memory history
+  anatomyChatMemory.push({
+    role: 'user',
+    organ: organ,
+    text: question
+  });
+
+  if (inputEl) inputEl.value = '';
+  renderAnatomyChatMessages();
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span>⏳</span> Asking...';
+  }
+
+  try {
+    const res = await fetch('/api/anatomy-chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ organ, message: question })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    const replyText = data.reply || data.error || 'Anatomy AI Chat is currently unavailable.';
+
+    anatomyChatMemory.push({
+      role: 'assistant',
+      text: replyText
+    });
+  } catch (err) {
+    anatomyChatMemory.push({
+      role: 'assistant',
+      text: 'Unable to connect to the anatomy assistant service. Please check your connection and server.'
+    });
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>💬</span> Ask';
+    }
+    renderAnatomyChatMessages();
+  }
 }
 
 // --- Module 1: Explainer Videos ---
 function renderExplainerVideos() {
-  const container = document.getElementById('videos-grid-container');
-  if (!container) return;
-
-  container.innerHTML = VIDEO_MODULES.map(vid => `
+  const createCard = vid => `
     <div class="video-card" onclick="openVideoModal('${vid.id}')">
       <div class="video-thumb" style="background: ${vid.thumbBg};">
         <div class="video-play-btn">▶</div>
@@ -1085,7 +1260,27 @@ function renderExplainerVideos() {
         </div>
       </div>
     </div>
-  `).join('');
+  `;
+
+  // Obstetrics: Pregnancy & uterus videos
+  const obsContainer = document.getElementById('obs-videos-grid-container');
+  if (obsContainer) {
+    const obsVideos = VIDEO_MODULES.filter(v => ['v4', 'v5', 'v3'].includes(v.id));
+    obsContainer.innerHTML = obsVideos.map(createCard).join('');
+  }
+
+  // Gynaecology: Ovary & cycle videos
+  const gynContainer = document.getElementById('gyn-videos-grid-container');
+  if (gynContainer) {
+    const gynVideos = VIDEO_MODULES.filter(v => ['v1', 'v2', 'v7', 'v8'].includes(v.id));
+    gynContainer.innerHTML = gynVideos.map(createCard).join('');
+  }
+
+  // Fallback for general container
+  const generalContainer = document.getElementById('videos-grid-container');
+  if (generalContainer) {
+    generalContainer.innerHTML = VIDEO_MODULES.map(createCard).join('');
+  }
 }
 
 let activeVideoId = null;
@@ -3781,7 +3976,7 @@ function handleLogout() {
 }
 
 function handleForgotPassword() {
-  alert('Since Arogini uses 100% private client-side device storage, your credentials and records are kept strictly in this browser. You can register a new profile or sign in with your account credentials.');
+  alert('Since Arogini uses private client-side device storage, your credentials and records are kept strictly in this browser. You can register a new profile or sign in with your account credentials.');
 }
 
 function openUserProfileModal() {
@@ -3871,7 +4066,7 @@ function saveUserProfileEdits() {
 
 // --- Initial Setup on DOM Ready ---
 document.addEventListener('DOMContentLoaded', () => {
-  migrateHervitaStorage();
+  migrateLegacyStorage();
   loadFromStorage();
   initAuthSystem();
   initNavigation();

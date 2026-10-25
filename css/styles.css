@@ -2779,7 +2779,7 @@ label.form-label {
     border-bottom: 1px solid #ddd !important;
   }
 
-  .sbar-grid-box {
+  .summary-grid-box {
     border: 1px solid #ddd !important;
     page-break-inside: avoid !important;
   }
@@ -2793,13 +2793,13 @@ label.form-label {
 }
 
 .pdf-export-mode .no-print,
-.pdf-export-mode .sbar-mode-toggle,
-.pdf-export-mode .sbar-actions-row,
+.pdf-export-mode .summary-mode-toggle,
+.pdf-export-mode .summary-actions-row,
 .pdf-export-mode .btn-pill {
   display: none !important;
 }
 
-.pdf-export-mode .sbar-card-container {
+.pdf-export-mode .summary-card-container {
   box-shadow: none !important;
   border: 1px solid #d1d5db !important;
   margin-bottom: 24px !important;
@@ -4726,4 +4726,67 @@ input:checked + .toggle-slider:before {
   justify-content: center;
   flex-shrink: 0;
   font-size: 0.95rem;
+}
+
+/* Anatomy Explainer Block & AI Chat Assistant */
+.anatomy-explainer-block {
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
+  border-top: 2px dashed var(--border-light);
+}
+
+.anatomy-chat-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.anatomy-chat-messages {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  min-height: 100px;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  word-wrap: break-word;
+}
+
+.chat-bubble.chat-user {
+  align-self: flex-end;
+  background: #FDF2F8;
+  border: 1px solid #FBCFE8;
+  border-radius: 12px 12px 2px 12px;
+  padding: 0.65rem 0.9rem;
+  color: var(--primary-900);
+  box-shadow: 0 1px 2px rgba(172, 44, 106, 0.05);
+}
+
+.chat-bubble.chat-assistant {
+  align-self: flex-start;
+  background: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: 12px 12px 12px 2px;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.anatomy-chat-disclaimer {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  margin-top: 0.45rem;
+  padding-top: 0.35rem;
+  border-top: 1px dashed var(--border-light);
+  font-style: italic;
 }

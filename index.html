@@ -20,7 +20,7 @@
   <aside class="disclaimer-strip" role="note" aria-label="Medical disclaimer">
     <span>🌸</span>
     <span><strong>Arogini Medical Boundary:</strong> Arogini informs and organises. It does not diagnose and does not replace a doctor.</span>
-    <span>• 100% Private & Device-Only</span>
+    <span>• Private & Device-Only</span>
   </aside>
 
   <!-- Left Side Panel Navigation Backdrop -->
@@ -69,7 +69,7 @@
         <div class="side-nav-privacy-card">
           <span>🔒</span>
           <div>
-            <strong>100% Client-Side Privacy</strong>
+            <strong>Client-Side Privacy</strong>
             <p>Your health data is encrypted on your local device.</p>
           </div>
         </div>
@@ -186,9 +186,6 @@
         <button class="btn-pill btn-emergency" id="btn-emergency-header" title="Calm emergency screening for serious signs">
           <span>🚨</span> Symptom Check
         </button>
-        <button class="btn-pill" id="btn-privacy-header" title="Privacy Settings & Device PIN">
-          <span>🔒</span> Privacy
-        </button>
 
         <!-- Always-Visible Profile Widget (Icon + Name + Age) -->
         <button class="always-visible-profile-pill" id="btn-always-visible-profile" onclick="toggleRightProfileDrawer()" aria-label="Open Profile Panel" title="View & Edit Patient Profile">
@@ -229,7 +226,7 @@
             <div class="auth-feature-item">
               <span class="auth-feat-icon">🔒</span>
               <div>
-                <strong>100% Client-Side Privacy</strong>
+                <strong>Client-Side Privacy</strong>
                 <p>Your symptoms, cycle dates, and notes stay encrypted in your local browser storage. Zero trackers, zero cloud profiling.</p>
               </div>
             </div>
@@ -373,7 +370,7 @@
             <div class="form-row-checkbox">
               <label class="checkbox-label">
                 <input type="checkbox" id="reg-consent" required checked />
-                <span>I acknowledge that Arogini provides non-diagnostic clinical guidance with 100% private local storage.</span>
+                <span>I acknowledge that Arogini provides non-diagnostic clinical guidance with private local storage.</span>
               </label>
             </div>
 
@@ -479,6 +476,9 @@
         <button class="sub-tab-btn" data-subtab="obs-postpartum">
           <span>🤱</span> Postpartum Recovery Support
         </button>
+        <button class="sub-tab-btn" data-subtab="obs-vaccines">
+          <span>💉</span> Vaccines & Immunisation
+        </button>
       </div>
 
       <!-- SUBTAB A.1: Pregnancy Journey Tracker -->
@@ -504,6 +504,220 @@
       <!-- SUBTAB A.5: Postpartum Recovery Support -->
       <div id="subtab-obs-postpartum" class="subtab-panel" style="display: none;">
         <div id="obs-postpartum-content"></div>
+      </div>
+
+      <!-- SUBTAB A.6: Vaccines & Immunisation -->
+      <div id="subtab-obs-vaccines" class="subtab-panel" style="display: none;">
+        <div class="vaccines-layout">
+          <!-- Schedule Timeline Card -->
+          <div class="vaccine-timeline-card">
+            <h3>National Reproductive Immunisation Guide</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Evidence-based timing for key stages in a woman's life:</p>
+            <div class="vaccine-stages" id="vaccine-schedule-timeline">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Personal Vaccine Logger Card -->
+          <div>
+            <div class="card" style="margin-bottom: 1.5rem;">
+              <h3 style="font-size: 1.25rem; color: var(--primary-900); margin-bottom: 0.25rem;">Log Received Vaccine</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Keep your immunization history organised</p>
+
+              <form id="vaccine-form">
+                <div class="form-group">
+                  <label class="form-label" for="vac-name">Vaccine</label>
+                  <select id="vac-name" class="form-control" required>
+                    <option value="HPV Vaccine (Gardasil 9)">HPV Vaccine (Cervical Cancer Prevention)</option>
+                    <option value="MMR (Measles, Mumps, Rubella)">MMR (Pre-Pregnancy)</option>
+                    <option value="Chickenpox (Varicella)">Chickenpox (Pre-Pregnancy)</option>
+                    <option value="Tdap (Tetanus, Pertussis)">Tdap (Pregnancy 27–36 Weeks)</option>
+                    <option value="Influenza (Annual Flu)">Influenza (Flu Season)</option>
+                    <option value="Hepatitis B">Hepatitis B</option>
+                  </select>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="vac-dose">Dose Number</label>
+                    <select id="vac-dose" class="form-control">
+                      <option value="Dose 1 of 2">Dose 1 of 2</option>
+                      <option value="Dose 2 of 2">Dose 2 of 2</option>
+                      <option value="Single Dose">Single Dose</option>
+                      <option value="Booster Dose">Booster Dose</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="vac-date">Date Administered</label>
+                    <input type="date" id="vac-date" class="form-control" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="vac-due">Next Due Date (If any)</label>
+                  <input type="date" id="vac-due" class="form-control" />
+                </div>
+
+                <button type="submit" class="btn-primary">
+                  <span>💉</span> Save Vaccine Record
+                </button>
+              </form>
+            </div>
+
+            <div class="card">
+              <h3 style="font-size: 1.15rem; color: var(--primary-900); margin-bottom: 1rem;">My Immunisation Log</h3>
+              <div id="vaccine-log-container">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANATOMY & EXPLAINER VIDEOS (OBSTETRICS) -->
+      <div class="anatomy-explainer-block" id="obs-anatomy-block" style="margin-top: 2.5rem; padding-top: 1.75rem; border-top: 2px dashed var(--border-light);">
+        <div class="section-intro" style="margin-bottom: 1.25rem;">
+          <div class="intro-text">
+            <h3>🌸 Anatomy & Explainer Videos</h3>
+            <p>Interactive reproductive anatomy, pregnancy & uterine explainer videos, and clinical AI chat assistant.</p>
+          </div>
+          <span class="badge-tag badge-pink">Obstetric & Uterine Focus</span>
+        </div>
+
+        <div class="body-map-layout">
+          <!-- Visual Interactive SVG Anatomy Card -->
+          <div class="body-map-visual-card">
+            <h3>Reproductive System Anatomy</h3>
+            <p class="hint">Tap any organ hotspot or pill below to explore its function and care tips:</p>
+
+            <div class="anatomy-svg-wrapper">
+              <svg class="anatomy-svg" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="obs-grad-uterus" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#E87A90"/>
+                    <stop offset="100%" stop-color="#AC2C6A"/>
+                  </linearGradient>
+                  <linearGradient id="obs-grad-ovary" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FCD34D"/>
+                    <stop offset="100%" stop-color="#D97706"/>
+                  </linearGradient>
+                  <linearGradient id="obs-grad-tube" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#F472B6"/>
+                    <stop offset="100%" stop-color="#DB2777"/>
+                  </linearGradient>
+                  <linearGradient id="obs-grad-vagina" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#C084FC"/>
+                    <stop offset="100%" stop-color="#7E22CE"/>
+                  </linearGradient>
+                </defs>
+                <path d="M 60,70 Q 200,30 340,70 Q 370,160 330,260 Q 200,310 70,260 Q 30,160 60,70 Z" fill="#FFF5F8" stroke="#F3BFD6" stroke-width="2.5" stroke-dasharray="6,6" opacity="0.7"/>
+                <g class="organ-hotspot" data-organ="hormones" title="Hormonal Axis">
+                  <circle cx="200" cy="30" r="16" fill="#EDE9FE" stroke="#8B5CF6" stroke-width="2.5"/>
+                  <text x="200" y="35" text-anchor="middle" font-size="12" fill="#6D28D9" font-weight="bold">⚡ Axis</text>
+                  <path d="M 200,46 L 200,75" stroke="#C4B5FD" stroke-width="2" stroke-dasharray="4,4"/>
+                </g>
+                <g class="organ-hotspot" data-organ="tubes" title="Fallopian Tubes">
+                  <path d="M 160,115 C 120,70 80,90 95,130" fill="none" stroke="url(#obs-grad-tube)" stroke-width="8" stroke-linecap="round"/>
+                  <path d="M 240,115 C 280,70 320,90 305,130" fill="none" stroke="url(#obs-grad-tube)" stroke-width="8" stroke-linecap="round"/>
+                </g>
+                <g class="organ-hotspot" data-organ="ovaries" title="Ovaries">
+                  <ellipse cx="88" cy="140" rx="20" ry="14" fill="url(#obs-grad-ovary)" stroke="#B45309" stroke-width="2"/>
+                  <ellipse cx="312" cy="140" rx="20" ry="14" fill="url(#obs-grad-ovary)" stroke="#B45309" stroke-width="2"/>
+                </g>
+                <g class="organ-hotspot active" data-organ="uterus" title="Uterus (Womb)">
+                  <path d="M 155,105 C 175,95 225,95 245,105 C 265,135 240,185 220,195 L 180,195 C 160,185 135,135 155,105 Z" fill="url(#obs-grad-uterus)" stroke="#8C2456" stroke-width="2.5"/>
+                  <path d="M 180,120 Q 200,135 220,120 Q 200,165 180,120 Z" fill="#FFE4E6" opacity="0.85"/>
+                </g>
+                <g class="organ-hotspot" data-organ="cervix" title="Cervix">
+                  <rect x="184" y="195" width="32" height="24" rx="6" fill="#F43F5E" stroke="#9F1239" stroke-width="2"/>
+                  <circle cx="200" cy="207" r="4" fill="#FFE4E6"/>
+                </g>
+                <g class="organ-hotspot" data-organ="vagina" title="Vagina">
+                  <path d="M 186,219 L 214,219 L 222,275 L 178,275 Z" fill="url(#obs-grad-vagina)" stroke="#581C87" stroke-width="2"/>
+                </g>
+                <g class="organ-hotspot" data-organ="pelvic_floor" title="Pelvic Floor Muscles">
+                  <path d="M 120,265 Q 200,305 280,265" fill="none" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                  <text x="200" y="302" text-anchor="middle" font-size="10.5" font-weight="700" fill="#047857">Pelvic Floor Hammock</text>
+                </g>
+                <text x="75" y="168" font-size="11" font-weight="700" fill="#92400E">Ovary</text>
+                <text x="325" y="168" font-size="11" font-weight="700" fill="#92400E">Ovary</text>
+                <text x="200" y="150" font-size="13" font-weight="800" fill="#FFFFFF" text-anchor="middle">Uterus</text>
+                <text x="240" y="212" font-size="10" font-weight="700" fill="#BE123C">Cervix</text>
+                <text x="245" y="250" font-size="10" font-weight="700" fill="#6B21A8">Vagina</text>
+              </svg>
+            </div>
+
+            <!-- Quick Selection Pills -->
+            <div class="organ-pills-row">
+              <button class="organ-pill active" data-organ="uterus">Uterus (Womb)</button>
+              <button class="organ-pill" data-organ="ovaries">Ovaries</button>
+              <button class="organ-pill" data-organ="tubes">Fallopian Tubes</button>
+              <button class="organ-pill" data-organ="cervix">Cervix</button>
+              <button class="organ-pill" data-organ="vagina">Vagina & Microbiome</button>
+              <button class="organ-pill" data-organ="pelvic_floor">Pelvic Floor</button>
+              <button class="organ-pill" data-organ="hormones">Hormonal Axis</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Organ Details Card -->
+          <div class="body-details-card organ-details-content" id="obs-organ-details-content">
+            <!-- Rendered dynamically by app.js -->
+          </div>
+        </div>
+
+        <!-- Anatomy AI Chatbot (Obstetrics) -->
+        <div class="card anatomy-chat-card" style="margin-top: 1.5rem;">
+          <div class="anatomy-chat-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span style="font-size: 1.4rem;">💬</span>
+              <div>
+                <h4 style="margin: 0; font-size: 1.1rem; color: var(--primary-900);">Anatomy Educational Assistant</h4>
+                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">Ask educational questions about female reproductive anatomy</p>
+              </div>
+            </div>
+            <span class="badge-tag badge-sage">Non-Diagnostic • Educational</span>
+          </div>
+
+          <div class="anatomy-chat-controls" style="margin-top: 1rem;">
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+              <label class="form-label" style="font-size: 0.85rem; font-weight: 600;">Select Organ:</label>
+              <select class="form-control anatomy-organ-select" style="max-width: 280px;">
+                <option value="ovaries">Ovaries</option>
+                <option value="fallopian tubes">Fallopian tubes</option>
+                <option value="uterus" selected>Uterus</option>
+                <option value="cervix">Cervix</option>
+                <option value="vagina">Vagina</option>
+                <option value="vulva">Vulva</option>
+                <option value="breasts">Breasts</option>
+                <option value="placenta">Placenta</option>
+              </select>
+            </div>
+
+            <div class="anatomy-chat-messages" style="background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1rem; min-height: 90px; max-height: 240px; overflow-y: auto; margin-bottom: 0.75rem;">
+              <div class="anatomy-chat-welcome" style="color: var(--text-muted); font-size: 0.85rem;">
+                Select an organ and ask a question. Questions are handled in memory and never stored locally.
+              </div>
+            </div>
+
+            <form class="anatomy-chat-form" onsubmit="handleAnatomyChatSubmit(event, this)">
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" class="form-control anatomy-chat-input" placeholder="e.g. What changes occur in the uterus during the third trimester?" required />
+                <button type="submit" class="btn-primary" style="width: auto; padding: 0.65rem 1.25rem; white-space: nowrap;">
+                  <span>💬</span> Ask
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Explainer Videos (Obstetrics: Pregnancy & Uterus) -->
+        <div style="margin-top: 2rem;">
+          <div style="margin-bottom: 1rem;">
+            <h4 style="font-size: 1.15rem; color: var(--primary-900); margin-bottom: 0.25rem;">🎬 Pregnancy & Uterine Explainer Videos</h4>
+            <p style="font-size: 0.875rem; color: var(--text-secondary);">60- to 90-second clinician-reviewed video walkthroughs on conception, uterine muscle activity, and fourth-trimester recovery.</p>
+          </div>
+          <div class="video-grid" id="obs-videos-grid-container"></div>
+        </div>
       </div>
     </section>
 
@@ -580,38 +794,17 @@
       <div id="subtab-gyn-records" class="subtab-panel" style="display: none;">
         <div id="gyn-records-content"></div>
       </div>
-    </section>
 
-    <!-- ========================================== -->
-    <!-- VIEW: REPRODUCTIVE ANATOMY & VIDEOS        -->
-    <!-- ========================================== -->
-    <section id="view-awareness" class="view-section">
-      <div class="section-intro">
-        <div class="intro-text">
-          <h2>Reproductive Health Awareness</h2>
-          <p>Plain-language guidance, interactive anatomy, and everyday habits that support your body. Built for clarity before family or doctor discussions.</p>
+      <!-- ANATOMY & EXPLAINER VIDEOS (GYNAECOLOGY) -->
+      <div class="anatomy-explainer-block" id="gyn-anatomy-block" style="margin-top: 2.5rem; padding-top: 1.75rem; border-top: 2px dashed var(--border-light);">
+        <div class="section-intro" style="margin-bottom: 1.25rem;">
+          <div class="intro-text">
+            <h3>🔬 Anatomy & Explainer Videos</h3>
+            <p>Interactive reproductive anatomy, cycle & ovarian explainer videos, and clinical AI chat assistant.</p>
+          </div>
+          <span class="badge-tag badge-sage">Gynecological & Cycle Focus</span>
         </div>
-        <span class="badge-tag badge-pink">Clinician-Reviewed Content</span>
-      </div>
 
-      <!-- Awareness Sub-tabs -->
-      <div class="sub-tabs">
-        <button class="sub-tab-btn active" data-subtab="body-map">
-          <span>🗺️</span> Interactive Body Map
-        </button>
-        <button class="sub-tab-btn" data-subtab="videos">
-          <span>🎬</span> Explainer Videos
-        </button>
-        <button class="sub-tab-btn" data-subtab="glossary">
-          <span>📖</span> Words to Know
-        </button>
-        <button class="sub-tab-btn" data-subtab="questions">
-          <span>🩺</span> Ask Better Questions
-        </button>
-      </div>
-
-      <!-- SUBTAB 1: INTERACTIVE BODY MAP -->
-      <div id="subtab-body-map" class="subtab-panel">
         <div class="body-map-layout">
           <!-- Visual Interactive SVG Anatomy Card -->
           <div class="body-map-visual-card">
@@ -621,79 +814,52 @@
             <div class="anatomy-svg-wrapper">
               <svg class="anatomy-svg" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                  <linearGradient id="grad-uterus" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <linearGradient id="gyn-grad-uterus" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#E87A90"/>
                     <stop offset="100%" stop-color="#AC2C6A"/>
                   </linearGradient>
-                  <linearGradient id="grad-ovary" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <linearGradient id="gyn-grad-ovary" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#FCD34D"/>
                     <stop offset="100%" stop-color="#D97706"/>
                   </linearGradient>
-                  <linearGradient id="grad-tube" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <linearGradient id="gyn-grad-tube" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#F472B6"/>
                     <stop offset="100%" stop-color="#DB2777"/>
                   </linearGradient>
-                  <linearGradient id="grad-vagina" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <linearGradient id="gyn-grad-vagina" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stop-color="#C084FC"/>
                     <stop offset="100%" stop-color="#7E22CE"/>
                   </linearGradient>
                 </defs>
-
-                <!-- Background Pelvis Outline -->
-                <path d="M 60,70 Q 200,30 340,70 Q 370,160 330,260 Q 200,310 70,260 Q 30,160 60,70 Z" 
-                      fill="#FFF5F8" stroke="#F3BFD6" stroke-width="2.5" stroke-dasharray="6,6" opacity="0.7"/>
-
-                <!-- Hormonal Axis / Brain Link indicator -->
+                <path d="M 60,70 Q 200,30 340,70 Q 370,160 330,260 Q 200,310 70,260 Q 30,160 60,70 Z" fill="#FFF5F8" stroke="#F3BFD6" stroke-width="2.5" stroke-dasharray="6,6" opacity="0.7"/>
                 <g class="organ-hotspot" data-organ="hormones" title="Hormonal Axis">
                   <circle cx="200" cy="30" r="16" fill="#EDE9FE" stroke="#8B5CF6" stroke-width="2.5"/>
                   <text x="200" y="35" text-anchor="middle" font-size="12" fill="#6D28D9" font-weight="bold">⚡ Axis</text>
                   <path d="M 200,46 L 200,75" stroke="#C4B5FD" stroke-width="2" stroke-dasharray="4,4"/>
                 </g>
-
-                <!-- Fallopian Tubes (Left & Right) -->
                 <g class="organ-hotspot" data-organ="tubes" title="Fallopian Tubes">
-                  <!-- Left Tube -->
-                  <path d="M 160,115 C 120,70 80,90 95,130" 
-                        fill="none" stroke="url(#grad-tube)" stroke-width="8" stroke-linecap="round"/>
-                  <!-- Right Tube -->
-                  <path d="M 240,115 C 280,70 320,90 305,130" 
-                        fill="none" stroke="url(#grad-tube)" stroke-width="8" stroke-linecap="round"/>
+                  <path d="M 160,115 C 120,70 80,90 95,130" fill="none" stroke="url(#gyn-grad-tube)" stroke-width="8" stroke-linecap="round"/>
+                  <path d="M 240,115 C 280,70 320,90 305,130" fill="none" stroke="url(#gyn-grad-tube)" stroke-width="8" stroke-linecap="round"/>
                 </g>
-
-                <!-- Left & Right Ovaries -->
                 <g class="organ-hotspot" data-organ="ovaries" title="Ovaries">
-                  <!-- Left Ovary -->
-                  <ellipse cx="88" cy="140" rx="20" ry="14" fill="url(#grad-ovary)" stroke="#B45309" stroke-width="2"/>
-                  <!-- Right Ovary -->
-                  <ellipse cx="312" cy="140" rx="20" ry="14" fill="url(#grad-ovary)" stroke="#B45309" stroke-width="2"/>
+                  <ellipse cx="88" cy="140" rx="20" ry="14" fill="url(#gyn-grad-ovary)" stroke="#B45309" stroke-width="2"/>
+                  <ellipse cx="312" cy="140" rx="20" ry="14" fill="url(#gyn-grad-ovary)" stroke="#B45309" stroke-width="2"/>
                 </g>
-
-                <!-- Uterus Body -->
                 <g class="organ-hotspot active" data-organ="uterus" title="Uterus (Womb)">
-                  <path d="M 155,105 C 175,95 225,95 245,105 C 265,135 240,185 220,195 L 180,195 C 160,185 135,135 155,105 Z" 
-                        fill="url(#grad-uterus)" stroke="#8C2456" stroke-width="2.5"/>
-                  <!-- Inner Endometrium Line -->
+                  <path d="M 155,105 C 175,95 225,95 245,105 C 265,135 240,185 220,195 L 180,195 C 160,185 135,135 155,105 Z" fill="url(#gyn-grad-uterus)" stroke="#8C2456" stroke-width="2.5"/>
                   <path d="M 180,120 Q 200,135 220,120 Q 200,165 180,120 Z" fill="#FFE4E6" opacity="0.85"/>
                 </g>
-
-                <!-- Cervix -->
                 <g class="organ-hotspot" data-organ="cervix" title="Cervix">
                   <rect x="184" y="195" width="32" height="24" rx="6" fill="#F43F5E" stroke="#9F1239" stroke-width="2"/>
                   <circle cx="200" cy="207" r="4" fill="#FFE4E6"/>
                 </g>
-
-                <!-- Vagina Canal -->
                 <g class="organ-hotspot" data-organ="vagina" title="Vagina">
-                  <path d="M 186,219 L 214,219 L 222,275 L 178,275 Z" fill="url(#grad-vagina)" stroke="#581C87" stroke-width="2"/>
+                  <path d="M 186,219 L 214,219 L 222,275 L 178,275 Z" fill="url(#gyn-grad-vagina)" stroke="#581C87" stroke-width="2"/>
                 </g>
-
-                <!-- Pelvic Floor Sling -->
                 <g class="organ-hotspot" data-organ="pelvic_floor" title="Pelvic Floor Muscles">
                   <path d="M 120,265 Q 200,305 280,265" fill="none" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
                   <text x="200" y="302" text-anchor="middle" font-size="10.5" font-weight="700" fill="#047857">Pelvic Floor Hammock</text>
                 </g>
-
-                <!-- Labels on Diagram -->
                 <text x="75" y="168" font-size="11" font-weight="700" fill="#92400E">Ovary</text>
                 <text x="325" y="168" font-size="11" font-weight="700" fill="#92400E">Ovary</text>
                 <text x="200" y="150" font-size="13" font-weight="800" fill="#FFFFFF" text-anchor="middle">Uterus</text>
@@ -715,366 +881,304 @@
           </div>
 
           <!-- Dynamic Organ Details Card -->
-          <div class="body-details-card" id="organ-details-content">
+          <div class="body-details-card organ-details-content" id="gyn-organ-details-content">
             <!-- Rendered dynamically by app.js -->
           </div>
         </div>
-      </div>
 
-      <!-- SUBTAB 2: EXPLAINER VIDEOS -->
-      <div id="subtab-videos" class="subtab-panel" style="display: none;">
-        <div style="margin-bottom: 1.25rem;">
-          <h3 style="font-size: 1.25rem; color: var(--primary-900); margin-bottom: 0.25rem;">Clinician-Curated Explainer Videos (60 to 90 Seconds)</h3>
-          <p style="font-size: 0.9rem; color: var(--text-secondary);">Short, high-yield educational videos covering organs, the menstrual cycle, pregnancy stages, and postpartum recovery.</p>
-        </div>
-        <div class="video-grid" id="videos-grid-container">
-          <!-- Dynamically populated -->
-        </div>
-      </div>
-
-      <!-- SUBTAB 3: WORDS TO KNOW (GLOSSARY) -->
-      <div id="subtab-glossary" class="subtab-panel" style="display: none;">
-        <div class="glossary-controls">
-          <div class="search-input-wrapper">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="glossary-search" class="search-input" placeholder="Search terms (e.g. cramps, luteal, ovulation, PCOS)..." />
+        <!-- Anatomy AI Chatbot (Gynaecology) -->
+        <div class="card anatomy-chat-card" style="margin-top: 1.5rem;">
+          <div class="anatomy-chat-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span style="font-size: 1.4rem;">💬</span>
+              <div>
+                <h4 style="margin: 0; font-size: 1.1rem; color: var(--primary-900);">Anatomy Educational Assistant</h4>
+                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">Ask educational questions about female reproductive anatomy</p>
+              </div>
+            </div>
+            <span class="badge-tag badge-sage">Non-Diagnostic • Educational</span>
           </div>
-          <div class="glossary-filter-pills">
-            <button class="btn-pill glossary-filter-pill active" data-category="all">All Words</button>
-            <button class="btn-pill glossary-filter-pill" data-category="symptoms">Symptoms</button>
-            <button class="btn-pill glossary-filter-pill" data-category="bleeding">Bleeding</button>
-            <button class="btn-pill glossary-filter-pill" data-category="phases">Cycle Phases</button>
-            <button class="btn-pill glossary-filter-pill" data-category="conditions">Conditions</button>
-            <button class="btn-pill glossary-filter-pill" data-category="anatomy">Anatomy</button>
-          </div>
-        </div>
-        <div class="glossary-grid" id="glossary-grid-container">
-          <!-- Dynamically populated -->
-        </div>
-      </div>
 
-      <!-- SUBTAB 4: ASK BETTER QUESTIONS -->
-      <div id="subtab-questions" class="subtab-panel" style="display: none;">
-        <div style="margin-bottom: 1.25rem;">
-          <h3 style="font-size: 1.25rem; color: var(--primary-900); margin-bottom: 0.25rem;">Doctor Discussion Prompts</h3>
-          <p style="font-size: 0.9rem; color: var(--text-secondary);">Take the hesitation out of clinic visits. Add any of these pre-worded questions directly to your printable Doctor Summary.</p>
-        </div>
-        <div class="doctor-questions-grid" id="doctor-questions-container">
-          <!-- Dynamically populated -->
-        </div>
-      </div>
-    </section>
-
-
-    <!-- ========================================== -->
-    <!-- VIEW 2: MODULE 2 - SYMPTOM DIARY           -->
-    <!-- ========================================== -->
-    <section id="view-diary" class="view-section">
-      <div class="section-intro">
-        <div class="intro-text">
-          <h2>Symptom Diary</h2>
-          <p>Log daily signs, severity, and life impact. Arogini uses these notes to find cycle patterns and generate your doctor summary.</p>
-        </div>
-        <span class="badge-tag badge-sage">Stored 100% on Your Device</span>
-      </div>
-
-      <div class="symptom-tracker-layout">
-        <!-- Log Entry Form Card -->
-        <div class="diary-form-card">
-          <h3>Log Today's Symptom</h3>
-          <p class="subtitle">Quick 30-second daily check-in</p>
-
-          <form id="symptom-form">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="diary-date">Date</label>
-                <input type="date" id="diary-date" class="form-control" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="diary-time">Time of Day</label>
-                <select id="diary-time" class="form-control">
-                  <option value="Morning">Morning (6 AM - 12 PM)</option>
-                  <option value="Afternoon">Afternoon (12 PM - 5 PM)</option>
-                  <option value="Evening">Evening (5 PM - 9 PM)</option>
-                  <option value="Night">Night (9 PM - 6 AM)</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="diary-symptom">Symptom</label>
-                <select id="diary-symptom" class="form-control" required>
-                  <option value="Pelvic Cramps">Pelvic Cramps / Dysmenorrhea</option>
-                  <option value="Heavy Bleeding">Heavy Menstrual Bleeding</option>
-                  <option value="Mittelschmerz / Ovulation Pain">Ovulation Pain (Mittelschmerz)</option>
-                  <option value="Spotting">Spotting / Irregular Bleeding</option>
-                  <option value="Headache & Fatigue">Headache & Fatigue</option>
-                  <option value="Mood Irritability">Mood Swings / Irritability</option>
-                  <option value="Bloating & Digestion">Abdominal Bloating</option>
-                  <option value="Breast Tenderness">Breast Tenderness</option>
-                  <option value="Lower Back Pain">Lower Back Ache</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="diary-cycle-day">Cycle Day (Optional)</label>
-                <input type="number" id="diary-cycle-day" class="form-control" min="1" max="60" value="1" placeholder="e.g. Day 1, 14, 26" />
-              </div>
-            </div>
-
-            <!-- Severity 1 to 5 Picker -->
-            <div class="form-group">
-              <label class="form-label">Severity Level (1 to 5)</label>
-              <div class="severity-picker">
-                <div class="severity-option" data-val="1">
-                  <span class="score">1</span>
-                  <span class="label">Mild</span>
-                </div>
-                <div class="severity-option" data-val="2">
-                  <span class="score">2</span>
-                  <span class="label">Moderate</span>
-                </div>
-                <div class="severity-option active" data-val="3">
-                  <span class="score">3</span>
-                  <span class="label">Disruptive</span>
-                </div>
-                <div class="severity-option" data-val="4">
-                  <span class="score">4</span>
-                  <span class="label">Severe</span>
-                </div>
-                <div class="severity-option" data-val="5">
-                  <span class="score">5</span>
-                  <span class="label">Debilitating</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Duration -->
-            <div class="form-group">
-              <label class="form-label" for="diary-duration">Duration of Episode</label>
-              <select id="diary-duration" class="form-control">
-                <option value="1-2 hours">Brief (1–2 hours)</option>
-                <option value="Half day">Half Day (several hours)</option>
-                <option value="All day" selected>Continuous / All Day</option>
+          <div class="anatomy-chat-controls" style="margin-top: 1rem;">
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+              <label class="form-label" style="font-size: 0.85rem; font-weight: 600;">Select Organ:</label>
+              <select class="form-control anatomy-organ-select" style="max-width: 280px;">
+                <option value="ovaries" selected>Ovaries</option>
+                <option value="fallopian tubes">Fallopian tubes</option>
+                <option value="uterus">Uterus</option>
+                <option value="cervix">Cervix</option>
+                <option value="vagina">Vagina</option>
+                <option value="vulva">Vulva</option>
+                <option value="breasts">Breasts</option>
+                <option value="placenta">Placenta</option>
               </select>
             </div>
 
-            <!-- Impact Flags -->
-            <div class="form-group">
-              <label class="form-label">What did this affect today?</label>
-              <div class="impact-pills">
-                <label class="impact-check-pill">
-                  <input type="checkbox" value="work" />
-                  <span>💼 Work / School</span>
-                </label>
-                <label class="impact-check-pill">
-                  <input type="checkbox" value="sleep" />
-                  <span>😴 Sleep</span>
-                </label>
-                <label class="impact-check-pill">
-                  <input type="checkbox" value="chores" />
-                  <span>🏠 Daily Chores</span>
-                </label>
-                <label class="impact-check-pill">
-                  <input type="checkbox" value="exercise" />
-                  <span>🏃 Movement / Exercise</span>
-                </label>
-                <label class="impact-check-pill">
-                  <input type="checkbox" value="mood" />
-                  <span>🌧️ Emotional Wellbeing</span>
-                </label>
+            <div class="anatomy-chat-messages" style="background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1rem; min-height: 90px; max-height: 240px; overflow-y: auto; margin-bottom: 0.75rem;">
+              <div class="anatomy-chat-welcome" style="color: var(--text-muted); font-size: 0.85rem;">
+                Select an organ and ask a question. Questions are handled in memory and never stored locally.
               </div>
             </div>
 
-            <!-- Notes -->
-            <div class="form-group">
-              <label class="form-label" for="diary-notes">Personal Observation Notes</label>
-              <textarea id="diary-notes" class="form-control" rows="2" placeholder="e.g. Took warm bath; felt worse after long car commute..."></textarea>
-            </div>
-
-            <button type="submit" class="btn-primary">
-              <span>💾</span> Save Diary Entry
-            </button>
-          </form>
+            <form class="anatomy-chat-form" onsubmit="handleAnatomyChatSubmit(event, this)">
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" class="form-control anatomy-chat-input" placeholder="e.g. How do follicles mature and release an egg during ovulation?" required />
+                <button type="submit" class="btn-primary" style="width: auto; padding: 0.65rem 1.25rem; white-space: nowrap;">
+                  <span>💬</span> Ask
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
 
-        <!-- History List Card -->
-        <div class="diary-history-card">
-          <div class="history-header">
-            <h3>Recent Log History</h3>
-            <span class="badge-tag badge-pink" id="diary-entries-count">0 entries</span>
+        <!-- Explainer Videos (Gynaecology: Ovary & Cycle) -->
+        <div style="margin-top: 2rem;">
+          <div style="margin-bottom: 1rem;">
+            <h4 style="font-size: 1.15rem; color: var(--primary-900); margin-bottom: 0.25rem;">🎬 Ovary & Cycle Explainer Videos</h4>
+            <p style="font-size: 0.875rem; color: var(--text-secondary);">60- to 90-second clinician-reviewed video walkthroughs on follicular development, ovulation triggers, and cycle rhythms.</p>
           </div>
-          <div class="entries-list" id="diary-entries-container">
-            <!-- Dynamically populated -->
-          </div>
+          <div class="video-grid" id="gyn-videos-grid-container"></div>
         </div>
       </div>
     </section>
 
 
-    <!-- ========================================== -->
-    <!-- VIEW 3: MODULE 2 - PATTERN VIEW            -->
-    <!-- ========================================== -->
-    <section id="view-patterns" class="view-section">
-      <div class="section-intro">
-        <div class="intro-text">
-          <h2>Pattern Recognition View</h2>
-          <p>Rule-based detection highlights when symptoms repeat across your monthly cycles. No machine learning needed—just clear, honest data.</p>
-        </div>
-        <span class="badge-tag badge-amber">Rule-Based Clinical Logic</span>
-      </div>
+    <!-- Hidden standalone sections kept for backward compatibility -->
+    <section id="view-diary" class="view-section" style="display: none !important;" aria-hidden="true"></section>
+    <section id="view-patterns" class="view-section" style="display: none !important;" aria-hidden="true"></section>
 
-      <div class="patterns-container">
-        <!-- Pattern Cards -->
-        <div class="pattern-alert-cards" id="pattern-alerts-container">
-          <!-- Dynamically populated -->
-        </div>
-
-        <!-- 28-Day Cycle Timeline Heatmap -->
-        <div class="cycle-timeline-card">
-          <div class="cycle-timeline-header">
-            <div>
-              <h3>28-Day Cycle Symptom Distribution</h3>
-              <p style="font-size: 0.85rem; color: var(--text-muted);">See which days of your cycle have the highest concentration of symptoms.</p>
-            </div>
-            <button class="btn-pill" onclick="switchView('view-diary')">+ Log Another Day</button>
-          </div>
-
-          <div class="cycle-days-grid" id="cycle-days-heatmap">
-            <!-- Dynamically populated 28 cells -->
-          </div>
-
-          <div class="timeline-legend">
-            <div class="legend-item">
-              <div class="legend-color" style="background: #FDF2F5; border: 1px solid #F9CAD8;"></div>
-              <span>Menstrual Phase (Days 1–5)</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background: #FFF;"></div>
-              <span>Follicular Phase (Days 6–12)</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background: #EFFBF7; border: 1px solid #BBEBDC;"></div>
-              <span>Ovulatory Window (Days 13–16)</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background: #F8F6FF; border: 1px solid #E0DAFC;"></div>
-              <span>Luteal Phase (Days 17–28)</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background: #AC2C6A;"></div>
-              <span>Symptom Recorded</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- ========================================== -->
-    <!-- VIEW 4: MODULE 2 - DOCTOR VISIT SUMMARY    -->
-    <!-- ========================================== -->
+    <!-- ============================================================== -->
+    <!-- DOMAIN C: SYMPTOMS TRACKER & SUMMARY (COMBINED)               -->
+    <!-- ============================================================== -->
     <section id="view-summary" class="view-section">
-      <div class="summary-container">
-        <div class="summary-actions-toolbar">
-          <div>
-            <h2 style="font-size: 1.6rem; color: var(--primary-900);">Doctor Visit Summary</h2>
-            <p style="font-size: 0.875rem; color: var(--text-secondary);">One-page clinically phrased summary ready for your doctor's appointment.</p>
-          </div>
-          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;">
-            <button class="btn-primary" id="btn-download-pdf" style="width: auto; background: linear-gradient(135deg, #059669, #0D9488); border: none;">
-              <span>📥</span> Download PDF
-            </button>
-            <button class="btn-secondary" id="btn-print-summary" style="width: auto;">
-              <span>🖨️</span> Print
-            </button>
-          </div>
-        </div>
-
-        <!-- Printable Document Wrapper (Target for PDF Generation and Print) -->
-        <div id="printable-summary-document" class="printable-summary-document">
-          <!-- The Printable Clinical Report Sheet -->
-          <article class="summary-paper" id="doctor-summary-paper-content">
-            <!-- Dynamically populated by app.js -->
-          </article>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- ========================================== -->
-    <!-- VIEW 6: VACCINES & IMMUNISATION            -->
-    <!-- ========================================== -->
-    <section id="view-vaccines" class="view-section">
       <div class="section-intro">
         <div class="intro-text">
-          <h2>Vaccines & Immunisation Records</h2>
-          <p>Vaccines protect reproductive health best when given at the right stage. Confirm timing with your doctor and national immunisation schedules.</p>
+          <h2>Symptoms Tracker & Doctor Summary</h2>
+          <p>Log daily episodes, track 28-day cycle patterns, and generate exportable clinical summaries for your doctor visits.</p>
         </div>
-        <span class="badge-tag badge-indigo">Section 11 Guidance</span>
+        <span class="badge-tag badge-sage">Client-Side Privacy</span>
       </div>
 
-      <div class="vaccines-layout">
-        <!-- Schedule Timeline Card -->
-        <div class="vaccine-timeline-card">
-          <h3>National Reproductive Immunisation Guide</h3>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Evidence-based timing for key stages in a woman's life:</p>
-          <div class="vaccine-stages" id="vaccine-schedule-timeline">
-            <!-- Dynamically populated -->
-          </div>
-        </div>
+      <!-- Three Simple Tabs at the Top: Log, Patterns, Summary -->
+      <div class="sub-tabs" id="summary-subtabs" style="margin-bottom: 1.5rem;">
+        <button class="sub-tab-btn active" data-subtab="summary-log">
+          <span>📝</span> Log
+        </button>
+        <button class="sub-tab-btn" data-subtab="summary-patterns">
+          <span>📊</span> Patterns
+        </button>
+        <button class="sub-tab-btn" data-subtab="summary-report">
+          <span>📋</span> Summary
+        </button>
+      </div>
 
-        <!-- Personal Vaccine Logger Card -->
-        <div>
-          <div class="card" style="margin-bottom: 1.5rem;">
-            <h3 style="font-size: 1.25rem; color: var(--primary-900); margin-bottom: 0.25rem;">Log Received Vaccine</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Keep your immunization history organised</p>
+      <!-- TAB 1: LOG (SYMPTOM DIARY) -->
+      <div id="subtab-summary-log" class="subtab-panel">
+        <div class="symptom-tracker-layout">
+          <!-- Log Entry Form Card -->
+          <div class="diary-form-card">
+            <h3>Log Today's Symptom</h3>
+            <p class="subtitle">Quick 30-second daily check-in</p>
 
-            <form id="vaccine-form">
-              <div class="form-group">
-                <label class="form-label" for="vac-name">Vaccine</label>
-                <select id="vac-name" class="form-control" required>
-                  <option value="HPV Vaccine (Gardasil 9)">HPV Vaccine (Cervical Cancer Prevention)</option>
-                  <option value="MMR (Measles, Mumps, Rubella)">MMR (Pre-Pregnancy)</option>
-                  <option value="Chickenpox (Varicella)">Chickenpox (Pre-Pregnancy)</option>
-                  <option value="Tdap (Tetanus, Pertussis)">Tdap (Pregnancy 27–36 Weeks)</option>
-                  <option value="Influenza (Annual Flu)">Influenza (Flu Season)</option>
-                  <option value="Hepatitis B">Hepatitis B</option>
-                </select>
+            <form id="symptom-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="diary-date">Date</label>
+                  <input type="date" id="diary-date" class="form-control" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="diary-time">Time of Day</label>
+                  <select id="diary-time" class="form-control">
+                    <option value="Morning">Morning (6 AM - 12 PM)</option>
+                    <option value="Afternoon">Afternoon (12 PM - 5 PM)</option>
+                    <option value="Evening">Evening (5 PM - 9 PM)</option>
+                    <option value="Night">Night (9 PM - 6 AM)</option>
+                  </select>
+                </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label" for="vac-dose">Dose Number</label>
-                  <select id="vac-dose" class="form-control">
-                    <option value="Dose 1 of 2">Dose 1 of 2</option>
-                    <option value="Dose 2 of 2">Dose 2 of 2</option>
-                    <option value="Single Dose">Single Dose</option>
-                    <option value="Booster Dose">Booster Dose</option>
+                  <label class="form-label" for="diary-symptom">Symptom</label>
+                  <select id="diary-symptom" class="form-control" required>
+                    <option value="Pelvic Cramps">Pelvic Cramps / Dysmenorrhea</option>
+                    <option value="Heavy Bleeding">Heavy Menstrual Bleeding</option>
+                    <option value="Mittelschmerz / Ovulation Pain">Ovulation Pain (Mittelschmerz)</option>
+                    <option value="Spotting">Spotting / Irregular Bleeding</option>
+                    <option value="Headache & Fatigue">Headache & Fatigue</option>
+                    <option value="Mood Irritability">Mood Swings / Irritability</option>
+                    <option value="Bloating & Digestion">Abdominal Bloating</option>
+                    <option value="Breast Tenderness">Breast Tenderness</option>
+                    <option value="Lower Back Pain">Lower Back Ache</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="vac-date">Date Administered</label>
-                  <input type="date" id="vac-date" class="form-control" />
+                  <label class="form-label" for="diary-cycle-day">Cycle Day (Optional)</label>
+                  <input type="number" id="diary-cycle-day" class="form-control" min="1" max="60" value="1" placeholder="e.g. Day 1, 14, 26" />
                 </div>
               </div>
 
+              <!-- Severity 1 to 5 Picker -->
               <div class="form-group">
-                <label class="form-label" for="vac-due">Next Due Date (If any)</label>
-                <input type="date" id="vac-due" class="form-control" />
+                <label class="form-label">Severity Level (1 to 5)</label>
+                <div class="severity-picker">
+                  <div class="severity-option" data-val="1">
+                    <span class="score">1</span>
+                    <span class="label">Mild</span>
+                  </div>
+                  <div class="severity-option" data-val="2">
+                    <span class="score">2</span>
+                    <span class="label">Moderate</span>
+                  </div>
+                  <div class="severity-option active" data-val="3">
+                    <span class="score">3</span>
+                    <span class="label">Disruptive</span>
+                  </div>
+                  <div class="severity-option" data-val="4">
+                    <span class="score">4</span>
+                    <span class="label">Severe</span>
+                  </div>
+                  <div class="severity-option" data-val="5">
+                    <span class="score">5</span>
+                    <span class="label">Debilitating</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Duration -->
+              <div class="form-group">
+                <label class="form-label" for="diary-duration">Duration of Episode</label>
+                <select id="diary-duration" class="form-control">
+                  <option value="1-2 hours">Brief (1–2 hours)</option>
+                  <option value="Half day">Half Day (several hours)</option>
+                  <option value="All day" selected>Continuous / All Day</option>
+                </select>
+              </div>
+
+              <!-- Impact Flags -->
+              <div class="form-group">
+                <label class="form-label">What did this affect today?</label>
+                <div class="impact-pills">
+                  <label class="impact-check-pill">
+                    <input type="checkbox" value="work" />
+                    <span>💼 Work / School</span>
+                  </label>
+                  <label class="impact-check-pill">
+                    <input type="checkbox" value="sleep" />
+                    <span>😴 Sleep</span>
+                  </label>
+                  <label class="impact-check-pill">
+                    <input type="checkbox" value="chores" />
+                    <span>🏠 Daily Chores</span>
+                  </label>
+                  <label class="impact-check-pill">
+                    <input type="checkbox" value="exercise" />
+                    <span>🏃 Movement / Exercise</span>
+                  </label>
+                  <label class="impact-check-pill">
+                    <input type="checkbox" value="mood" />
+                    <span>🌧️ Emotional Wellbeing</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div class="form-group">
+                <label class="form-label" for="diary-notes">Personal Observation Notes</label>
+                <textarea id="diary-notes" class="form-control" rows="2" placeholder="e.g. Took warm bath; felt worse after long car commute..."></textarea>
               </div>
 
               <button type="submit" class="btn-primary">
-                <span>💉</span> Save Vaccine Record
+                <span>💾</span> Save Diary Entry
               </button>
             </form>
           </div>
 
-          <div class="card">
-            <h3 style="font-size: 1.15rem; color: var(--primary-900); margin-bottom: 1rem;">My Immunisation Log</h3>
-            <div id="vaccine-log-container">
+          <!-- History List Card -->
+          <div class="diary-history-card">
+            <div class="history-header">
+              <h3>Recent Log History</h3>
+              <span class="badge-tag badge-pink" id="diary-entries-count">0 entries</span>
+            </div>
+            <div class="entries-list" id="diary-entries-container">
               <!-- Dynamically populated -->
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: PATTERNS -->
+      <div id="subtab-summary-patterns" class="subtab-panel" style="display: none;">
+        <div class="patterns-container">
+          <!-- Pattern Cards -->
+          <div class="pattern-alert-cards" id="pattern-alerts-container">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- 28-Day Cycle Timeline Heatmap -->
+          <div class="cycle-timeline-card">
+            <div class="cycle-timeline-header">
+              <div>
+                <h3>28-Day Cycle Symptom Distribution</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">See which days of your cycle have the highest concentration of symptoms.</p>
+              </div>
+              <button class="btn-pill" onclick="activateSummarySubtab('summary-log')">+ Log Another Day</button>
+            </div>
+
+            <div class="cycle-days-grid" id="cycle-days-heatmap">
+              <!-- Dynamically populated 28 cells -->
+            </div>
+
+            <div class="timeline-legend">
+              <div class="legend-item">
+                <div class="legend-color" style="background: #FDF2F5; border: 1px solid #F9CAD8;"></div>
+                <span>Menstrual Phase (Days 1–5)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #FFF;"></div>
+                <span>Follicular Phase (Days 6–12)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #EFFBF7; border: 1px solid #BBEBDC;"></div>
+                <span>Ovulatory Window (Days 13–16)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #F8F6FF; border: 1px solid #E0DAFC;"></div>
+                <span>Luteal Phase (Days 17–28)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #AC2C6A;"></div>
+                <span>Symptom Recorded</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: SUMMARY (DOCTOR VISIT SUMMARY) -->
+      <div id="subtab-summary-report" class="subtab-panel" style="display: none;">
+        <div class="summary-container">
+          <div class="summary-actions-toolbar">
+            <div>
+              <h2 style="font-size: 1.6rem; color: var(--primary-900);">Doctor Visit Summary</h2>
+              <p style="font-size: 0.875rem; color: var(--text-secondary);">One-page clinically phrased summary ready for your doctor's appointment.</p>
+            </div>
+            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;">
+              <button class="btn-primary" id="btn-download-pdf" style="width: auto; background: linear-gradient(135deg, #059669, #0D9488); border: none;">
+                <span>📥</span> Download PDF
+              </button>
+              <button class="btn-secondary" id="btn-print-summary" style="width: auto;">
+                <span>🖨️</span> Print
+              </button>
+            </div>
+          </div>
+
+          <!-- Printable Document Wrapper (Target for PDF Generation and Print) -->
+          <div id="printable-summary-document" class="printable-summary-document">
+            <!-- The Printable Clinical Report Sheet -->
+            <article class="summary-paper" id="doctor-summary-paper-content">
+              <!-- Dynamically populated by app.js -->
+            </article>
           </div>
         </div>
       </div>
@@ -1123,7 +1227,7 @@
     <div class="modal-dialog">
       <button class="modal-close-btn" aria-label="Close modal">✕</button>
       <h3 style="font-size: 1.45rem; color: var(--primary-900); margin-bottom: 0.4rem;">Privacy by Default</h3>
-      <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Arogini stores all symptom and cycle data strictly in your browser's private local storage. No trackers, no advertising, and no server sync.</p>
+      <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Arogini stores all symptom and cycle data strictly in your browser's private local storage. No trackers, no advertising, and no server sync. Anatomy questions are sent to an AI service and not stored by Arogini.</p>
 
       <!-- Optional PIN Lock -->
       <div style="background: var(--bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
@@ -1238,7 +1342,7 @@
         <strong>Arogini</strong> • Women's Reproductive Healthcare &amp; Wellness Platform
       </div>
       <div>
-        Strictly informative & supportive • Does not replace a registered medical practitioner • 100% Client-Side Privacy
+        Strictly informative & supportive • Does not replace a registered medical practitioner • Client-Side Privacy
       </div>
     </div>
   </footer>
